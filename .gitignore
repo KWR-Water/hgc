@@ -105,3 +105,4 @@ venv.bak/
 
 # VS Code stuff
 hgc.code-workspace
+.vscode

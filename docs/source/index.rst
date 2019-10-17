@@ -8,10 +8,10 @@ Introduction
 HydroGeoChemistry - A python package for correction, validation and analysis of ground water quality samples
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-
+    :maxdepth: 2
+    :glob:
+    
+    usage/getting-started.rst
 
 Indices and tables
 ==================

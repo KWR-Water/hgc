@@ -6,14 +6,14 @@ import pandas as pd
 @pd.api.extensions.register_dataframe_accessor("hgc")
 class SamplesFrame:
     def __init__(self, pandas_obj):
-        self._validate(pandas_obj)
+        # self._validate(pandas_obj)
         self._obj = pandas_obj
 
     @staticmethod
     def _validate(obj):
         ''' run some tests to validate the object obj. obj is a
             pandas dataframe. E.g. check column names with obj.columns'''
-        pass
+        raise NotImplementedError('There is not method implemented for validation yet')
 
 
     def convert_to_standard_units(self):

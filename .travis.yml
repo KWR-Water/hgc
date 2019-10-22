@@ -13,6 +13,7 @@ before_install:
     - python --version
     - pip install --upgrade pip
     - pip install -U pytest
+    - pip install pytest-cov
     - pip install codecov
 
 install:

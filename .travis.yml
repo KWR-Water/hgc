@@ -20,7 +20,7 @@ install:
     - pip install ".[test]"
 
 script:
-   - pytest tests/ --cov=hgc
+   - pytest tests/ --cov=hgc tests/
 
 after_success:
    - codecov

@@ -7,3 +7,11 @@ HydroGeoChemistry - A python package for correction, validation and analysis of 
                     :target: https://travis-ci.com/KWR-Water/hgc
 .. image:: https://img.shields.io/codecov/c/gh/KWR-Water/hgc
                     :target: https://codecov.io/gh/KWR-Water/hgc 
+
+
+
+Installation
+------------
+To get the latest stable version, use::
+
+  pip install hgc

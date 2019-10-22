@@ -1,21 +1,20 @@
 
-def test_something(a, b, c):
+def test_something(a, b, c=8):
+    """Test if something works, especially the documentation
+
+    Extra explanation here. Blabla.
+
+    Args:
+        a (str): handy param
+        b (int or float): another handy param
+        c (int, optional): approximate answer to this advanced calculation.
+
+    Returns:
+        float: description of the returned value
+
+    Notes:
+        .. _Examples of the Google Docsyle:
+        https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google
     """
-    Test if something works, especially the documentation
 
-    Parameters
-    ----------
-    a: str
-    b: int
-
-    Returns
-    -------
-    c: int
-        Approximate answer to this advanced calculation.
-
-    Notes
-    -----
-    Bladie bladie
-    """
-
-    return int(a) + int(b)
+    return int(a) + int(b) + c

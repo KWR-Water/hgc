@@ -22,6 +22,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Topic :: Scientific/Engineering :: Hydrology',
     ],
+    python_requires='>=3.6',
     project_urls={
     'Source': 'https://github.com/KWR-Water/hgc',
     'Documentation': 'http://hgc.readthedocs.io/en/latest/',

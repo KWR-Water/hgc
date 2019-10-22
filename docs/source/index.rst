@@ -11,7 +11,13 @@ HydroGeoChemistry - A python package for correction, validation and analysis of 
     :maxdepth: 2
     :glob:
     
-    usage/getting-started.rst
+    getting-started.rst
+    examples.rst
+    faq.rst
+    glossary.rst
+    api/modules.rst
+
+
 
 Indices and tables
 ==================

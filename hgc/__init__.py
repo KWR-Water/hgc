@@ -2,3 +2,5 @@
 # all dataframes created afterwards are extended with the
 # hgc namespace
 from hgc.samples_frame import SamplesFrame
+
+name = "hgc"

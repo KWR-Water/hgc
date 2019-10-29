@@ -13,7 +13,7 @@ def test_something(a, b, c=8):
         float: description of the returned value
 
     Notes:
-        .. _Examples of the Google Docsyle:
+        Examples of the Google Docsyle:
         https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google
     """
 

@@ -7,7 +7,7 @@ from datetime import datetime
 import pytest
 
 
-def testHgcNamespaceIsAdded():
+def test_hgc_namespace_is_added():
     ''' Test whether the HGC methods are added to
         dataframes that are created
     '''
@@ -15,3 +15,9 @@ def testHgcNamespaceIsAdded():
         mocked_validate.return_value = True
         df = pd.DataFrame()
         df.hgc
+
+def test_validate_dataframe():
+    """ Df validation """
+
+    df = pd.read_excel('./examples/data/dataset_basic.xlsx')
+    #df.validate()

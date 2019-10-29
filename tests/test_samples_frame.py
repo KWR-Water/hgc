@@ -1,5 +1,6 @@
 import hgc
 from hgc.samples_frame import SamplesFrame
+from hgc.constants import constants
 import pandas as pd
 import numpy as np
 from unittest import TestCase, mock
@@ -15,3 +16,6 @@ def testHgcNamespaceIsAdded():
         mocked_validate.return_value = True
         df = pd.DataFrame()
         df.hgc
+
+def testMolarWeight():
+    c = constants

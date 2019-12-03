@@ -1,0 +1,9 @@
+feature,name,example,unit
+ECfield,EC in field,read, m/Sm
+EClab,EC in lab,read, m/Sm
+pHfield,pH in field,read,-
+pHlab,pH in lab,read,-
+Tfield,T in field,read, C
+eHfield,eH in field,read,mV
+Turb,Turbidity,read,FTU
+UVA254,UV adsorption at 254 nm,read,E/m

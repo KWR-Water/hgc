@@ -35,7 +35,7 @@ class SamplesFrame(object):
     def _validate(obj):
         ''' run some tests to validate the object obj. obj is a
             pandas dataframe. E.g. check column names with obj.columns'''
-        raise NotImplementedError('There is not method implemented for validation yet')
+        # raise NotImplementedError('There is not method implemented for validation yet')
 
 
     def convert_to_standard_units(self):

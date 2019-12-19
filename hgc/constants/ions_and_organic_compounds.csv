@@ -1,4 +1,4 @@
-feature,name,example,unit,valence,molar weight
+feature,name,example,unit,valence,molar_weight
 CH4,CH4,read, mg/L,0,calculate
 H2S,H2S,read, mg/L,0,calculate
 CO2,CO2,read, mg/L,0,calculate

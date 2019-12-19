@@ -1,4 +1,4 @@
-feature,name,unit,molar weight,predominant oxidized state,predominant reduced state,SMOW
+feature,name,unit,molar_weight,predominant_oxidized_state,predominant_reduced_state,SMOW
 H,Hydrogen, mg/L,1.00794,1,0,0
 He,Helium, mg/L,4.002602,0,None,0
 Li,Lithium, mg/L,6.941,1,None,170

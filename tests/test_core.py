@@ -2,6 +2,8 @@
 
 from hgc.constants import read_write
 import pandas as pd
+from unittest import mock
+import cloudpickle as pickle
 
 def test_hgc_namespaceadded():
     ''' Test whether the HGC methods are added to
@@ -35,10 +37,10 @@ def test_load_pickle():
     assert ions['oPO4'].mw == 'calculate'
     assert ions['DOC'].mw == 'unknown'
 
-    assert properties['EClab'].feature = 'EClab'
-    assert properties['EClab'].name = 'EC in lab'
-    assert properties['EClab'].example = 'read'
-    assert properties['EClab'].unit = 'm/Sm'
+    assert properties['EClab'].feature == 'EClab'
+    assert properties['EClab'].name == 'EC in lab'
+    assert properties['EClab'].example == 'read'
+    assert properties['EClab'].unit == 'm/Sm'
 
 def test_load_pickle_without_pickle():
     ''' test to load pickle when pickle is not found '''

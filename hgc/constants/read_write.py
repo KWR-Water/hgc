@@ -89,16 +89,18 @@ def convert_csv_to_tuples():
     ions = pd.read_csv(PATH / 'ions_and_organic_compounds.csv', na_values=[None, 'None'])
     properties = pd.read_csv(PATH / 'other_than_concentrations.csv', na_values=[None, 'None'])
 
+    # convert nan to None
     atoms = atoms.where((pd.notnull(atoms)), None)
     ions = ions.where((pd.notnull(ions)), None)
     properties = properties.where((pd.notnull(properties)), None)
 
-    rename_columns = {'molar weight': 'mw', 'predominant oxidized state': 'oxidized', 'predominant reduced state': 'reduced'}
+    rename_columns = {'molar_weight': 'mw', 'predominant_oxidized_state': 'oxidized', 'predominant_reduced_state': 'reduced'}
 
     atoms = atoms.rename(columns=rename_columns)
     ions = ions.rename(columns=rename_columns)
     properties = properties.rename(columns=rename_columns)
 
+    # remove leading and trailing white spaces
     atoms.loc[:, ['feature', 'name', 'unit']] = atoms.loc[:, ['feature', 'name', 'unit']].applymap(lambda x: x.strip())
     ions.loc[:, ['feature', 'name', 'unit']] = ions.loc[:, ['feature', 'name', 'unit']].applymap(lambda x: x.strip())
     properties.loc[:, ['feature', 'name', 'unit', 'example']] = properties.loc[:, ['feature', 'name', 'unit', 'example']].applymap(lambda x: x.strip())

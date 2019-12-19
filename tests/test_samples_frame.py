@@ -41,5 +41,6 @@ def test_consolidate():
 
 
 def testMolarWeight():
+    raise NotImplementedError
     c = constants
 

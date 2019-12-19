@@ -5,12 +5,6 @@ import pandas as pd
 from unittest import mock
 import cloudpickle as pickle
 
-def test_hgc_namespaceadded():
-    ''' Test whether the HGC methods are added to
-        dataframes that are created
-    '''
-    df = pd.DataFrame(dict(a=[1,2], b=[3,4]))
-    df.hgc.convert_to_standard_units()
 
 def test_creating_constants_pickle():
     ''' test the function that creates constants.py

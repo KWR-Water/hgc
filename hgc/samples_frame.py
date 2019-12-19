@@ -3,8 +3,11 @@
     # https://github.com/ContinuumIO/cyberpandas/blob/master/cyberpandas/ip_array.py
     # https://pandas.pydata.org/pandas-docs/stable/development/extending.html
 '''
+import logging
 
+import numpy as np
 import pandas as pd
+
 
 @pd.api.extensions.register_dataframe_accessor("hgc")
 class SamplesFrame(object):

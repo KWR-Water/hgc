@@ -40,7 +40,8 @@ def test_consolidate():
     df.hgc.consolidate(use_so4=None, use_o2=None)
 
 
-def testMolarWeight():
+@pytest.mark.skip(reason="work in progress")
+def test_molar_weight():
     raise NotImplementedError
     c = constants
 

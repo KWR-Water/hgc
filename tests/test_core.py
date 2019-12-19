@@ -4,6 +4,7 @@ from hgc.constants import read_write
 import pandas as pd
 from unittest import mock
 import cloudpickle as pickle
+import pytest
 
 
 def test_creating_constants_pickle():
@@ -36,6 +37,7 @@ def test_load_pickle():
     assert properties['EClab'].example == 'read'
     assert properties['EClab'].unit == 'm/Sm'
 
+@pytest.mark.skip(reason="work in progress")
 def test_load_pickle_without_pickle():
     ''' test to load pickle when pickle is not found '''
     # todo: mock load_pickle with invalid file (pytest mock of unittest.mock)

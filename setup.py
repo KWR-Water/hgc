@@ -32,7 +32,8 @@ setup(
     install_requires=[
         'pandas>=0.23',
         'openpyxl>=3.0.0',
-        'cloudpickle==1.2.2'
+        'cloudpickle==1.2.2',
+        'xlrd>=1.0.0'
         ],
     url='https://github.com/KWR-Water/hgc',
     author='KWR Water Research Institute',

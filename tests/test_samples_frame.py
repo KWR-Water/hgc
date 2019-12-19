@@ -10,16 +10,6 @@ from datetime import datetime
 import pytest
 
 
-def test_hgc_namespace_is_added():
-    ''' Test whether the HGC methods are added to
-        dataframes that are created
-    '''
-    with mock.patch.object(SamplesFrame, "_validate") as mocked_validate:
-        mocked_validate.return_value = True
-        df = pd.DataFrame()
-        df.hgc
-
-
 def test_init_samples_frame():
     #caplog.set_level(logging.INFO)
     #logging.basicConfig(stream=sys.stdout, format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -50,4 +40,4 @@ def test_get_ratios():
 
 def test_consolidate():
     df = pd.read_excel('./examples/data/dataset_basic.xlsx', skiprows=[1])
-    df.consolidate()
+    df.hgc.consolidate(use_so4=None, use_o2=None)

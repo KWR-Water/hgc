@@ -151,6 +151,10 @@ class SamplesFrame(object):
         }
         
         for param, method in param_mapping.items():
+            if not method:
+                # user did not specify source, ignore
+                continue
+
             if not isinstance(method, str):
                 ValueError(f"Invalid method {method} for parameter {param}. Arg should be a string.")
 

@@ -1,6 +1,4 @@
 
-def parse_excel_to_parameters(file=):
-
 def test_something(a, b, c=8):
     """Test if something works, especially the documentation
 

@@ -1,3 +1,4 @@
 pandas>=0.23
 sphinx_rtd_theme
 openpyxl>=3.0.0
+cloudpickle==1.2.2

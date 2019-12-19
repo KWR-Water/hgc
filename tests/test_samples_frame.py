@@ -1,5 +1,6 @@
 import hgc
 from hgc.samples_frame import SamplesFrame
+from hgc.constants import constants
 import pandas as pd
 import numpy as np
 from unittest import TestCase, mock
@@ -21,3 +22,6 @@ def test_validate_dataframe():
 
     df = pd.read_excel('./examples/data/dataset_basic.xlsx')
     #df.validate()
+
+def testMolarWeight():
+    c = constants

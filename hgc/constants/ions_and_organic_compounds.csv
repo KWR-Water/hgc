@@ -1,0 +1,21 @@
+feature,name,example,unit,valence,molar_weight
+CH4,CH4,read, mg/L,0,calculate
+H2S,H2S,read, mg/L,0,calculate
+CO2,CO2,read, mg/L,0,calculate
+O2field,O2field,read, mg/L,0,calculate
+O2lab,O2lab,read, mg/L,0,calculate
+CO3,CO3,read, mg/L,-2,calculate
+HCO3,HCO3,read, mg/L,-1,calculate
+NH4,NH4,read, mg/L,1,calculate
+NO2,NO2,read, mg/L,-1,calculate
+NO3,NO3,read, mg/L,-1,calculate
+TKN,TKN,read, mg/L,0,calculate
+totN,totN,read/ function, mg/L,0,calculate
+PO4,PO4,read, mg/L,-1,calculate
+oPO4,oPO4,read, mg/L,-1,calculate
+totP,totP,read/ function, mg/L,0,calculate
+SiO2,SiO2,read, mg/L,0,calculate
+SO4ic,SO4ic,read, mg/L,-2,calculate
+DOC,DOC,read, mg/L,None,unknown
+TOC,TOC,read, mg/L,None,unknown
+COD,COD,read, mg/L,None,unknown

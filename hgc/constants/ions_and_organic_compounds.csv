@@ -2,8 +2,8 @@ feature,name,example,unit,valence,molar_weight
 CH4,CH4,read, mg/L,0,calculate
 H2S,H2S,read, mg/L,0,calculate
 CO2,CO2,read, mg/L,0,calculate
-O2field,O2field,read, mg/L,0,calculate
-O2lab,O2lab,read, mg/L,0,calculate
+O2_field,O2field,read, mg/L,0,calculate
+O2_lab,O2lab,read, mg/L,0,calculate
 CO3,CO3,read, mg/L,-2,calculate
 HCO3,HCO3,read, mg/L,-1,calculate
 NH4,NH4,read, mg/L,1,calculate

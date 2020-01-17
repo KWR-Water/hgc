@@ -1,9 +1,15 @@
 feature,name,example,unit
-ECfield,EC in field,read, m/Sm
-EClab,EC in lab,read, m/Sm
-pHfield,pH in field,read,-
-pHlab,pH in lab,read,-
-Tfield,T in field,read, C
-eHfield,eH in field,read,mV
+EC_field,EC in field,read, m/Sm
+EC_lab,EC in lab,read, m/Sm
+pH_field,pH in field,read,-
+pH_lab,pH in lab,read,-
+T_field,T in field,read, °C
+T_lab,T in lab,read, °C
+eH_field,eH in field,read,mV
 Turb,Turbidity,read,FTU
 UVA254,UV adsorption at 254 nm,read,E/m
+x,x-coordinate,read,m
+y,y-coordinate,read,m
+z,z-coordinate,read,m
+date,date,read,-
+

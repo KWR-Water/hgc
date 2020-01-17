@@ -7,6 +7,9 @@ import logging
 
 import numpy as np
 import pandas as pd
+from phreeqpython import PhreeqPython
+
+from hgc.constants import constants
 
 
 @pd.api.extensions.register_dataframe_accessor("hgc")
@@ -35,30 +38,36 @@ class SamplesFrame(object):
         self.hgc_cols = ()
         self.is_valid, self.hgc_cols = self._check_validity(pandas_obj)
         self._obj = pandas_obj
+        # bind 1 phreeqpython instance to the dataframe
+        self._pp = PhreeqPython()
+        self.valid_atoms
 
 
     @staticmethod
     def _check_validity(obj):
-        """ 
-        Check if the dataframe is a valid HGC dataframe 
+        """
+        Check if the dataframe is a valid HGC dataframe
 
         Returns:
 
-        
+
         Notes:
             Checks are:
             1. Are there any columns names in the recognized parameter set?
             2. Are there no strings in the recognized columns (except '<' and '>')?
             3. Are there negative concentrations in the recognized columns?
-        
+
         """
         logging.info("Checking validity of DataFrame for HGC...")
-        PARAMS = ('mg',)
+        PARAMS = (list(constants.atoms.keys()) +
+                  list(constants.ions.keys()) +
+                  list(constants.properties.keys()))
+        PARAMS = map(str.lower, PARAMS)
 
         hgc_cols = [item for item in PARAMS if item in obj.columns]
         neg_conc_cols = []
         invalid_str_cols = []
-        
+
         for col in hgc_cols:
             if obj[col].dtype in ('object', 'str'):
                 if not all(obj[col].str.isnumeric()):
@@ -71,11 +80,11 @@ class SamplesFrame(object):
         logging.info(f"DataFrame contains {len(hgc_cols)} HGC-columns")
         if len(hgc_cols) > 0:
             logging.info(f"Recognized HGC columns are: {','.join(hgc_cols)}")
-        
+
         logging.info(f"DataFrame contains {len(neg_conc_cols)} HGC-columns with negative concentrations")
         if len(neg_conc_cols) > 0:
             logging.info(f"Columns with negative concentrations are: {','.join(neg_conc_cols)}")
-        
+
         logging.info(f"DataFrame contains {len(invalid_str_cols)} HGC-columns with invalid values")
         if len(invalid_str_cols) > 0:
             logging.info(f"Columns with invalid strings are: {','.join(invalid_str_cols)}. Only '<' and '>' and numeric values are allowed.")
@@ -84,24 +93,24 @@ class SamplesFrame(object):
             logging.info("DataFrame is valid")
         else:
             logging.info("DataFrame is not HGC valid. Use the 'make_valid' method to automatically resolve issues")
-        
+
         return is_valid, hgc_cols
 
 
     def _replace_detection_lim(self, rule="half"):
-        """ 
+        """
         Substitute detection limits according to one of the available
         rules. Cells that contain for example '<0.3' or '> 0.3' will be replaced
-        with 0.15 and 0.45 respectively (in case of rule "half"). 
+        with 0.15 and 0.45 respectively (in case of rule "half").
 
         Args:
-            rule (str): Can be any of "half" or "at"... Rule "half" replaces cells with detection limit for half of the value. 
+            rule (str): Can be any of "half" or "at"... Rule "half" replaces cells with detection limit for half of the value.
                         Rule "at" replaces detection limit cells with the exact value of the detection limit.
         """
         for col in self.hgc_cols:
             if self._obj[col].dtype in ('object', 'str'):
                 is_below_dl = self._obj[col].str.contains(pat=r'^[<]\s*\d').fillna(False)
-                is_above_dl = self._obj[col].str.contains(pat=r'^[>]\s*\d').fillna(False) 
+                is_above_dl = self._obj[col].str.contains(pat=r'^[>]\s*\d').fillna(False)
 
                 if rule == 'half':
                     self._obj.loc[is_below_dl, col] = self._obj.loc[is_below_dl, col].str.extract(r'(\d+)').astype(np.float64) / 2
@@ -118,12 +127,12 @@ class SamplesFrame(object):
         # Get all columns that represent chemical compounds
         # Replace negatives with 0
         for col in self.hgc_cols:
-            self._obj.loc[self._obj[col] < 0, col] = 0 
+            self._obj.loc[self._obj[col] < 0, col] = 0
 
 
     def _cast_datatypes(self):
-        """ 
-        Convert all HGC-columns to their correct data type. 
+        """
+        Convert all HGC-columns to their correct data type.
         """
         for col in self.hgc_cols:
             if self._obj[col].dtype in ('object', 'str'):
@@ -131,8 +140,8 @@ class SamplesFrame(object):
 
 
     def consolidate(self, use_ph='field', use_ec='lab', use_so4='ic', use_o2='field', merge_on_na=False):
-        """ 
-        Consolidate parameters measured with different methods to one single parameter 
+        """
+        Consolidate parameters measured with different methods to one single parameter
 
         Kwargs:
             use_ph (str): Which pH to use? Can be 'field' or 'lab', default 'field'
@@ -143,14 +152,14 @@ class SamplesFrame(object):
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
-        
+
         param_mapping = {
             'ph': use_ph,
             'ec': use_ec,
             'so4': use_so4,
             'o2': use_o2
         }
-        
+
         for param, method in param_mapping.items():
             if not method:
                 # user did not specify source, ignore
@@ -161,7 +170,7 @@ class SamplesFrame(object):
 
             if param in self._obj.columns:
                 logging.info(f"Parameter {param} already present in DataFrame, ignoring. Remove column manually to enable consolidation.")
-                continue 
+                continue
 
             source = f"{param}_{method}"
             if (source in self._obj.columns):
@@ -170,7 +179,7 @@ class SamplesFrame(object):
 
                 if merge_on_na:
                     raise NotImplementedError
-                
+
                 # Drop source columns
                 suffixes = ('_field', '_lab', '_ic')
                 cols = [param + suffix for suffix in suffixes]
@@ -181,7 +190,7 @@ class SamplesFrame(object):
 
 
     def get_ratios(self):
-        """ 
+        """
         Calculate all common ratios. Return as separate dataframe.
         """
         if not self.is_valid:
@@ -206,7 +215,7 @@ class SamplesFrame(object):
 
         for ratio, constituents in ratios.items():
             has_cols = [const in self._obj.columns for const in constituents]
-            if all(has_cols): 
+            if all(has_cols):
                 if len(constituents) == 2:
                     df_ratios[ratio] = self._obj[constituents[0]] / self._obj[constituents[1]]
                 elif ratio == 'hco3_to_ca_and_mg':
@@ -218,7 +227,7 @@ class SamplesFrame(object):
             else:
                 missing_cols = [i for (i, v) in zip(constituents, has_cols) if not v]
                 logging.info(f"Cannot calculate ratio {ratio} since columns {','.join(missing_cols)} are not present.")
-       
+
         return df_ratios
 
 
@@ -231,7 +240,7 @@ class SamplesFrame(object):
         """
         raise NotImplementedError
 
-    
+
     def fillna_ec(self):
         """
         Calculate missing Electrical Conductivity measurements using
@@ -241,7 +250,7 @@ class SamplesFrame(object):
 
 
     def make_valid(self):
-        """ 
+        """
         Run some tests to validate the object obj (a
         Pandas dataframe).
         """
@@ -251,3 +260,13 @@ class SamplesFrame(object):
         self._cast_datatypes()
         self._replace_negative_concentrations()
         self.is_valid = True
+
+    @property
+    def sic(self, append=False):
+        ''' adds the saturation returns the saturation index of calcite '''
+        pp = self._pp
+        df = self._obj
+
+        df.columns
+
+

@@ -34,13 +34,14 @@ class SamplesFrame(object):
           df.hgc.validate()
     '''
     def __init__(self, pandas_obj):
-        self.is_valid = False
         self.hgc_cols = ()
         self.is_valid, self.hgc_cols = self._check_validity(pandas_obj)
         self._obj = pandas_obj
         # bind 1 phreeqpython instance to the dataframe
         self._pp = PhreeqPython()
-        self.valid_atoms
+        self._valid_atoms = constants.atoms
+        self._valid_ions = constants.ions
+        self._valid_properties = constants.properties
 
 
     @staticmethod
@@ -59,24 +60,33 @@ class SamplesFrame(object):
 
         """
         logging.info("Checking validity of DataFrame for HGC...")
-        PARAMS = (list(constants.atoms.keys()) +
-                  list(constants.ions.keys()) +
-                  list(constants.properties.keys()))
-        PARAMS = map(str.lower, PARAMS)
+        # Define allowed columns that contain concentration values
+        allowed_concentration_columns = (list(constants.atoms.keys()) +
+                                         list(constants.ions.keys()))
+        # Define allowed columns of the hgc SamplesFrame
+        allowed_hgc_columns = (list(constants.atoms.keys()) +
+                               list(constants.ions.keys()) +
+                               list(constants.properties.keys()))
+        # # cast to lower case to reduce case sensitivity
+        # allowed_concentration_columns = map(str.lower, allowed_concentration_columns)
+        # allowed_hgc_columns = map(str.lower, allowed_hgc_columns)
 
-        hgc_cols = [item for item in PARAMS if item in obj.columns]
+        hgc_cols = [item for item in allowed_hgc_columns if item in obj.columns]
         neg_conc_cols = []
         invalid_str_cols = []
 
+        # Check the columns for (in)valid values
         for col in hgc_cols:
+            # check for only numeric values
             if obj[col].dtype in ('object', 'str'):
                 if not all(obj[col].str.isnumeric()):
                     invalid_str_cols.append(col)
-            else:
-                if any(obj[col] < 0):
-                    neg_conc_cols.append(col)
+            # check for non-negative concentrations
+            elif (col in allowed_concentration_columns) and (any(obj[col] < 0)):
+                neg_conc_cols.append(col)
 
         is_valid = ((len(hgc_cols) > 0) and (len(neg_conc_cols) == 0) and (len(invalid_str_cols) == 0))
+
         logging.info(f"DataFrame contains {len(hgc_cols)} HGC-columns")
         if len(hgc_cols) > 0:
             logging.info(f"Recognized HGC columns are: {','.join(hgc_cols)}")
@@ -139,25 +149,30 @@ class SamplesFrame(object):
                 self._obj[col] = pd.to_numeric(self._obj[col], errors='coerce')
 
 
-    def consolidate(self, use_ph='field', use_ec='lab', use_so4='ic', use_o2='field', merge_on_na=False):
+    def consolidate(self, use_ph='field', use_ec='lab', use_so4='ic', use_o2='field', use_temp='field', merge_on_na=False,
+                    inplace=True):
         """
         Consolidate parameters measured with different methods to one single parameter
 
         Kwargs:
-            use_ph (str): Which pH to use? Can be 'field' or 'lab', default 'field'
-            use_ec (str): Which EC to use? Can be 'field' or 'lab', default 'lab'
-            use_so4 (str): Which SO4 to use? Default 'ic'
-            use_o2 (str): Which O2 to use? Can be 'field' or 'lab', default 'field'
+            use_ph (str): Which pH to use? Can be 'field' or 'lab' or None; not consolidated when None is chosen. Default 'field'
+            use_ec (str): Which EC to use? Similar to `use_ph`. Default 'lab'
+            use_so4 (str): Which SO4 to use?  Similar to `use_ph`. Default 'ic'
+            use_o2 (str): Which O2 to use? Similar to `use_ph`. Default 'field'
             merge_on_na (str): Fill NaN's from one measurement method with measurements from other method
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
 
+        if inplace is False:
+            raise NotImplementedError('inplace=False is not (yet) implemented. It will become the default though')
+
         param_mapping = {
             'ph': use_ph,
             'ec': use_ec,
-            'so4': use_so4,
-            'o2': use_o2
+            'SO4': use_so4,
+            'O2': use_o2,
+            'temp': use_temp
         }
 
         for param, method in param_mapping.items():
@@ -178,7 +193,7 @@ class SamplesFrame(object):
                 self._obj[param].fillna(self._obj[source], inplace=True)
 
                 if merge_on_na:
-                    raise NotImplementedError
+                    raise NotImplementedError('merge_on_na is True is not implemented (yet).')
 
                 # Drop source columns
                 suffixes = ('_field', '_lab', '_ic')
@@ -261,12 +276,131 @@ class SamplesFrame(object):
         self._replace_negative_concentrations()
         self.is_valid = True
 
-    @property
-    def sic(self, append=False):
-        ''' adds the saturation returns the saturation index of calcite '''
+    def get_phreeq_columns(self):
+        ''' returns the columns from the dataframe that might be used
+            by phreeq python '''
+        df = self._obj
+
+
+        atom_columns = set(self._valid_atoms).intersection(df.columns)
+        ion_columns  = set(self._valid_ions).intersection(df.columns)
+        prop_columns = set(self._valid_properties).intersection(df.columns)
+        phreeq_columns = list(atom_columns.union(ion_columns).union(prop_columns))
+
+        # check whether ph and temp are in the list
+        if 'ph' not in phreeq_columns:
+            raise ValueError('The required column ph is missing in the dataframe. Add a column ph manually or consolidate ph_lab or ph_field to ph by running '+
+            'the method DataFrame.hgc.consolidate().')
+        if 'temp' not in phreeq_columns:
+            raise ValueError('The required column temp is missing in the dataframe. Add a column temp manually or consolidate temp_lab or temp_field to temp by running '+
+            'the method DataFrame.hgc.consolidate().')
+
+
+        return phreeq_columns
+
+    def get_phreeqpython_solutions(self, equilibrate_with='Na', append=False):
+        ''' return a series of phreeqpython solutions derived from the (row)data in the SamplesFrame.
+
+            Args:
+                equilibrate_with (str): the ion with which to add to achieve charge equilibrium in the solutions (default: 'Na')
+                append (bool): whether the returned series is added to the DataFrame or not (default: False)
+             '''
+        if append is True:
+            raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
+
+        pp = self._pp
+        df = self._obj.copy()
+
+        phreeq_cols = self.get_phreeq_columns()
+        nitrogen_cols = set(phreeq_cols).intersection({'NO2', 'NO3', 'N', 'N_tot_k'})
+        phosphor_cols = set(phreeq_cols).intersection({'PO4', 'P', 'P_ortho'})
+
+        if len(nitrogen_cols) > 1:
+            # check if nitrogen is defined in more than one column (per sample)
+            duplicate_nitrogen = df[nitrogen_cols].apply(lambda x: sum(x>0)>1, axis=1)
+
+            if sum(duplicate_nitrogen) > 0:
+                logging.info('Some rows have more than one column defining N. Choose N over NO2 over NO3')
+
+            for index, row in df.loc[duplicate_nitrogen].iterrows():
+                for col in ['N', 'NO2', 'NO3']:
+                    if col in nitrogen_cols:
+                        if row[col] > 0:
+                            df.loc[index, list(nitrogen_cols-{col})] = 0.
+                            break
+
+        if len(phosphor_cols) > 1:
+            # check if phosphor is defined in more than one column (per sample)
+            duplicate_phosphor = df[phosphor_cols].apply(lambda x: sum(x>0)>1, axis=1)
+
+            if sum(duplicate_phosphor) > 0:
+                logging.info('Some rows have more than one column defining P. Choose P over PO4')
+
+            for index, row in df.loc[duplicate_phosphor].iterrows():
+                for col in ['P', 'PO4']:
+                    if col in phosphor_cols:
+                        if row[col] > 0:
+                            df.loc[index, list(phosphor_cols-{col})] = 0.
+                            break
+
+        solutions = pd.Series(index=df.index)
+        for index, row in df[phreeq_cols].iterrows():
+            _sol = {'units': 'mg/l'}
+            for col in row.index:
+
+                try:
+                    atom = self._valid_atoms[col]
+                    phreeq_name = atom.feature
+                    phreeq_as = ''
+                    phreeq_unit = atom.unit
+                    value = row[col]
+                except KeyError:
+                    try:
+                        ion = self._valid_ions[col]
+                        phreeq_name = ion.phreeq_name
+                        phreeq_as = ion.phreeq_concentration_as
+                        phreeq_unit = ion.unit
+                        if phreeq_as is None:
+                            phreeq_as = ''
+                        value = row[col]
+                    except KeyError:
+                        property_ = self._valid_properties[col]
+                        phreeq_name = property_.phreeq_name
+                        if phreeq_name is None:
+                            # Phreeq_name is None it is not a valid phreeq name
+                            # and should not be added to the phreeqpython solutions
+                            continue
+                        phreeq_as = ''
+                        phreeq_unit = ''
+                        value = row[col]
+
+                if value > 0:
+                    _sol[phreeq_name] = f"{value} {phreeq_unit} {phreeq_as}".strip()
+
+            if equilibrate_with is not None:
+                try:
+                    _sol[equilibrate_with] = _sol[equilibrate_with] + ' charge'
+                except KeyError:
+                    _sol[equilibrate_with] = '20.  charge'
+
+            try:
+                solutions[index] = pp.add_solution(_sol)
+            except Exception as e:
+                logging.info(e)
+                solutions[index] = None
+
+
+        return solutions
+
+    def si_calcite(self, append=False):
+        ''' adds or returns the saturation index of calcite '''
         pp = self._pp
         df = self._obj
 
-        df.columns
+        if append:
+            raise NotImplementedError('It is not yet implemented to append a column to the dataframe. Report it as feature request.')
+
+        sol= self.get_phreeqpython_solutions()
+        pass
 
 

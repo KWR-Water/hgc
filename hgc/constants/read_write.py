@@ -11,14 +11,14 @@ import numpy as np
 import pandas as pd
 
 PATH = Path.cwd() / 'hgc' / 'constants'
-pickle_path_file = PATH / 'constants.pickle'
+PICKLE_PATH_FILE = PATH / 'constants.pickle'
 
 def _formulaParser(formula, calculate_or_not, atoms):
     ''' parses the chemical formula if calculate_or_not
         equals `calculate`, otherwise, do nothing. Use
         the molecular weight from atoms dict. '''
 
-    if (calculate_or_not != 'calculate') or (formula in ['TKN', 'totN', 'oPO4', 'totP', 'SO4ic']):
+    if (calculate_or_not != 'calculate') or (formula in ['N_tot_k', 'PO4_ortho', 'SO4_ic', 'alk']):
         return calculate_or_not
 
     # define some strings to use later, when describing valid lists
@@ -84,10 +84,10 @@ def convert_csv_to_tuples():
     ''' Convert the definitions in CSV files to one dict of named tuples and
         write that to constants.py
     '''
-    # path = Path('hgc') / 'hgc' / 'constants'
-    atoms = pd.read_csv(PATH / 'atoms.csv', na_values=[None, 'None'])
-    ions = pd.read_csv(PATH / 'ions_and_organic_compounds.csv', na_values=[None, 'None'])
-    properties = pd.read_csv(PATH / 'other_than_concentrations.csv', na_values=[None, 'None'])
+    default_read_csv_args = dict(na_values=[None, 'None'], comment='#')
+    atoms = pd.read_csv(PATH / 'atoms.csv', **default_read_csv_args)
+    ions = pd.read_csv(PATH / 'ions_and_organic_compounds.csv', **default_read_csv_args)
+    properties = pd.read_csv(PATH / 'other_than_concentrations.csv', **default_read_csv_args)
 
     # convert nan to None
     atoms = atoms.where((pd.notnull(atoms)), None)
@@ -101,9 +101,9 @@ def convert_csv_to_tuples():
     properties = properties.rename(columns=rename_columns)
 
     # remove leading and trailing white spaces
-    atoms.loc[:, ['feature', 'name', 'unit']] = atoms.loc[:, ['feature', 'name', 'unit']].applymap(lambda x: x.strip())
-    ions.loc[:, ['feature', 'name', 'unit']] = ions.loc[:, ['feature', 'name', 'unit']].applymap(lambda x: x.strip())
-    properties.loc[:, ['feature', 'name', 'unit', 'example']] = properties.loc[:, ['feature', 'name', 'unit', 'example']].applymap(lambda x: x.strip())
+    # atoms.loc[:, ['feature', 'name', 'unit']] = atoms.loc[:, ['feature', 'name', 'unit']].applymap(lambda x: x.strip())
+    # ions.loc[:, ['feature', 'name', 'unit']] = ions.loc[:, ['feature', 'name', 'unit']].applymap(lambda x: x.strip())
+    # properties.loc[:, ['feature', 'name', 'unit', 'example']] = properties.loc[:, ['feature', 'name', 'unit', 'example']].applymap(lambda x: x.strip())
 
     # create a dict with atoms as key and mw as value to be used to parse the molecular formula in ions['feature']
     atoms_dict = atoms.set_index(['feature'])['mw'].to_dict()
@@ -117,12 +117,12 @@ def convert_csv_to_tuples():
 
 def csv_to_pickle():
     atoms, ions, properties = convert_csv_to_tuples()
-    with open(pickle_path_file, 'wb') as file_out:
+    with open(PICKLE_PATH_FILE, 'wb') as file_out:
         pickle.dump((atoms, ions, properties), file_out)
 
 def load_pickle_as_namedtuples():
     try:
-        with open(pickle_path_file, 'rb') as file_in:
+        with open(PICKLE_PATH_FILE, 'rb') as file_in:
             atoms, ions, properties = pickle.load(file_in)
     except FileNotFoundError:
         try:

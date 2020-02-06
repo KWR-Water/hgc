@@ -31,7 +31,6 @@ class SamplesFrame(object):
           df.hgc.validate()
     '''
     def __init__(self, pandas_obj):
-        self.is_valid = False
         self.hgc_cols = ()
         self.is_valid, self.hgc_cols = self._check_validity(pandas_obj)
         self._obj = pandas_obj
@@ -86,6 +85,24 @@ class SamplesFrame(object):
             logging.info("DataFrame is not HGC valid. Use the 'make_valid' method to automatically resolve issues")
         
         return is_valid, hgc_cols
+
+
+    def _make_input_df(self, cols_req):
+        """ 
+        Make input DataFrame for calculation. This DataFrame contains columns for each required parameter,
+        which is 0 in case the parameter is not present in original HGC frame.
+        """
+        if not self.is_valid:
+            raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
+
+        df_in = pd.DataFrame(columns=cols_req)
+        for col_req in cols_req:
+            if col_req in self._obj:
+                df_in[col_req] = self._obj[col_req] 
+            else:
+                logging.info(f"Column {col_req} is not present in DataFrame, assuming concentration 0 for this compound for now.")
+
+        return df_in
 
 
     def _replace_detection_lim(self, rule="half"):
@@ -180,6 +197,35 @@ class SamplesFrame(object):
                 raise ValueError(f"Column {str(source)} not present in DataFrame")
 
 
+    def get_bex(self, watertype="G"):
+        """
+        Get Base Exchange Index (meq/L). By default this is the BEX without dolomite (sheet 5 - col EC in HGC Excel)
+        """
+        cols_req = ('Na', 'K', 'Mg', 'Cl')
+        df = self._make_input_df(cols_req)
+        df_out = pd.DataFrame() 
+
+        #TODO: calculate alphas on the fly from SMOW constants
+        alpha_na = 0.556425145165362 # ratio of Na to Cl in SMOW
+        alpha_k = 0.0206 # ratio of K to Cl in SMOW
+        alpha_mg = 0.0667508204998738 # ratio of Mg to Cl in SMOW
+
+        ONLY_P_AND_T = True
+
+        if watertype == "P" and ONLY_P_AND_T == True:
+            df_out['Na_nonmarine'] = df['Na'] - 1.7972 * alpha_na*df['Na']
+            df_out['K_nonmarine'] = df['K'] - 1.7972 * alpha_k*df['Na']
+            df_out['Mg_nonmarine'] = df['Mg'] - 1.7972 * alpha_mg*df['Na']
+        else:
+            df_out['Na_nonmarine'] = df['Na'] - alpha_na*df['Cl']
+            df_out['K_nonmarine'] = df['K'] - alpha_k*df['Cl']
+            df_out['Mg_nonmarine'] = df['Mg'] - alpha_mg*df['Cl']
+        
+        df_out['bex'] = df_out['Na_nonmarine']/22.99 + df_out['K_nonmarine']/39.098 + df_out['Mg_nonmarine']/12.153
+
+        return df_out['bex']
+
+
     def get_ratios(self):
         """ 
         Calculate all common ratios. Return as separate dataframe.
@@ -222,6 +268,97 @@ class SamplesFrame(object):
         return df_ratios
 
 
+    def get_stuyfzand_water_type(self):
+        """
+        Get Stuyfzand water type. This water type classification contains
+        5 components: Salinity, Alkalinity, Dominant Cation, Dominant Anion and Base Exchange Index.
+        This results in a classification such as for example 'F3CaMix+'
+        """
+        if not self.is_valid:
+            raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
+        
+        # Create input dataframe containing all required columns
+        # Inherit column values from HGC frame, assume 0 if column
+        # is not present
+        cols_req = ('Al', 'Ba', 'Ca', 'Cl', 'Co', 'Cu', 'Fe', 'HCO3', 'K', 'Li', 'Mg', 'Mn', 'Na', 'Ni', 'NH4', 'Pb', 'ph', 'Sr', 'Zn')
+        df_in = self._make_input_df(cols_req)
+        df_out = pd.DataFrame() 
+
+        # Salinity
+        df_out['swt_s'] = 'G'
+        df_out.loc[df_in['Cl'] > 5, 'swt_s'] = 'g'
+        df_out.loc[df_in['Cl'] > 30, 'swt_s'] = 'F'
+        df_out.loc[df_in['Cl'] > 150, 'swt_s'] = 'f'
+        df_out.loc[df_in['Cl'] > 300, 'swt_s'] = 'B'        
+        df_out.loc[df_in['Cl'] > 1000, 'swt_s'] = 'b'
+        df_out.loc[df_in['Cl'] > 10000, 'swt_s'] = 'S'  
+        df_out.loc[df_in['Cl'] > 20000, 'swt_s'] = 'H'  
+
+        #Alkalinity
+        df_out['swt_a'] = '*'
+        df_out.loc[df_in['HCO3'] > 31, 'swt_a'] = '0' 
+        df_out.loc[df_in['HCO3'] > 61, 'swt_a'] = '1'
+        df_out.loc[df_in['HCO3'] > 122, 'swt_a'] = '2'
+        df_out.loc[df_in['HCO3'] > 244, 'swt_a'] = '3'
+        df_out.loc[df_in['HCO3'] > 488, 'swt_a'] = '4'
+        df_out.loc[df_in['HCO3'] > 976, 'swt_a'] = '5'
+        df_out.loc[df_in['HCO3'] > 1953, 'swt_a'] = '6'        
+        df_out.loc[df_in['HCO3'] > 3905, 'swt_a'] = '7' 
+
+        #Dominant cation
+        s_sum_cations = self.get_sum_cations_stuyfzand()
+
+        is_no_domcat = (df_in['Na']/22.99 + df_in['K']/39.1 + df_in['NH4']/18.04) < (s_sum_cations/2)
+        df_out.loc[is_no_domcat, 'swt_domcat'] = ""
+
+        is_domcat_nh4 = ~is_no_domcat & (df_in['NH4']/18.04 > (df_in['Na']/22.99 + df_in['K']/39.1)) 
+        df_out.loc[is_domcat_nh4, 'swt_domcat'] = ""
+
+        is_domcat_na = ~is_no_domcat & ~is_domcat_nh4 & (df_in['Na']/22.99 > df_in['K']/39.1)
+        df_out.loc[is_domcat_na, 'swt_domcat'] = "Na"
+
+        is_domcat_k = ~is_no_domcat & ~is_domcat_nh4 & ~is_domcat_na
+        df_out.loc[is_domcat_k, 'swt_domcat'] = "K" 
+
+        # Dominant anion
+        s_sum_anions = self.get_sum_anions_stuyfzand()
+
+        is_doman_cl = (df_in['Cl']/35.453 > s_sum_anions/2)
+        df_out.loc[is_doman_cl, "swt_doman"] = "Cl"
+
+        is_doman_hco3 = ~is_doman_cl & (df_in['HCO3']/61.02 > s_sum_anions/2)
+        df_out.loc[is_doman_hco3, "swt_doman"] = "HCO3"
+        
+        is_doman_so4_or_no3 = ~is_doman_cl & ~is_doman_hco3 & (2*df_in['SO4']/96.06 + df_in['NO3']/62. > s_sum_anions/2)
+        is_doman_so4 = (2*df_in['SO4']/96.06 > df_in['NO3']/62.)
+        df_out.loc[is_doman_so4_or_no3 & is_doman_so4, "swt_doman"] = "SO4"
+        df_out.loc[is_doman_so4_or_no3 & ~is_doman_so4] = "NO3"
+
+        is_mix = ~is_doman_cl & ~is_doman_hco3 & ~is_doman_so4_or_no3
+        df_out.loc[is_mix, "swt_doman"] = "Mix"
+
+        # Base Exchange Index
+        s_bex = self.get_bex()
+
+        is_plus = (s_bex > 0.5 + 0.02*df['Cl']/35.453) and (s_bex > 1.5*(s_sum_cations-s_sum_anions))
+        df_out.loc[is_plus, 'swt_bex'] = '+'
+
+        is_minus = ~is_plus & (s_bex<-0.5-0.02*df['Cl']/35.453) and (s_bex < 1.5*(s_sum_cations-s_sum_anions))
+        df_out.loc[is_minus, 'swt_bex'] = '-'
+
+        is_neutral = ~is_plus & ~is_minus & (s_bex > 0.5-0.02*df['Cl']/35.453) & (s_bex < 0.5 + 0.02*df['Cl']/35.453) & ((s_sum_cations == s_sum_anions) |
+                     ((abs(s_bex + (0.5 + 0.02*df['Cl']/35.453)*(s_sum_cations-s_sum_anions))/abs(s_sum_cations-s_sum_anions)) > abs(1.5*(s_sum_cations-s_sum_anions))))
+        df_out.loc[is_neutral, 'swt_bex'] = 'o'
+
+        is_none = ~is_plus & ~is_minus & ~is_neutral
+        df_out.loc[is_none, 'swt_bex'] = ''
+
+        #Putting it all together
+        df_out['swt'].str.cat(df_out[['swt_s', 'swt_a', 'swt_domcat', 'swt_doman', 'swt_bex']])
+        
+        return df_out['swt']
+
+
     def fillna_concentrations(self, how="phreeqc"):
         """
         Calculate missing concentrations based on the charge balance.
@@ -251,3 +388,55 @@ class SamplesFrame(object):
         self._cast_datatypes()
         self._replace_negative_concentrations()
         self.is_valid = True
+
+
+    def get_sum_anions_stuyfzand(self):
+        """ 
+        Calculate sum of anions according to the Stuyfzand method 
+        """
+        cols_req = ('Br', 'Cl', 'doc', 'F', 'HCO3', 'NO3', 'PO4', 'SO4', 'ph')
+        df_in = self._make_input_df(cols_req)
+        s_sum_anions = pd.Series()
+
+        k_org = 10**(0.039*df_in['ph']**2 - 0.9*df_in['ph']-0.96) # HGC manual equation 3.5
+        a_org = k_org * df_in['doc'] / (100*k_org + (10**-df_in['ph'])/10) # HGC manual equation 3.4A
+        is_a_org = ((df_in['Cl']/35.453 + df_in['SO4']/48.03 + df_in['HCO3']/61.02 + df_in['NO3']/62. + df_in['NO2']/46.0055 + df_in['F']/18.9984 + df_in['Br']/79904 + df_in['PO4']/94.971) / 
+            (1 + 10**(df_in['ph']-7.21)) + a_org > df_in['HCO3']/61.02)
+        s_sum_anions.loc[is_a_org] = a_org
+        s_sum_anions.loc[~is_a_org] = 0
+        
+        return s_sum_anions
+
+
+    def get_sum_cations_stuyfzand(self):
+        """ 
+        Calculate sum of cations according to the Stuyfzand method 
+        """
+        cols_req = ('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn')
+        df_in = self._make_input_df(cols_req)
+
+        if 'Ca'==0 and 'Mg'==0:
+            abac = 2*'H_tot' 
+        else:
+            abac = 0
+
+        s_sum_cations = 10**-(df_in['ph']-3) + \
+                    df_in['Na']/22.99 + \
+                    df_in['K']/39.1 + \
+                    df_in['Ca']/20.04 + \
+                    df_in['Mg']/12.156 + \
+                    df_in['Fe']/(55.847/2) + \
+                    df_in['Mn']/(54.938/2) + \
+                    df_in['NH4']/18.04 + \
+                    df_in['Al']/(26982/3) + \
+                    abac + \
+                    df_in['Ba']/137327 + \
+                    df_in['Co']/58933 + \
+                    df_in['Cu']/(63546/2) + \
+                    df_in['Li']/6941 + \
+                    df_in['Ni']/58693 + \
+                    df_in['Pb']/207200 + \
+                    df_in['Sr']/87620 + \
+                    df_in['Zn']/65380
+        
+        return s_sum_cations

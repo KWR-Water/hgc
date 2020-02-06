@@ -45,3 +45,24 @@ def test_molar_weight():
     raise NotImplementedError
     c = constants
 
+
+def test_get_sum_anions_stuyfzand():
+    df = pd.DataFrame() 
+    df.hgc.get_sum_anions_stuyfzand()
+
+
+def test_get_sum_cations_stuyfzand():
+    df = pd.DataFrame() 
+    df.hgc.get_sum_anions_stuyfzand()
+
+
+def test_get_stuyfzand_water_type():
+    df = pd.read_excel('./examples/data/dataset_basic.xlsx', skiprows=[1])
+    df_out = df.hgc.get_stuyvesant_water_type()
+
+
+def test_get_bex():
+    df = pd.DataFrame([[15., 1.1, 1.6, 19.]], columns = ('Na', 'K', 'Mg', 'Cl')) 
+    df.hgc.make_valid()
+    bex = df.hgc.get_bex()
+    assert np.round(bex[0], 2)  == 0.24

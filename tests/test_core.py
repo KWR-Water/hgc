@@ -29,13 +29,13 @@ def test_load_pickle():
     assert ions['CH4'].unit == 'mg/L'
     assert ions['CH4'].valence == 0
     assert ions['CH4'].mw == 16.04246
-    assert ions['oPO4'].mw == 'calculate'
-    assert ions['DOC'].mw == 'unknown'
+    assert ions['PO4_ortho'].mw == 'calculate'
+    assert ions['doc'].mw == 'unknown'
 
-    assert properties['EClab'].feature == 'EClab'
-    assert properties['EClab'].name == 'EC in lab'
-    assert properties['EClab'].example == 'read'
-    assert properties['EClab'].unit == 'm/Sm'
+    assert properties['ec_lab'].feature == 'ec_lab'
+    assert properties['ec_lab'].name == 'EC in lab'
+    assert properties['ec_lab'].example == 'read'
+    assert properties['ec_lab'].unit == 'm/Sm'
 
 @pytest.mark.skip(reason="work in progress")
 def test_load_pickle_without_pickle():

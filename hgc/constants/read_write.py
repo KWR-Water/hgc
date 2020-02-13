@@ -11,7 +11,7 @@ import numpy as np
 
 import pandas as pd
 
-PATH = Path(os.path.dirname(os.path.abspath(__file__))) #/ 'hgc' / 'constants'
+PATH = Path(os.path.dirname(os.path.abspath(__file__)))
 PICKLE_PATH_FILE = PATH / 'constants.pickle'
 
 def _formulaParser(formula, calculate_or_not, atoms):

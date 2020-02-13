@@ -18,7 +18,7 @@ def _formulaParser(formula, calculate_or_not, atoms):
         equals `calculate`, otherwise, do nothing. Use
         the molecular weight from atoms dict. '''
 
-    if (calculate_or_not != 'calculate') or (formula in ['N_tot_k', 'PO4_ortho', 'SO4_ic', 'alk']):
+    if (calculate_or_not != 'calculate') or (formula in ['N_tot_k', 'PO4_ortho', 'SO4_ic', 'alkalinity']):
         return calculate_or_not
 
     # define some strings to use later, when describing valid lists

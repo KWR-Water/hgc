@@ -42,11 +42,16 @@ def test_add_not_consolidated_solution(mineral_data):
         assert "The required column ph is missing in the dataframe.  " in excinfo
 
     # raise NotImplementedError()
-def test_calculate_sic(mineral_data):
+
+def test_si_calcite(mineral_data):
     ''' test the calculation of the saturation index (SI) of
         calcite is performed correctly '''
     df = mineral_data
-    sic = df.hgc.si_calcite()
+    df.hgc.consolidate()
+    sic = df.hgc.get_si('Calcite')
+    pp = PhreeqPython()
+    # make sure Fe(II) is used
+    # make sure Mn(II) is used
     assert sic == 0.7
     # raise NotImplementedError()
 

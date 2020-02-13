@@ -4,10 +4,11 @@ H2S,H2S,read,mg/L,0,calculate,S(-2),as H2S
 CO2,CO2,read,mg/L,0,calculate,C(4),as CO2
 CO3,CO3,read,mg/L,-2,calculate,C(4),as CO3
 HCO3,HCO3,read,mg/L,-1,calculate,C(4),as HCO3
-alk,Alkalinity as mg HCO3/L,read,mg/L,-1,calculate,Alkalinity,as HCO3
-O2_field,O2 measured in the field,read,mg/L,0,calculate,O(0),None
-O2_lab,O2 measured in lab,read,mg/L,0,calculate,O(0),None
+alkalinity,Alkalinity as mg HCO3/L,read,mg/L,-1,calculate,Alkalinity,as HCO3
+O2_field,O2 measured in the field,read,mg/L,0,calculate,None,None
+O2_lab,O2 measured in lab,read,mg/L,0,calculate,None,None
 O2,O2,read,mg/L,0,calculate,O(0),as O2
+KMnO4, KMnO4, read, mg/L, 0, calculate, Mn(7), as KMnO4
 NH4,NH4,read,mg/L,1,calculate,Amm,as NH4
 NO2,NO2,read,mg/L,-1,calculate,N(4),as NO2
 NO3,NO3,read,mg/L,-1,calculate,N(6),as NO3

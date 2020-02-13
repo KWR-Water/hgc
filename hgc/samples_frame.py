@@ -281,7 +281,6 @@ class SamplesFrame(object):
             by phreeq python '''
         df = self._obj
 
-
         atom_columns = set(self._valid_atoms).intersection(df.columns)
         ion_columns  = set(self._valid_ions).intersection(df.columns)
         prop_columns = set(self._valid_properties).intersection(df.columns)
@@ -294,6 +293,8 @@ class SamplesFrame(object):
         if 'temp' not in phreeq_columns:
             raise ValueError('The required column temp is missing in the dataframe. Add a column temp manually or consolidate temp_lab or temp_field to temp by running '+
             'the method DataFrame.hgc.consolidate().')
+        if 'doc' in phreeq_columns:
+            logging.info('DOC column found in samples frame while using phreeqc as backend; influence of DOC on any value calculated using phreeqc is ignored.')
 
 
         return phreeq_columns
@@ -375,13 +376,19 @@ class SamplesFrame(object):
                         value = row[col]
 
                 if value > 0:
-                    _sol[phreeq_name] = f"{value} {phreeq_unit} {phreeq_as}".strip()
+                    phreeq_name = phreeq_name.strip()
+                    phreeq_unit = phreeq_unit.strip()
+                    phreeq_as = phreeq_as.strip()
+                    _sol[phreeq_name] = f"{value} {phreeq_unit} {phreeq_as}"
 
+                pass
             if equilibrate_with is not None:
                 try:
+                    # append the keyword charge to the compound that is used to charge balance
                     _sol[equilibrate_with] = _sol[equilibrate_with] + ' charge'
                 except KeyError:
-                    _sol[equilibrate_with] = '20.  charge'
+                    logging.info(f'{equilibrate_with} not found in solution while it is selected to balance charge with. Starts initial guess with 20 mg/L to balance charge.')
+                    _sol[equilibrate_with] = '20. mg/L charge'
 
             try:
                 solutions[index] = pp.add_solution(_sol)
@@ -392,15 +399,32 @@ class SamplesFrame(object):
 
         return solutions
 
-    def si_calcite(self, append=False):
-        ''' adds or returns the saturation index of calcite '''
-        pp = self._pp
-        df = self._obj
+    def get_si(self, mineral_or_gas, use_phreeqc=True, inplace=False):
+        ''' adds or returns the saturation index of a mineral or the partial pressure of a gas using phreeqc.
 
-        if append:
-            raise NotImplementedError('It is not yet implemented to append a column to the dataframe. Report it as feature request.')
+           Args:
+                mineral_or_gas (str): the name of the mineral of which the SI needs to be calculated or
+               use_phreeqc (bool): whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
+                                   or partial pressure
+               inplace (bool): whether to return a new dataframe with the column added or change the current dataframe itself
 
-        sol= self.get_phreeqpython_solutions()
-        pass
+           Returns:
+                Series: with values of si for each row of the input dataframe '''
+        solutions = self.get_phreeqpython_solutions()
+        si_calcite = [s.si(mineral_or_gas) if s is not None else None for s in solutions]
+
+        if inplace:
+            # column_name = f'SI({mineral_or_gas})'
+            # self._obj[column_name] = si_calcite
+            # return None
+            raise NotImplementedError('inplace argument is not yet implemented.')
+        else:
+            return si_calcite
+
+
+
+
+
+
 
 

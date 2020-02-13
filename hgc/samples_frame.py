@@ -305,9 +305,9 @@ class SamplesFrame(object):
         # Create input dataframe containing all required columns
         # Inherit column values from HGC frame, assume 0 if column
         # is not present
-        cols_req = ('Al', 'Ba', 'Ca', 'Cl', 'Co', 'Cu', 'Fe', 'HCO3', 'K', 'Li', 'Mg', 'Mn', 'Na', 'Ni', 'NH4', 'Pb', 'ph', 'Sr', 'Zn')
+        cols_req = ('Al', 'Ba', 'Br', 'Ca', 'Cl', 'Co', 'Cu', 'doc', 'F', 'Fe', 'HCO3', 'K', 'Li', 'Mg', 'Mn', 'Na', 'Ni', 'NH4', 'NO2', 'NO3', 'Pb', 'PO4', 'ph', 'SO4', 'Sr', 'Zn')
         df_in = self._make_input_df(cols_req)
-        df_out = pd.DataFrame() 
+        df_out = pd.DataFrame(index=df_in.index) 
 
         # Salinity
         df_out['swt_s'] = 'G'
@@ -349,37 +349,40 @@ class SamplesFrame(object):
         s_sum_anions = self.get_sum_anions_stuyfzand()
 
         is_doman_cl = (df_in['Cl']/35.453 > s_sum_anions/2)
-        df_out.loc[is_doman_cl, "swt_doman"] = "Cl"
+        df_out.loc[is_doman_cl, 'swt_doman'] = "Cl"
 
         is_doman_hco3 = ~is_doman_cl & (df_in['HCO3']/61.02 > s_sum_anions/2)
-        df_out.loc[is_doman_hco3, "swt_doman"] = "HCO3"
+        df_out.loc[is_doman_hco3, 'swt_doman'] = "HCO3"
         
         is_doman_so4_or_no3 = ~is_doman_cl & ~is_doman_hco3 & (2*df_in['SO4']/96.06 + df_in['NO3']/62. > s_sum_anions/2)
         is_doman_so4 = (2*df_in['SO4']/96.06 > df_in['NO3']/62.)
-        df_out.loc[is_doman_so4_or_no3 & is_doman_so4, "swt_doman"] = "SO4"
-        df_out.loc[is_doman_so4_or_no3 & ~is_doman_so4] = "NO3"
+        df_out.loc[is_doman_so4_or_no3 & is_doman_so4, 'swt_doman'] = "SO4"
+        df_out.loc[is_doman_so4_or_no3 & ~is_doman_so4, 'swt_doman'] = "NO3"
 
         is_mix = ~is_doman_cl & ~is_doman_hco3 & ~is_doman_so4_or_no3
-        df_out.loc[is_mix, "swt_doman"] = "Mix"
+        df_out.loc[is_mix, 'swt_doman'] = "Mix"
 
         # Base Exchange Index
         s_bex = self.get_bex()
-
-        is_plus = (s_bex > 0.5 + 0.02*df['Cl']/35.453) and (s_bex > 1.5*(s_sum_cations-s_sum_anions))
+        threshold1 = 0.5 + 0.02*df_in['Cl']/35.453
+        threshold2 = -0.5-0.02*df_in['Cl']/35.453  
+        is_plus = (s_bex > threshold1) & (s_bex > 1.5*(s_sum_cations-s_sum_anions))
         df_out.loc[is_plus, 'swt_bex'] = '+'
 
-        is_minus = ~is_plus & (s_bex<-0.5-0.02*df['Cl']/35.453) and (s_bex < 1.5*(s_sum_cations-s_sum_anions))
+        is_minus = ~is_plus & (s_bex < threshold2) & (s_bex < 1.5*(s_sum_cations-s_sum_anions))
         df_out.loc[is_minus, 'swt_bex'] = '-'
 
-        is_neutral = ~is_plus & ~is_minus & (s_bex > 0.5-0.02*df['Cl']/35.453) & (s_bex < 0.5 + 0.02*df['Cl']/35.453) & ((s_sum_cations == s_sum_anions) |
-                     ((abs(s_bex + (0.5 + 0.02*df['Cl']/35.453)*(s_sum_cations-s_sum_anions))/abs(s_sum_cations-s_sum_anions)) > abs(1.5*(s_sum_cations-s_sum_anions))))
+        is_neutral = ~is_plus & ~is_minus & ((s_bex > threshold2) & (s_bex < threshold1) & (s_sum_cations == s_sum_anions)) | \
+                     ((s_bex > threshold2) & \
+                     ((abs(s_bex + threshold1*(s_sum_cations-s_sum_anions))/abs(s_sum_cations-s_sum_anions)) > abs(1.5*(s_sum_cations-s_sum_anions))))
+
         df_out.loc[is_neutral, 'swt_bex'] = 'o'
 
         is_none = ~is_plus & ~is_minus & ~is_neutral
         df_out.loc[is_none, 'swt_bex'] = ''
 
         #Putting it all together
-        df_out['swt'].str.cat(df_out[['swt_s', 'swt_a', 'swt_domcat', 'swt_doman', 'swt_bex']])
+        df_out['swt'] = df_out['swt_s'].str.cat(df_out[['swt_a', 'swt_domcat', 'swt_doman', 'swt_bex']])
         
         return df_out['swt']
 
@@ -419,16 +422,19 @@ class SamplesFrame(object):
         """ 
         Calculate sum of anions according to the Stuyfzand method 
         """
-        cols_req = ('Br', 'Cl', 'doc', 'F', 'HCO3', 'NO3', 'PO4', 'SO4', 'ph')
+        cols_req = ('Br', 'Cl', 'doc', 'F', 'HCO3', 'NO2', 'NO3', 'PO4', 'SO4', 'ph')
         df_in = self._make_input_df(cols_req)
-        s_sum_anions = pd.Series()
+        s_sum_anions = pd.Series(index=df_in.index)
 
         k_org = 10**(0.039*df_in['ph']**2 - 0.9*df_in['ph']-0.96) # HGC manual equation 3.5
         a_org = k_org * df_in['doc'] / (100*k_org + (10**-df_in['ph'])/10) # HGC manual equation 3.4A
-        is_a_org = ((df_in['Cl']/35.453 + df_in['SO4']/48.03 + df_in['HCO3']/61.02 + df_in['NO3']/62. + df_in['NO2']/46.0055 + df_in['F']/18.9984 + df_in['Br']/79904 + df_in['PO4']/94.971) / 
-            (1 + 10**(df_in['ph']-7.21)) + a_org > df_in['HCO3']/61.02)
-        s_sum_anions.loc[is_a_org] = a_org
-        s_sum_anions.loc[~is_a_org] = 0
+        sum_ions = (df_in['Cl']/35.453 + df_in['SO4']/48.03 + df_in['HCO3']/61.02 + df_in['NO3']/62. + 
+                    df_in['NO2']/46.0055 + df_in['F']/18.9984 + df_in['Br']/79904 + df_in['PO4']/94.971) / (1 + 10**(df_in['ph']-7.21))
+            
+        is_add_a_org = a_org > df_in['HCO3']/61.02
+
+        s_sum_anions.loc[is_add_a_org] = sum_ions + a_org
+        s_sum_anions.loc[~is_add_a_org] = sum_ions
         
         return s_sum_anions
 
@@ -465,6 +471,8 @@ class SamplesFrame(object):
                     df_in['Zn']/65380
         
         return s_sum_cations
+
+
     def get_phreeq_columns(self):
         ''' returns the columns from the dataframe that might be used
             by phreeq python '''

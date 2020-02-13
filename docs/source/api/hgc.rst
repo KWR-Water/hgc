@@ -1,13 +1,20 @@
 hgc package
 ===========
 
+Subpackages
+-----------
+
+.. toctree::
+
+   hgc.constants
+
 Submodules
 ----------
 
-hgc.sample\_frame module
-------------------------
+hgc.samples\_frame module
+-------------------------
 
-.. automodule:: hgc.sample_frame
+.. automodule:: hgc.samples_frame
    :members:
    :undoc-members:
    :show-inheritance:

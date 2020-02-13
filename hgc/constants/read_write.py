@@ -2,6 +2,7 @@
     This will be transformed to a
     pickle file with the same information in a dict of named tuples '''
 # import pickle
+import os
 import cloudpickle as pickle
 from collections import namedtuple
 from pathlib import Path
@@ -10,7 +11,7 @@ import numpy as np
 
 import pandas as pd
 
-PATH = Path.cwd() / 'hgc' / 'constants'
+PATH = Path(os.path.dirname(os.path.abspath(__file__))) #/ 'hgc' / 'constants'
 PICKLE_PATH_FILE = PATH / 'constants.pickle'
 
 def _formulaParser(formula, calculate_or_not, atoms):

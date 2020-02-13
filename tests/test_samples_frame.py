@@ -57,7 +57,7 @@ def test_consolidate():
 @pytest.mark.skip(reason="work in progress")
 def test_molar_weight():
     raise NotImplementedError
-    c = constants
+    #c = constants
 
 
 def test_get_sum_anions_stuyfzand_1():

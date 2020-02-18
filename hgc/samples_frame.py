@@ -1,8 +1,7 @@
-''' In here the extension of the pandas DataFrame is defined. It adds methods
-    for validation, calculation of properties. Extending the dataframe is based on:
-    # https://github.com/ContinuumIO/cyberpandas/blob/master/cyberpandas/ip_array.py
-    # https://pandas.pydata.org/pandas-docs/stable/development/extending.html
-'''
+""" 
+The SamplesFrame class is an extended Pandas DataFrame, offering additional methods
+for validation of hydrochemical data, calculation of relevant ratios and classifications.
+"""
 import logging
 
 import numpy as np
@@ -14,31 +13,34 @@ from hgc.constants import constants
 
 @pd.api.extensions.register_dataframe_accessor("hgc")
 class SamplesFrame(object):
-    ''' This class defines the extensions to a pandas dataframe
-        that are specific for this package. The extension is effectuated
-        by calling the class decorator `@pd.api.extensions.register_dataframe_accessor("hgc")`
-        All methods and attributes defined in this class `SamplesFrame` is available
-        in the namespace `hgc` of the Dataframe.
+    """
+    DataFrame with additional hydrochemistry-specific methods.   
+    All HGC methods and attributes defined in this class are available
+    in the namespace 'hgc' of the Dataframe.
 
-        Example
+    Examples
+    --------
+    To use HGC methods, we always start from a Pandas DataFrame::
 
-        ```
-          import pandas as pd
-          import hgc
+        import pandas as pd
+        import hgc
 
-          # define dataframe
-          df = pd.DataFrame({'a': [1,2,3], 'b': [11,12,13]})
-          # because hgc is also imported above, the namespace
-          # `hgc` came available to the dataframe. This allows
-          # to call the following method
-          df.hgc.validate()
-    '''
+        # We start off with an ordinary DataFrame
+        df = pd.DataFrame({'Cl': [1,2,3], 'Mg': [11,12,13]})
+
+        # Since we imported hgc, the HGC-methods become available
+        # on the DataFrame. This allows for instance to use HGC's
+        # validation function
+        df.hgc.is_valid
+        False
+        df.hgc.make_valid()
+    """
+
     def __init__(self, pandas_obj):
         self.hgc_cols = ()
         self.is_valid, self.hgc_cols = self._check_validity(pandas_obj)
         self._obj = pandas_obj
-        # bind 1 phreeqpython instance to the dataframe
-        self._pp = PhreeqPython()
+        self._pp = PhreeqPython() # bind 1 phreeqpython instance to the dataframe
         self._valid_atoms = constants.atoms
         self._valid_ions = constants.ions
         self._valid_properties = constants.properties
@@ -49,11 +51,9 @@ class SamplesFrame(object):
         """
         Check if the dataframe is a valid HGC dataframe
 
-        Returns:
-
-
-        Notes:
-            Checks are:
+        Notes
+        -----
+        Checks are:
             1. Are there any columns names in the recognized parameter set?
             2. Are there no strings in the recognized columns (except '<' and '>')?
             3. Are there negative concentrations in the recognized columns?
@@ -67,7 +67,7 @@ class SamplesFrame(object):
         allowed_hgc_columns = (list(constants.atoms.keys()) +
                                list(constants.ions.keys()) +
                                list(constants.properties.keys()))
-        # # cast to lower case to reduce case sensitivity
+        # cast to lowercase to reduce case sensitivity
         # allowed_concentration_columns = map(str.lower, allowed_concentration_columns)
         # allowed_hgc_columns = map(str.lower, allowed_hgc_columns)
 
@@ -109,7 +109,7 @@ class SamplesFrame(object):
 
     def _make_input_df(self, cols_req):
         """ 
-        Make input DataFrame for calculation. This DataFrame contains columns for each required parameter,
+        Make input DataFrame for calculations. This DataFrame contains columns for each required parameter,
         which is 0 in case the parameter is not present in original HGC frame.
         """
         if not self.is_valid:
@@ -131,9 +131,11 @@ class SamplesFrame(object):
         rules. Cells that contain for example '<0.3' or '> 0.3' will be replaced
         with 0.15 and 0.45 respectively (in case of rule "half").
 
-        Args:
-            rule (str): Can be any of "half" or "at"... Rule "half" replaces cells with detection limit for half of the value.
-                        Rule "at" replaces detection limit cells with the exact value of the detection limit.
+        Parameters
+        ----------
+        rule : str, default 'half'
+            Can be any of "half" or "at"... Rule "half" replaces cells with detection limit for half of the value.
+            Rule "at" replaces detection limit cells with the exact value of the detection limit.
         """
         for col in self.hgc_cols:
             if self._obj[col].dtype in ('object', 'str'):
@@ -170,14 +172,22 @@ class SamplesFrame(object):
     def consolidate(self, use_ph='field', use_ec='lab', use_so4='ic', use_o2='field', use_temp='field', merge_on_na=False,
                     inplace=True):
         """
-        Consolidate parameters measured with different methods to one single parameter
+        Consolidate parameters measured with different methods to one single parameter.
 
-        Kwargs:
-            use_ph (str): Which pH to use? Can be 'field' or 'lab' or None; not consolidated when None is chosen. Default 'field'
-            use_ec (str): Which EC to use? Similar to `use_ph`. Default 'lab'
-            use_so4 (str): Which SO4 to use?  Similar to `use_ph`. Default 'ic'
-            use_o2 (str): Which O2 to use? Similar to `use_ph`. Default 'field'
-            merge_on_na (str): Fill NaN's from one measurement method with measurements from other method
+        Parameters
+        ----------
+        use_ph : {'lab', 'field', None}, default 'field'
+            Which pH to use? Ignored if None. 
+        use_ec : {'lab', 'field', None}, default 'lab'
+            Which EC to use? 
+        use_so4 : {'ic', 'field', None}, default 'ic'
+            Which SO4 to use?  
+        use_o2 : {'lab', 'field', None}, default 'field'
+            Which O2 to use? 
+        merge_on_na : bool, default False
+            Fill NaN's from one measurement method with measurements from other method.
+        inplace : bool, default True
+            Modify SamplesFrame in place?
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
@@ -224,7 +234,17 @@ class SamplesFrame(object):
 
     def get_bex(self, watertype="G"):
         """
-        Get Base Exchange Index (meq/L). By default this is the BEX without dolomite (sheet 5 - col EC in HGC Excel)
+        Get Base Exchange Index (meq/L). By default this is the BEX without dolomite (sheet 5 - col EC in HGC Excel).
+
+        Parameters
+        ----------
+        watertype : {'G', 'P'}, default 'G'
+            Watertype (Groundwater or Precipitation)
+
+        Returns
+        -------
+        pandas.Series
+            Series with for each row in the orginal. 
         """
         cols_req = ('Na', 'K', 'Mg', 'Cl')
         df = self._make_input_df(cols_req)
@@ -253,7 +273,29 @@ class SamplesFrame(object):
 
     def get_ratios(self):
         """
-        Calculate all common ratios. Return as separate dataframe.
+        Calculate common hydrochemical ratios, will ignore any ratios
+        in case their constituents are not present in the SamplesFrame.
+
+        Notes
+        -----
+        HGC will attempt to calculate the following ratios:
+         * Cl/Br
+         * Cl/Na
+         * Cl/Mg
+         * Ca/Sr
+         * Fe/Mn
+         * HCO3/Ca
+         * 2H/18O
+         * SUVA: UVA254/DOC
+         * HCO3/Sum of anions
+         * HCO3/Sum of Ca and Mg
+         * MONC
+         * COD/DOC
+
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame with computed ratios.
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
@@ -297,7 +339,12 @@ class SamplesFrame(object):
         """
         Get Stuyfzand water type. This water type classification contains
         5 components: Salinity, Alkalinity, Dominant Cation, Dominant Anion and Base Exchange Index.
-        This results in a classification such as for example 'F3CaMix+'
+        This results in a classification such as for example 'F3CaMix+'.
+
+        Returns
+        -------
+        pandas.Series
+            Series with Stuyfzand water type of each row in original SamplesFrame.
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
@@ -391,8 +438,10 @@ class SamplesFrame(object):
         """
         Calculate missing concentrations based on the charge balance.
 
-        Args:
-            how (str): any of "phreeqc" or "analytic"
+        Parameters
+        ----------
+        how : {'phreeqc', 'analytic'}, default 'phreeqc'
+            Method to compute missing concentrations.
         """
         raise NotImplementedError
 
@@ -407,8 +456,7 @@ class SamplesFrame(object):
 
     def make_valid(self):
         """
-        Run some tests to validate the object obj (a
-        Pandas dataframe).
+        Try to convert the DataFrame into a valid HGC-SamplesFrame by. 
         """
         # Conduct conversions here. If they fail, raise error (e.g. when not a single valid column is present)
         # Important: order is important, first convert strings to double, then replace negative concentrations
@@ -420,7 +468,12 @@ class SamplesFrame(object):
 
     def get_sum_anions_stuyfzand(self):
         """ 
-        Calculate sum of anions according to the Stuyfzand method 
+        Calculate sum of anions according to the Stuyfzand method.
+
+        Returns
+        -------
+        pandas.Series
+            Series with sum of cations for each row in SamplesFrame.
         """
         cols_req = ('Br', 'Cl', 'doc', 'F', 'HCO3', 'NO2', 'NO3', 'PO4', 'SO4', 'ph')
         df_in = self._make_input_df(cols_req)
@@ -441,7 +494,12 @@ class SamplesFrame(object):
 
     def get_sum_cations_stuyfzand(self):
         """ 
-        Calculate sum of cations according to the Stuyfzand method 
+        Calculate sum of cations according to the Stuyfzand method.
+
+        Returns
+        -------
+        pandas.Series
+            Sum of all cations for each row in original SamplesFrame.
         """
         cols_req = ('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn')
         df_in = self._make_input_df(cols_req)
@@ -474,10 +532,16 @@ class SamplesFrame(object):
 
 
     def get_phreeq_columns(self):
-        ''' returns the columns from the dataframe that might be used
-            by phreeq python '''
+        """
+        Returns the columns from the DataFrame that might be used
+        by PhreeqPython.
+        
+        Returns
+        -------
+        list
+            Usable PhreeqPython columns
+        """
         df = self._obj
-
 
         atom_columns = set(self._valid_atoms).intersection(df.columns)
         ion_columns  = set(self._valid_ions).intersection(df.columns)
@@ -496,12 +560,20 @@ class SamplesFrame(object):
         return phreeq_columns
 
     def get_phreeqpython_solutions(self, equilibrate_with='Na', append=False):
-        ''' return a series of phreeqpython solutions derived from the (row)data in the SamplesFrame.
+        """
+        Return a series of phreeqpython solutions derived from the (row)data in the SamplesFrame.
 
-            Args:
-                equilibrate_with (str): the ion with which to add to achieve charge equilibrium in the solutions (default: 'Na')
-                append (bool): whether the returned series is added to the DataFrame or not (default: False)
-             '''
+        Parameters
+        ----------
+        equilibrate_with : str, default 'Na'
+            Ion to add for achieving charge equilibrium in the solutions.
+        append : bool, default False
+            Whether the returned series is added to the DataFrame or not (default: False).
+
+        Returns
+        -------
+        pandas.Series
+        """
         if append is True:
             raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
 
@@ -590,7 +662,10 @@ class SamplesFrame(object):
         return solutions
 
     def si_calcite(self, append=False):
-        ''' adds or returns the saturation index of calcite '''
+        """
+        Adds or returns the saturation index of calcite.
+
+        """
         pp = self._pp
         df = self._obj
 

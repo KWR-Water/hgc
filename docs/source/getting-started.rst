@@ -1,16 +1,18 @@
 ===============
 Getting Started
 ===============
-On this page you will find all the information to get started with HGC.
-Basic knowledge of programming in Python is assumed, but nothing more than
-that.
+HGC (HydroGeoChemistry) is a Python package for correction, validation and analysis of ground water quality samples.
 
-Getting Python
---------------
-Python 3.7
+Main features:
+ - Handle common erros and peculiarities in hydrochemical data, such as negative concentrations, detection limits and non-numerical placeholders
+ - Calculate common ratios, such as for example MONC, SUVA and HCO3 to the sum of all anions
+ - Classify groundwater samples according to the Stuyfzand water types
+ - Calculate missing concentrations through the ion balance, with PhreeqPython
 
-Installation
-------------
+Install
+-------
+HGC requires Python 3.6 or later. 
+
 To get HGC, use the following command::
 
     pip install hgc

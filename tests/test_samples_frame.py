@@ -129,6 +129,7 @@ def test_get_stuyfzand_water_type():
     assert water_type[0] == 'g*NaNO3o'
 
 def test_get_bex():
+    """ Sheet 5 - col EC in HGC Excel """
     df = pd.DataFrame([[15., 1.1, 1.6, 19.]], columns=('Na', 'K', 'Mg', 'Cl')) 
     df.hgc.make_valid()
     bex = df.hgc.get_bex()

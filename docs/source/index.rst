@@ -15,13 +15,6 @@ HydroGeoChemistry - A python package for correction, validation and analysis of 
     examples.rst
     faq.rst
     glossary.rst
-    api/modules.rst
+    API reference <api/modules.rst>
+    about.rst
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

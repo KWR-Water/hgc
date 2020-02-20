@@ -25,7 +25,7 @@ if errorlevel 9009 (
 	exit /b 1
 )
 
-sphinx-apidoc -f -o source/api ../hgc
+sphinx-apidoc -f -o source/api ../hgc --separate --force -d 2
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end

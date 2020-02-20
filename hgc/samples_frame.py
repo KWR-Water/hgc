@@ -173,6 +173,16 @@ class SamplesFrame(object):
                     inplace=True):
         """
         Consolidate parameters measured with different methods to one single parameter.
+        
+        Parameters such as EC and pH are frequently measured both in the lab and field, 
+        and SO4 and PO4 are frequently measured both by IC and ICP-OES. Normally we prefer the 
+        field data for EC and pH, but ill calibrated sensors or tough field circumstances may 
+        prevent these readings to be superior to the lab measurement. This method allows for quick
+        selection of the preferred measurement method for each parameter and select that for further analysis. 
+
+        For each consolidated parameter HGC adds a new column that is either filled with the lab measurements or the field
+        measurements. It is also possible to fill it with the preferred method, and fill remaining NaN's with
+        measurements gathered with the other possible method.
 
         Parameters
         ----------
@@ -205,8 +215,7 @@ class SamplesFrame(object):
 
         for param, method in param_mapping.items():
             if not method:
-                # user did not specify source, ignore
-                continue
+                continue # user did not specify source, ignore
 
             if not isinstance(method, str):
                 ValueError(f"Invalid method {method} for parameter {param}. Arg should be a string.")
@@ -229,12 +238,12 @@ class SamplesFrame(object):
                 self._obj.drop(columns=cols, errors='ignore')
 
             else:
-                raise ValueError(f"Column {str(source)} not present in DataFrame")
+                logging.info(f"Column {str(source)} not present in DataFrame, ignoring...")
 
 
     def get_bex(self, watertype="G"):
         """
-        Get Base Exchange Index (meq/L). By default this is the BEX without dolomite (sheet 5 - col EC in HGC Excel).
+        Get Base Exchange Index (meq/L). By default this is the BEX without dolomite.
 
         Parameters
         ----------
@@ -303,31 +312,33 @@ class SamplesFrame(object):
         df_ratios = pd.DataFrame()
 
         ratios = {
-            'cl_to_br': ['cl', 'br'],
-            'cl_to_na': ['cl', 'na'],
-            'ca_to_mg': ['cl', 'mg'],
-            'ca_to_sr': ['ca', 'sr'],
-            'fe_to_mn': ['fe', 'mn'],
-            'hco3_to_ca': ['hco3', 'ca'],
-            '2h_to_18o': ['2h', '18o'],
+            'cl_to_br': ['Cl', 'Br'],
+            'cl_to_na': ['Cl', 'Na'],
+            'ca_to_mg': ['Cl', 'Mg'],
+            'ca_to_sr': ['Ca', 'Sr'],
+            'fe_to_mn': ['Fe', 'Mn'],
+            'hco3_to_ca': ['HCO3', 'Ca'],
+            '2h_to_18o': ['2H', '18O'],
             'suva': ['uva254', 'doc'],
-            'hco3_to_sum_anions': ['hco3', 'anions'],
-            'hco3_to_ca_and_mg': ['hco3', 'ca', 'mg'],
-            'monc': ['cod', 'fe', 'no2', 'doc'],
-            'cod_to_doc': ['cod', 'fe', 'no2', 'doc']
+            'hco3_to_sum_anions': ['HCO3', 'sum_anions'],
+            'hco3_to_ca_and_mg': ['HCO3', 'Ca', 'Mg'],
+            'monc': ['cod', 'Fe', 'NO2', 'doc'],
+            'cod_to_doc': ['cod', 'Fe', 'NO2', 'doc']
         }
 
         for ratio, constituents in ratios.items():
             has_cols = [const in self._obj.columns for const in constituents]
             if all(has_cols):
-                if len(constituents) == 2:
-                    df_ratios[ratio] = self._obj[constituents[0]] / self._obj[constituents[1]]
+                if ratio == 'hco3_to_sum_anions':
+                    df_ratios[ratio] = self._obj['HCO3'] / self.get_sum_anions_stuyfzand()
                 elif ratio == 'hco3_to_ca_and_mg':
-                    df_ratios[ratio] = self._obj['hco3'] / (self._obj['ca'] + self._obj['mg'])
+                    df_ratios[ratio] = self._obj['HCO3'] / (self._obj['Ca'] + self._obj['Mg'])
                 elif ratio == 'monc':
-                    df_ratios[ratio] = 4 - 1.5 * (self._obj['cod'] - 0.143 * self._obj['fe'] - 0.348 * self._obj['no2']) / (3.95 * self._obj['doc'])
+                    df_ratios[ratio] = 4 - 1.5 * (self._obj['cod'] - 0.143 * self._obj['Fe'] - 0.348 * self._obj['NO2']) / (3.95 * self._obj['doc'])
                 elif ratio == 'cod_to_doc':
-                    df_ratios[ratio] = ((0.2532 * self._obj['cod'] - 0.143 * self._obj['fe'] - 0.348 * self._obj['no2']) / 32) / (self._obj['doc'] / 12)
+                    df_ratios[ratio] = ((0.2532 * self._obj['cod'] - 0.143 * self._obj['Fe'] - 0.348 * self._obj['NO2']) / 32) / (self._obj['doc'] / 12)
+                else:
+                    df_ratios[ratio] = self._obj[constituents[0]] / self._obj[constituents[1]]
             else:
                 missing_cols = [i for (i, v) in zip(constituents, has_cols) if not v]
                 logging.info(f"Cannot calculate ratio {ratio} since columns {','.join(missing_cols)} are not present.")
@@ -456,7 +467,7 @@ class SamplesFrame(object):
 
     def make_valid(self):
         """
-        Try to convert the DataFrame into a valid HGC-SamplesFrame by. 
+        Try to convert the DataFrame into a valid HGC-SamplesFrame. 
         """
         # Conduct conversions here. If they fail, raise error (e.g. when not a single valid column is present)
         # Important: order is important, first convert strings to double, then replace negative concentrations

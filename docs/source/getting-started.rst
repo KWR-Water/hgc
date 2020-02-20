@@ -10,7 +10,9 @@ Python 3.7
 
 Installation
 ------------
-pip install hgc
+To get HGC, use the following command::
+
+    pip install hgc
 
 Conventions
 -----------
@@ -19,3 +21,10 @@ an underscore between separate words. E.g. the EC measured in the lab is indicat
 `ec_lab`. The only exception to this is the notation of chemical structures and atoms; there standard capitalization
 is used. E.g. the column name for total total nitrogen is `N_total` and for ortho-phosphate `PO4_ortho`.
 
+Philosophy
+----------
+Scope
+
+HGC-recognized columns
+
+Mix with Pandas workflow

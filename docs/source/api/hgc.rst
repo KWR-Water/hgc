@@ -11,22 +11,10 @@ Subpackages
 Submodules
 ----------
 
-hgc.samples\_frame module
--------------------------
+.. toctree::
 
-.. automodule:: hgc.samples_frame
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-hgc.utils module
-----------------
-
-.. automodule:: hgc.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
+   hgc.samples_frame
+   hgc.utils
 
 Module contents
 ---------------

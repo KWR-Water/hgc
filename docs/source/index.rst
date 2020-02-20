@@ -12,7 +12,7 @@ HydroGeoChemistry - A python package for correction, validation and analysis of 
     :glob:
     
     getting-started.rst
-    examples.rst
+    tutorial.rst
     faq.rst
     glossary.rst
     API reference <api/modules.rst>

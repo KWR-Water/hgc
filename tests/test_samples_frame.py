@@ -51,7 +51,7 @@ def test_get_ratios():
 
 def test_consolidate():
     df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
-    df.hgc.consolidate(use_so4=None, use_o2=None)
+    df.hgc.consolidate(use_so4=None, use_o2=None, use_ph='lab')
 
 
 @pytest.mark.skip(reason="work in progress")

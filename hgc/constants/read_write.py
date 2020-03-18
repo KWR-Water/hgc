@@ -1,19 +1,18 @@
 ''' Import csv files that contain information on the constants required by HGC.
     This will be transformed to a
     pickle file with the same information in a dict of named tuples '''
-# import pickle
-import cloudpickle as pickle
 from collections import namedtuple
 from pathlib import Path
-from pyparsing import Word, Optional, OneOrMore, Group
-import numpy as np
 
+# import pickle
+import cloudpickle as pickle
 import pandas as pd
+from pyparsing import Group, OneOrMore, Optional, Word
 
 PATH = Path.cwd() / 'hgc' / 'constants'
 PICKLE_PATH_FILE = PATH / 'constants.pickle'
 
-def _formulaParser(formula, calculate_or_not, atoms):
+def _formula_parser(formula, calculate_or_not, atoms):
     ''' parses the chemical formula if calculate_or_not
         equals `calculate`, otherwise, do nothing. Use
         the molecular weight from atoms dict. '''
@@ -48,34 +47,34 @@ def _formulaParser(formula, calculate_or_not, atoms):
     # attach to elementRef
 
     # Auto-convert integers, and add results names
-    def convertIntegers(tokens):
+    def convert_integers(tokens):
         return int(tokens[0])
 
     element = Word( caps, lowers )
-    integer = Word( digits ).setParseAction( convertIntegers )
-    elementRef = Group( element("symbol") + Optional( integer, default=1 )("qty") )
+    integer = Word( digits ).setParseAction( convert_integers )
+    element_ref = Group( element("symbol") + Optional( integer, default=1 )("qty") )
 
-    chemicalFormula = OneOrMore( elementRef )
+    chemical_formula = OneOrMore( element_ref )
 
-    def computeElementWeight(tokens):
+    def compute_element_weight(tokens):
         element = tokens[0]
         element["weight"] = atoms[element.symbol] * element.qty
 
-    elementRef.setParseAction(computeElementWeight)
+    element_ref.setParseAction(compute_element_weight)
 
-    formulaData = chemicalFormula.parseString(formula)
+    formula_data = chemical_formula.parseString(formula)
 
     # compute molecular weight
-    mw = sum( [ element.weight for element in formulaData ] )
+    mw = sum([element.weight for element in formula_data])
 
     return mw
 
 def df_to_dict_of_tuples(df, tuple_name='Row'):
     ''' changes dataframe to dictionary of tuples '''
-    Row = namedtuple(tuple_name, df.columns)
+    row_tuple = namedtuple(tuple_name, df.columns)
     tuples_dict = {}
     for row in df.itertuples():
-        tuple_ = Row(*row[1:])
+        tuple_ = row_tuple(*row[1:])
         tuples_dict[tuple_.feature] = tuple_
     return tuples_dict
 
@@ -107,7 +106,7 @@ def convert_csv_to_tuples():
 
     # create a dict with atoms as key and mw as value to be used to parse the molecular formula in ions['feature']
     atoms_dict = atoms.set_index(['feature'])['mw'].to_dict()
-    ions['mw'] = ions.apply(lambda x: _formulaParser(x['feature'], x['mw'], atoms_dict), axis=1)
+    ions['mw'] = ions.apply(lambda x: _formula_parser(x['feature'], x['mw'], atoms_dict), axis=1)
 
     atoms_dict = df_to_dict_of_tuples(atoms, tuple_name='Atom')
     ions_dict = df_to_dict_of_tuples(ions, tuple_name='Ion')
@@ -116,11 +115,18 @@ def convert_csv_to_tuples():
     return atoms_dict, ions_dict, properties_dict
 
 def csv_to_pickle():
+    ''' create a pickle-file with the dictionary of namedtuples
+        for atoms, ions and properties as defined in the
+        csv files '''
     atoms, ions, properties = convert_csv_to_tuples()
     with open(PICKLE_PATH_FILE, 'wb') as file_out:
         pickle.dump((atoms, ions, properties), file_out)
 
 def load_pickle_as_namedtuples():
+    ''' load the atoms, ions and properties dictionaries
+        with named tuples. The pickle is created with
+        csv_to_pickle.
+        '''
     try:
         with open(PICKLE_PATH_FILE, 'rb') as file_in:
             atoms, ions, properties = pickle.load(file_in)
@@ -131,5 +137,3 @@ def load_pickle_as_namedtuples():
             raise FileNotFoundError('Required CSV with constant definition cannot be found')
 
     return atoms, ions, properties
-
-

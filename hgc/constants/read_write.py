@@ -3,11 +3,12 @@
     pickle file with the same information in a dict of named tuples '''
 from collections import namedtuple
 from pathlib import Path
+from pyparsing import Word, Optional, OneOrMore, Group
+import numpy as np
 
 # import pickle
 import cloudpickle as pickle
 import pandas as pd
-from pyparsing import Group, OneOrMore, Optional, Word
 
 PATH = Path.cwd() / 'hgc' / 'constants'
 PICKLE_PATH_FILE = PATH / 'constants.pickle'

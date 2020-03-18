@@ -12,7 +12,6 @@ from phreeqpython import PhreeqPython
 from hgc.constants import constants
 
 
-
 @pd.api.extensions.register_dataframe_accessor("hgc")
 class SamplesFrame(object):
     ''' This class defines the extensions to a pandas dataframe
@@ -43,14 +42,6 @@ class SamplesFrame(object):
         self._valid_atoms = constants.atoms
         self._valid_ions = constants.ions
         self._valid_properties = constants.properties
-
-    @staticmethod
-    def clean_up_phreeqpython_solutions(solutions):
-        ''' This is a convenience function that removes all
-            the phreeqpython solution in `solutions` from
-            memory.
-        '''
-        _ = [s.forget() for s in solutions]
 
 
     @staticmethod
@@ -197,14 +188,9 @@ class SamplesFrame(object):
                 continue
 
             source = f"{param}_{method}"
-            if source in self._obj.columns:
-                source_val = self._obj[source]
-                if any(np.isnan(source_val)):
-                    raise ValueError('Nan value for column {source}')
-
+            if (source in self._obj.columns):
                 self._obj[param] = np.NaN
-                self._obj[param].fillna(source_val, inplace=True)
-
+                self._obj[param].fillna(self._obj[source], inplace=True)
 
                 if merge_on_na:
                     raise NotImplementedError('merge_on_na is True is not implemented (yet).')
@@ -295,22 +281,19 @@ class SamplesFrame(object):
             by phreeq python '''
         df = self._obj
 
+
         atom_columns = set(self._valid_atoms).intersection(df.columns)
-        ion_columns = set(self._valid_ions).intersection(df.columns)
+        ion_columns  = set(self._valid_ions).intersection(df.columns)
         prop_columns = set(self._valid_properties).intersection(df.columns)
         phreeq_columns = list(atom_columns.union(ion_columns).union(prop_columns))
 
         # check whether ph and temp are in the list
         if 'ph' not in phreeq_columns:
-            raise ValueError('The required column ph is missing in the dataframe. ' +
-                             'Add a column ph manually or consolidate ph_lab or ph_field ' +
-                             'to ph by running the method DataFrame.hgc.consolidate().')
+            raise ValueError('The required column ph is missing in the dataframe. Add a column ph manually or consolidate ph_lab or ph_field to ph by running '+
+            'the method DataFrame.hgc.consolidate().')
         if 'temp' not in phreeq_columns:
-            raise ValueError('The required column temp is missing in the dataframe. ' +
-                             'Add a column temp manually or consolidate temp_lab or temp_field ' +
-                             'to temp by running the method DataFrame.hgc.consolidate().')
-        if 'doc' in phreeq_columns:
-            logging.info('DOC column found in samples frame while using phreeqc as backend; influence of DOC on any value calculated using phreeqc is ignored.')
+            raise ValueError('The required column temp is missing in the dataframe. Add a column temp manually or consolidate temp_lab or temp_field to temp by running '+
+            'the method DataFrame.hgc.consolidate().')
 
 
         return phreeq_columns
@@ -325,23 +308,19 @@ class SamplesFrame(object):
         if append is True:
             raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
 
-        if equilibrate_with is None:
-            raise ValueError('Invalid value for equilibrate_with')
-
         pp = self._pp
         df = self._obj.copy()
 
         phreeq_cols = self.get_phreeq_columns()
         nitrogen_cols = set(phreeq_cols).intersection({'NO2', 'NO3', 'N', 'N_tot_k'})
-        phosphor_cols = set(phreeq_cols).intersection({'PO4', 'P', 'P_ortho', 'PO4_total'})
+        phosphor_cols = set(phreeq_cols).intersection({'PO4', 'P', 'P_ortho'})
 
         if len(nitrogen_cols) > 1:
             # check if nitrogen is defined in more than one column (per sample)
-            duplicate_nitrogen = df[nitrogen_cols].apply(lambda x: sum(x > 0) > 1, axis=1)
+            duplicate_nitrogen = df[nitrogen_cols].apply(lambda x: sum(x>0)>1, axis=1)
 
             if sum(duplicate_nitrogen) > 0:
-                logging.info('Some rows have more than one column defining N. ' +
-                             'Choose N over NO2 over NO3')
+                logging.info('Some rows have more than one column defining N. Choose N over NO2 over NO3')
 
             for index, row in df.loc[duplicate_nitrogen].iterrows():
                 for col in ['N', 'NO2', 'NO3']:
@@ -352,7 +331,7 @@ class SamplesFrame(object):
 
         if len(phosphor_cols) > 1:
             # check if phosphor is defined in more than one column (per sample)
-            duplicate_phosphor = df[phosphor_cols].apply(lambda x: sum(x > 0) > 1, axis=1)
+            duplicate_phosphor = df[phosphor_cols].apply(lambda x: sum(x>0)>1, axis=1)
 
             if sum(duplicate_phosphor) > 0:
                 logging.info('Some rows have more than one column defining P. Choose P over PO4')
@@ -364,7 +343,7 @@ class SamplesFrame(object):
                             df.loc[index, list(phosphor_cols-{col})] = 0.
                             break
 
-        solutions = pd.Series(index=df.index, dtype='object')
+        solutions = pd.Series(index=df.index)
         for index, row in df[phreeq_cols].iterrows():
             _sol = {'units': 'mg/l'}
             for col in row.index:
@@ -433,33 +412,3 @@ class SamplesFrame(object):
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')
 
 
-        solutions = self.get_phreeqpython_solutions(**kwargs)
-        saturation_index = [s.si(mineral_or_gas) if s is not None else None for s in solutions]
-
-        self.clean_up_phreeqpython_solutions(solutions)
-
-        # return it as series with the same index as the dataframe
-        return pd.Series(saturation_index, index=self._obj.index)
-
-    def get_specific_conductance(self, use_phreeqc=True, **kwargs):
-        ''' returns the specific conductance (sc) of a water sample using phreeqc. sc is
-            also known as electric conductivity (ec) or egv measurements.
-
-           Args:
-               use_phreeqc (bool): whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
-                                   or partial pressure
-
-           Returns:
-                Series: with values of specific conductance for each row of the input dataframe '''
-        if not use_phreeqc:
-            raise NotImplementedError('use_phreeqc=False is not yet implemented.')
-
-        # create phreeqpython solutions
-        solutions = self.get_phreeqpython_solutions(**kwargs)
-        # extract sc from them
-        specific_conductance = [s.sc for s in solutions]
-        # clean up
-        self.clean_up_phreeqpython_solutions(solutions)
-
-        # return it as series with the same index as the dataframe
-        return pd.Series(specific_conductance, index=self._obj.index)

@@ -694,20 +694,26 @@ class SamplesFrame(object):
                 logging.info(error)
                 raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}')
 
-
-        return solutions
+        # return the solutions as pandas series with the same index as the source dataframe
+        return pd.Series(solutions, index=self._obj.index)
 
     def get_saturation_index(self, mineral_or_gas, use_phreeqc=True, inplace=False, **kwargs):
         ''' adds or returns the saturation index of a mineral or the partial pressure of a gas using phreeqc.
 
-           Args:
-                mineral_or_gas (str): the name of the mineral of which the SI needs to be calculated or
-               use_phreeqc (bool): whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
-                                   or partial pressure
-               inplace (bool): whether to return a new dataframe with the column added or change the current dataframe itself
+           Parameters
+           ----------
+           mineral_or_gas: str
+                           the name of the mineral of which the SI needs to be calculated
+           use_phreeqc: bool
+                        whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
+                        or partial pressure
+           inplace: bool
+                    whether to return a new dataframe with the column added or change the current dataframe itself
 
-           Returns:
-                Series: with values of si for each row of the input dataframe '''
+           Returns
+           -------
+                pandas.Series
+                             with values of SI for each row of the input dataframe '''
         if inplace:
             raise NotImplementedError('inplace argument is not yet implemented.')
         if not use_phreeqc:
@@ -726,11 +732,16 @@ class SamplesFrame(object):
         ''' returns the specific conductance (sc) of a water sample using phreeqc. sc is
             also known as electric conductivity (ec) or egv measurements.
 
-           Args:
-               use_phreeqc (bool): whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
-                                   or partial pressure
+            Parameters
+            ----------
+           use_phreeqc: bool
+                        whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
+                        or partial pressure
+            **kwargs:
+                     are passed to the method `get_phreeqpython_solutions`
 
-           Returns:
+           Returns
+           -------
                 Series: with values of specific conductance for each row of the input dataframe '''
         if not use_phreeqc:
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')

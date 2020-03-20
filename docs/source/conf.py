@@ -39,8 +39,11 @@ extensions = [
     "matplotlib.sphinxext.plot_directive",
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
-    'sphinx_rtd_theme'
+    'sphinx_rtd_theme',
+    'nbsphinx',
+    'sphinx.ext.mathjax',
 ]
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -71,3 +74,11 @@ plot_html_show_formats = False
 plot_html_show_source_link = False
 plot_pre_code = """import numpy as np
 import pandas as pd"""
+
+# notebook directives
+nbsphinx_allow_errors = True
+
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}", #  recommended for matplotlib
+    "--InlineBackend.rc={'figure.dpi': 96}",  # recommended for matplotlib
+]

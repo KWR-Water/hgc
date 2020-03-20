@@ -7,6 +7,7 @@ import logging
 import numpy as np
 import pandas as pd
 from phreeqpython import PhreeqPython
+from phreeqpython import viphreeqc
 
 from hgc.constants import constants
 
@@ -37,6 +38,9 @@ class SamplesFrame(object):
     """
 
     def __init__(self, pandas_obj):
+        print('asdasdada')
+        print('****************************************************************************')
+        print('****************************************************************************')
         self.hgc_cols = ()
         self.is_valid, self.hgc_cols = self._check_validity(pandas_obj)
         self._obj = pandas_obj

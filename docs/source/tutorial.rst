@@ -8,7 +8,7 @@ We always start by importing HGC:
 
 .. ipython:: python
 
-    import pandas as pd 
+    import pandas as pd
     import hgc
 
 Creating a HGC-enabled DataFrame
@@ -40,7 +40,7 @@ negative concentrations or text placeholders.
     df
 
 Since the data in this DataFrame is messy, we cannot use it yet for hydrochemical calculations. HGC can check
-if the data contains obvious errors: 
+if the data contains obvious errors:
 
 .. ipython:: python
 
@@ -68,7 +68,7 @@ You can also retreive the details of each compound, such as the expected units, 
 Since in this case our DataFrame contains negative concentrations, detection limits (rows with '<' or '>') and
 incorrect data types (e.g. string columns that are supposed to be numeric), HGC will initially report
 that the DataFrame is invalid. HGC can automatically solve inconsistencies with the 'make_valid' method.
-As a result, negative concentrations are replaced by 0, concentrations exceeding the detection limit are replaced 
+As a result, negative concentrations are replaced by 0, concentrations exceeding the detection limit are replaced
 by 1/2 of the detection limit threshold and any string-columns cast to numeric:
 
 .. ipython:: python
@@ -116,12 +116,12 @@ HGC calculates ratios for all columns that are available and ignores any missing
     df_ratios
 
 A common situation is that one single parameter of a sample is measured with several methods or in
-different places. Parameters such as EC and pH are frequently measured both in the lab and field, 
-and SO4 and PO4 are frequently measured both by IC and ICP-OES. Normally we prefer the 
-field data for EC and pH, but ill calibrated sensors or tough field circumstances may 
-prevent these readings to be superior to the lab measurement. In such cases we want select from 
-multiple columns the one to use for subsequent calculations, by consolidating into one single column 
-containing the best measurements, possibly filling gaps with measurements from the inferior method. 
+different places. Parameters such as EC and pH are frequently measured both in the lab and field,
+and SO4 and PO4 are frequently measured both by IC and ICP-OES. Normally we prefer the
+field data for EC and pH, but ill calibrated sensors or tough field circumstances may
+prevent these readings to be superior to the lab measurement. In such cases we want select from
+multiple columns the one to use for subsequent calculations, by consolidating into one single column
+containing the best measurements, possibly filling gaps with measurements from the inferior method.
 Let's consider this example:
 
 .. ipython:: python
@@ -136,21 +136,27 @@ Let's consider this example:
     df.hgc.make_valid()
     df
 
-    df.hgc.consolidate(use_ph='field', use_ec='lab')
+    df.hgc.consolidate(use_ph='field', use_ec='lab', use_temp=None,
+                       use_so4=None, use_o2=None)
     df
+
+Note that omitting ``use_so4=None`` in the function call, it would fall back to the default
+which is ``ic``. Because the column ``so4_ic`` is not in the dataframe
+this will return an error. The same holds for ``use_temp`` and ``use_o2``.
+
 
 Visualizing and exporting
 -------------------------
 The great thing about HGC is that your DataFrame gets hydrochemical superpowers, yet all functions
-that you expect from a regular Pandas DataFrame are still available, allowing you to easily import/export 
-and visualize data. 
+that you expect from a regular Pandas DataFrame are still available, allowing you to easily import/export
+and visualize data.
 
 .. ipython:: python
-    
+
     df.std()
     df.plot()
-    
-.. plot:: 
+
+.. plot::
 
     testdata = {
         'ph_lab': [4.3, 6.3, 5.4], 'ph_field': [4.4, 6.1, 5.7],

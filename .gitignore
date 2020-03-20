@@ -108,3 +108,4 @@ hgc.code-workspace
 .vscode
 hgc/constants/constants.pickle
 docs/source/_build
+docs/source/hgc/constants/constants.pickle

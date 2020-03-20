@@ -11,7 +11,7 @@ Main features:
 
 Install
 -------
-HGC requires Python 3.6 or later. 
+HGC requires Python 3.6 or later.
 
 To get HGC, use the following command::
 
@@ -19,7 +19,7 @@ To get HGC, use the following command::
 
 Philosophy
 ----------
-HGC is an extension of the Pandas DataFrame, giving your DataFrame hydrochemistry superpowers. You can thus 
+HGC is an extension of the Pandas DataFrame, giving your DataFrame hydrochemistry superpowers. You can thus
 mix HGC with your regular Pandas/Numpy workflows.
 
 A DataFrame does not need to conform to a specific format to work with HGC, however it is required that:
@@ -27,9 +27,9 @@ A DataFrame does not need to conform to a specific format to work with HGC, howe
  - Each column represents a groundwater quality parameter
 
 HGC checks if column names in the DataFrame match with chemical parameters that it recognizes. Such columns
-should be in the units that HGC expects. In addition to 'HGC-enabled' columns, the DataFrame can contain 
-an arbitrary number of non-hydrochemistry columns (such as XY-locations, comments, or other 
-measured quantities), HGC simply ignores those columns.  
+should be in the units that HGC expects. In addition to 'HGC-enabled' columns, the DataFrame can contain
+an arbitrary number of non-hydrochemistry columns (such as XY-locations, comments, or other
+measured quantities), HGC simply ignores those columns.
 
 Conventions
 -----------

@@ -53,6 +53,22 @@ def test_consolidate():
     df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     df.hgc.consolidate(use_so4=None, use_o2=None, use_ph='lab')
 
+def test_consolidate_w_not_all_cols():
+    ''' test that consolidate works when not all
+        (default) columns are present '''
+    testdata = {
+        'ph_lab': [4.3, 6.3, 5.4], 'ph_field': [4.4, 6.1, 5.7],
+        'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],
+    }
+    df = pd.DataFrame.from_dict(testdata)
+
+    df.hgc.make_valid()
+
+    with pytest.raises(ValueError):
+        df.hgc.consolidate(use_ph='field', use_ec='lab',)
+
+    df.hgc.consolidate(use_ph='field', use_ec='lab', use_temp=None,
+                       use_so4=None, use_o2=None)
 
 @pytest.mark.skip(reason="work in progress")
 def test_molar_weight():
@@ -62,7 +78,7 @@ def test_molar_weight():
 
 def test_get_sum_anions_stuyfzand_1():
     """ This testcase is based on row 11, sheet 4 of original Excel-based HGC """
-    df = pd.DataFrame([[56., 16., 1.5, 0.027, 0.0, 0.0, 3.4, 0.04, 7., 4.5]], columns=('Br', 'Cl', 'doc', 'F', 'HCO3', 'NO2', 'NO3', 'PO4', 'SO4', 'ph')) 
+    df = pd.DataFrame([[56., 16., 1.5, 0.027, 0.0, 0.0, 3.4, 0.04, 7., 4.5]], columns=('Br', 'Cl', 'doc', 'F', 'HCO3', 'NO2', 'NO3', 'PO4', 'SO4', 'ph'))
     df.hgc.make_valid()
     sum_anions = df.hgc.get_sum_anions_stuyfzand()
     assert np.round(sum_anions[0], 2)  == 0.67
@@ -81,13 +97,13 @@ def test_get_sum_anions_stuyfzand_2():
         'SO4': [16.0],
         'ph': [4.3]
     }
-    df = pd.DataFrame.from_dict(testdata) 
+    df = pd.DataFrame.from_dict(testdata)
     df.hgc.make_valid()
     sum_anions = df.hgc.get_sum_anions_stuyfzand()
     assert np.round(sum_anions[0], 2)  == 1.28
 
 def test_get_sum_cations_stuyfzand():
-    df = pd.DataFrame([[4.5, 9.0, 0.4, 1.0, 1.1, 0.1, 0.02, 1.29, 99.0, 3.0, 0.3, 3.2, 0.6, 0.6, 10.4, 7.0, 15.0]], columns=('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn')) 
+    df = pd.DataFrame([[4.5, 9.0, 0.4, 1.0, 1.1, 0.1, 0.02, 1.29, 99.0, 3.0, 0.3, 3.2, 0.6, 0.6, 10.4, 7.0, 15.0]], columns=('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn'))
     df.hgc.make_valid()
     sum_cations = df.hgc.get_sum_cations_stuyfzand()
     assert np.round(sum_cations[0], 2)  == 0.66
@@ -130,7 +146,7 @@ def test_get_stuyfzand_water_type():
 
 def test_get_bex():
     """ Sheet 5 - col EC in HGC Excel """
-    df = pd.DataFrame([[15., 1.1, 1.6, 19.]], columns=('Na', 'K', 'Mg', 'Cl')) 
+    df = pd.DataFrame([[15., 1.1, 1.6, 19.]], columns=('Na', 'K', 'Mg', 'Cl'))
     df.hgc.make_valid()
     bex = df.hgc.get_bex()
     assert np.round(bex[0], 2)  == 0.24

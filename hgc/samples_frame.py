@@ -177,8 +177,8 @@ class SamplesFrame(object):
                 self._obj[col] = pd.to_numeric(self._obj[col], errors='coerce')
 
 
-    def consolidate(self, use_ph='field', use_ec='lab', use_so4='ic', use_o2='field', use_temp='field', merge_on_na=False,
-                    inplace=True):
+    def consolidate(self, use_ph='field', use_ec='lab', use_so4='ic', use_o2='field',
+                    use_temp='field', merge_on_na=False, inplace=True):
         """
         Consolidate parameters measured with different methods to one single parameter.
 
@@ -206,6 +206,13 @@ class SamplesFrame(object):
             Fill NaN's from one measurement method with measurements from other method.
         inplace : bool, default True
             Modify SamplesFrame in place?
+
+
+        Raises
+        ------
+            ValueError: if one of the `use_` parameters is set to a column that is not in the dataframe
+                        *or* if one of the default parameters is not in the dataframe while it is not
+                        set to None.
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
@@ -252,7 +259,9 @@ class SamplesFrame(object):
                 self._obj.drop(columns=cols, errors='ignore')
 
             else:
-                raise ValueError(f"Column {str(source)} not present in DataFrame")
+                raise ValueError(f"Column {source} not present in DataFrame. Use " +
+                                 f"use_{param.lower()}=None to explicitly ignore consolidating " +
+                                 f"this column.")
 
 
     def get_bex(self, watertype="G"):
@@ -267,7 +276,7 @@ class SamplesFrame(object):
         Returns
         -------
         pandas.Series
-            Series with for each row in the orginal.
+            Series with for each row in the original.
         """
         cols_req = ('Na', 'K', 'Mg', 'Cl')
         df = self._make_input_df(cols_req)
@@ -278,9 +287,9 @@ class SamplesFrame(object):
         alpha_k = 0.0206 # ratio of K to Cl in SMOW
         alpha_mg = 0.0667508204998738 # ratio of Mg to Cl in SMOW
 
-        ONLY_P_AND_T = True
+        only_p_and_t = True
 
-        if watertype == "P" and ONLY_P_AND_T == True:
+        if watertype == "P" and only_p_and_t:
             df_out['Na_nonmarine'] = df['Na'] - 1.7972 * alpha_na*df['Na']
             df_out['K_nonmarine'] = df['K'] - 1.7972 * alpha_k*df['Na']
             df_out['Mg_nonmarine'] = df['Mg'] - 1.7972 * alpha_mg*df['Na']
@@ -420,6 +429,7 @@ class SamplesFrame(object):
         # Dominant anion
         s_sum_anions = self.get_sum_anions_stuyfzand()
 
+        # TODO: consider renaming doman to dom_an or dom_anion
         is_doman_cl = (df_in['Cl']/35.453 > s_sum_anions/2)
         df_out.loc[is_doman_cl, 'swt_doman'] = "Cl"
 
@@ -529,7 +539,7 @@ class SamplesFrame(object):
         cols_req = ('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn')
         df_in = self._make_input_df(cols_req)
 
-        if 'Ca'==0 and 'Mg'==0:
+        if 'Ca' == 0 and 'Mg' == 0:
             abac = 2*'H_tot'
         else:
             abac = 0

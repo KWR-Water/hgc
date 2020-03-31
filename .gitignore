@@ -106,5 +106,5 @@ venv.bak/
 # VS Code stuff
 hgc.code-workspace
 .vscode
-hgc/constants/constants.pickle
+# hgc/constants/constants.pickle
 docs/source/_build

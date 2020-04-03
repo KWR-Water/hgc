@@ -71,3 +71,11 @@ plot_html_show_formats = False
 plot_html_show_source_link = False
 plot_pre_code = """import numpy as np
 import pandas as pd"""
+
+# notebook directives
+nbsphinx_allow_errors = True
+
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}", #  recommended for matplotlib
+    "--InlineBackend.rc={'figure.dpi': 96}",  # recommended for matplotlib
+]

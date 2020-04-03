@@ -10,7 +10,7 @@ HydroGeoChemistry - A python package for correction, validation and analysis of 
 .. toctree::
     :maxdepth: 2
     :glob:
-    
+
     getting-started.rst
     tutorial.rst
     faq.rst

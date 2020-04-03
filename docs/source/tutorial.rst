@@ -115,6 +115,8 @@ HGC calculates ratios for all columns that are available and ignores any missing
     df_ratios = df.hgc.get_ratios()
     df_ratios
 
+Consolidation
+=============
 A common situation is that one single parameter of a sample is measured with several methods or in
 different places. Parameters such as EC and pH are frequently measured both in the lab and field,
 and SO4 and PO4 are frequently measured both by IC and ICP-OES. Normally we prefer the
@@ -140,9 +142,15 @@ Let's consider this example:
                        use_so4=None, use_o2=None)
     df
 
-Note that omitting ``use_so4=None`` in the function call, it would fall back to the default
-which is ``ic``. Because the column ``so4_ic`` is not in the dataframe
-this will return an error. The same holds for ``use_temp`` and ``use_o2``.
+.. warning::
+    Note that omitting ``use_so4=None`` in the function call, would let the function
+    fall back to the default which is ``ic``. Because the column ``so4_ic`` is not in the dataframe
+    this will return an error. The same holds for ``use_temp`` and ``use_o2``.
+
+.. ipython:: python
+    :okexcept:
+
+    df.hgc.consolidate(use_ph='field', use_ec='lab', use_temp=None,)
 
 
 Visualizing and exporting
@@ -164,3 +172,46 @@ and visualize data.
     }
     df = pd.DataFrame.from_dict(testdata)
     df.plot()
+
+
+Coupling to PHREEQC
+-------------------
+Another great superpower of HGC is that it allows easy geochemistry *directly on your dataframe*!
+It currently has coupling with the popular geochemistry software
+`PHREEQC <https://www.usgs.gov/software/phreeqc-version-3>`_ via its python
+wrappers as implemented by the `phreeqpython package <https://github.com/Vitens/phreeqpython>`_.
+
+Let's extend the above DataFrame a little to make it more meaningful in the context of this coupling:
+
+.. ipython:: python
+
+    testdata = {
+        'ph_lab': [4.5, 5.5, 7.6], 'ph_field': [4.4, 6.1, 7.7],
+        'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],
+        'temp': [10, 10, 10],
+        'alkalinity':  [0, 7, 121],
+        'O2':  [11, 0, 0],
+        'Na': [9,20,31], 'K':[0.4, 2.1, 2.0],
+        'Ca':[1,3,47],
+        'Fe': [0.10, 2.33, 0.4],
+        'Mn': [0.02, 0.06, 0.13],
+        'NH4': [1.29, 0.08, 0.34],
+        'SiO2': [0.2, 15.4, 13.3],
+        'SO4': [7,19,35],
+        'NO3': [3.4,0.1,0],
+    }
+    df = pd.DataFrame.from_dict(testdata)
+    df.hgc.make_valid()
+    df.hgc.consolidate(use_ph='lab', use_ec='lab', use_temp=None,
+                       use_so4=None, use_o2=None)
+
+With this DataFrame, we can do some PHREEQC calculations. For example,
+we can calculate the saturation index of different minerals like Calcite:
+
+.. ipython:: python
+    :okexcept:
+
+    print('test3')
+    df.hgc.get_phreeqpython_solutions()
+    # si_calcite = df.hgc.get_saturation_index('Calcite')
+    #si_calcite

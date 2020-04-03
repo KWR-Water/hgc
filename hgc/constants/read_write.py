@@ -8,7 +8,9 @@ import cloudpickle as pickle
 import pandas as pd
 from pyparsing import Group, OneOrMore, Optional, Word
 
-PATH = Path.cwd() / 'hgc' / 'constants'
+# TODO find prettier way to define the path containing the pickle
+#      while it is still found when building the docs
+PATH = Path(__file__).parent
 PICKLE_PATH_FILE = PATH / 'constants.pickle'
 
 def _formula_parser(formula, calculate_or_not, atoms):
@@ -133,7 +135,7 @@ def load_pickle_as_namedtuples():
         try:
             atoms, ions, properties = convert_csv_to_tuples()
         except FileNotFoundError:
-            raise FileNotFoundError('Required CSV with constant definition cannot be found')
+            raise FileNotFoundError('Required CSV with constant definition cannot be found {}'.format(PICKLE_PATH_FILE))
 
     return atoms, ions, properties
 

@@ -744,15 +744,15 @@ class SamplesFrame(object):
 
             Parameters
             ----------
-           use_phreeqc: bool
+            use_phreeqc: bool
                         whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
                         or partial pressure
             **kwargs:
                      are passed to the method `get_phreeqpython_solutions`
 
-           Returns
-           -------
-                Series: with values of specific conductance for each row of the input dataframe '''
+            Returns
+            -------
+            Series: with values of specific conductance for each row of the input dataframe '''
         if not use_phreeqc:
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')
 

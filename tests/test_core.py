@@ -37,12 +37,5 @@ def test_load_pickle():
     assert properties['ec_lab'].example == 'read'
     assert properties['ec_lab'].unit == 'm/Sm'
 
-@pytest.mark.skip(reason="work in progress")
-def test_load_pickle_without_pickle():
-    ''' test to load pickle when pickle is not found '''
-    # todo: mock load_pickle with invalid file (pytest mock of unittest.mock)
-    atoms, ions, properties = read_write.load_pickle_as_namedtuples()
-    raise NotImplementedError('mock raising error on calling pickle.load')
-
 
 

@@ -208,10 +208,61 @@ Let's extend the above DataFrame a little to make it more meaningful in the cont
 With this DataFrame, we can do some PHREEQC calculations. For example,
 we can calculate the saturation index of different minerals like Calcite:
 
-.. ipython:: python
-    :okexcept:
+.. todo::
+    below code gives an error because somehow the integration with phreeqc is failing
+    when building the docs. it works fine when executing the code in a local environment
+    though. This needs to be fixed or some other solution needs to be found.
 
-    print('test3')
-    df.hgc.get_phreeqpython_solutions()
-    # si_calcite = df.hgc.get_saturation_index('Calcite')
-    #si_calcite
+.. .. ipython:: python
+..     :okexcept:
+
+.. code-block::
+
+    si_calcite = df.hgc.get_saturation_index('Calcite')
+    si_calcite
+
+Only saturation index (SI) of minerals can be retrieved if they are defined in the phreeqc database
+used by phreeqpython.
+
+Similar to the SI, the specific conductance (SC), also known as electric conductance (EC) or EGV,
+is simply retrieved by calling:
+
+.. .. ipython:: python
+..     :okexcept:
+
+.. code-block::
+
+    df.hgc.get_specific_conductance()
+
+Internally, these methods call the method `get_phreeqpython_solutions` to retrieve
+instances of the `phreeqpython` `Solution` class. These solutions can also be available
+to the user by calling
+
+.. .. ipython:: python
+..     :okexcept:
+
+.. code-block::
+
+    pp_solutions = df.hgc.get_phreeqpython_solutions()
+
+As all elements of the returned `Series` are `phreeqpython` `Solution`'s, all its methods can be called as well.
+For example, the sc can be derived by:
+
+.. .. ipython:: python
+..     :okexcept:
+
+.. code-block::
+
+    [s.sc for s in pp_solutions]
+
+But also more involved operations are possible, for example, inspecting the speciation of the first sample in the
+original `SamplesFrame` `df`:
+
+.. .. ipython:: python
+..     :okexcept:
+
+.. code-block::
+
+    pp_solutions[0].species
+
+Note that units of these speciation calculations are in mmol/L.

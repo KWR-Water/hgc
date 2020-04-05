@@ -46,11 +46,18 @@ class SamplesFrame(object):
         self._valid_properties = constants.properties
 
     @staticmethod
-    def clean_up_phreeqpython_solutions(solutions):
-        ''' This is a convenience function that removes all
-            the phreeqpython solution in `solutions` from
-            memory.
-        '''
+    def _clean_up_phreeqpython_solutions(solutions):
+        """
+        This is a convenience function that removes all
+        the phreeqpython solution in `solutions` from
+        memory.
+
+        Parameters
+        ----------
+        solutions : list
+            python list containing of phreeqpython solutions
+
+        """
         _ = [s.forget() for s in solutions]
 
 
@@ -566,7 +573,7 @@ class SamplesFrame(object):
         return s_sum_cations
 
 
-    def get_phreeq_columns(self):
+    def _get_phreeq_columns(self):
         """
         Returns the columns from the DataFrame that might be used
         by PhreeqPython.
@@ -600,7 +607,7 @@ class SamplesFrame(object):
 
     def get_phreeqpython_solutions(self, equilibrate_with='Na', append=False):
         """
-        Return a series of phreeqpython solutions derived from the (row)data in the SamplesFrame.
+        Return a series of `phreeqpython solutions <https://github.com/Vitens/phreeqpython>`_ derived from the (row)data in the SamplesFrame.
 
         Parameters
         ----------
@@ -617,12 +624,14 @@ class SamplesFrame(object):
             raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
 
         if equilibrate_with is None:
-            raise ValueError('Invalid value for equilibrate_with')
+            raise NotImplementedError('Equilibrate with None is not yet implemented')
 
         pp = self._pp
         df = self._obj.copy()
 
-        phreeq_cols = self.get_phreeq_columns()
+        # TODO: this is ugly, refactor this. Testing which columns to use should be more
+        #       straigtforward and defined at one location. Not both here and in get_preeq_columns
+        phreeq_cols = self._get_phreeq_columns()
         nitrogen_cols = set(phreeq_cols).intersection({'NO2', 'NO3', 'N', 'N_tot_k'})
         phosphor_cols = set(phreeq_cols).intersection({'PO4', 'P', 'P_ortho', 'PO4_total'})
 
@@ -733,7 +742,7 @@ class SamplesFrame(object):
         solutions = self.get_phreeqpython_solutions(**kwargs)
         saturation_index = [s.si(mineral_or_gas) if s is not None else None for s in solutions]
 
-        self.clean_up_phreeqpython_solutions(solutions)
+        self._clean_up_phreeqpython_solutions(solutions)
 
         # return it as series with the same index as the dataframe
         return pd.Series(saturation_index, index=self._obj.index)
@@ -761,7 +770,7 @@ class SamplesFrame(object):
         # extract sc from them
         specific_conductance = [s.sc for s in solutions]
         # clean up
-        self.clean_up_phreeqpython_solutions(solutions)
+        self._clean_up_phreeqpython_solutions(solutions)
 
         # return it as series with the same index as the dataframe
         return pd.Series(specific_conductance, index=self._obj.index)

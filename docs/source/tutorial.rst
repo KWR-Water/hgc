@@ -216,7 +216,7 @@ we can calculate the saturation index of different minerals like Calcite:
 .. .. ipython:: python
 ..     :okexcept:
 
-.. code-block::
+.. code-block:: python
 
     si_calcite = df.hgc.get_saturation_index('Calcite')
     si_calcite
@@ -230,7 +230,7 @@ is simply retrieved by calling:
 .. .. ipython:: python
 ..     :okexcept:
 
-.. code-block::
+.. code-block:: python
 
     df.hgc.get_specific_conductance()
 
@@ -241,7 +241,7 @@ to the user by calling
 .. .. ipython:: python
 ..     :okexcept:
 
-.. code-block::
+.. code-block:: python
 
     pp_solutions = df.hgc.get_phreeqpython_solutions()
 
@@ -251,7 +251,7 @@ For example, the sc can be derived by:
 .. .. ipython:: python
 ..     :okexcept:
 
-.. code-block::
+.. code-block:: python
 
     [s.sc for s in pp_solutions]
 
@@ -261,7 +261,7 @@ original `SamplesFrame` `df`:
 .. .. ipython:: python
 ..     :okexcept:
 
-.. code-block::
+.. code-block:: python
 
     pp_solutions[0].species
 

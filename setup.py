@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name='hgc',
-    version='0.2.2',
+    version='0.2.3',
     packages=find_packages(exclude=['tests*']),
     license='MIT',
     description='A python package for correction, validation and analysis of ground water quality samples',
@@ -37,7 +37,8 @@ setup(
         'phreeqpython>=1.3.2',  # TODO: possibly this can be made an optional dependency but we need to figure out how to do this properly
         'scipy', # TODO: temporarily require SciPy. This is actually a dep of phreeqpython, which however, doesn't correctly require it
         ],
+    include_package_data=True,
     url='https://github.com/KWR-Water/hgc',
     author='KWR Water Research Institute',
-    author_email='martin.korevaar@kwrwater.nl, martin.van.der.schans@kwrwater.nl, erwin.vonk@kwrwater.nl'
+    author_email='martin.korevaar@kwrwater.nl, martin.van.der.schans@kwrwater.nl, erwin.vonk@kwrwater.nl',
 )

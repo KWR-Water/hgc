@@ -1,0 +1,29 @@
+feature,name,example,unit,valence,molar_weight,phreeq_name,phreeq_concentration_as
+CH4,methane as mg CH4/L,read,mg/L,0,calculate,C(-4),as CH4
+H2S,sulfur as mg S/L,read,mg/L,0,calculate,S(-2)
+S,total sulfur as mg H2S/L,read,mg/L,0,calculate,S(-2),as H2S
+CO2,carbon dioxide as mg CO2/L,read,mg/L,0,calculate,C(4),as CO2
+# HCO3 is referred to as alkalinity, CO3 is assumed to be zero
+# CO3,carbonate as mg CO3/L,read,mg/L,-2,calculate,C(4),as CO3
+# HCO3,HCO3,read,mg/L,-1,calculate,C(4),as HCO3
+alkalinity,Alkalinity as mg HCO3/L,read,mg/L,-1,calculate,Alkalinity,as HCO3
+O2_field,oxygen as mg O2/L measured in the field,read,mg/L,0,calculate,None,None
+O2_lab,oxygen as mg O2/L measured in lab,read,mg/L,0,calculate,None,None
+O2,oxygen as mg O2/L,read,mg/L,0,calculate,O(0),as O2
+KMnO4, kalium permanganate as mg KMnO4/L, read, mg/L, 0, calculate, Mn(7), as KMnO4
+NH4,ammonium as mg NH4/L,read,mg/L,1,calculate,Amm,None
+NO2,nitrite as mg NO2/L,read,mg/L,-1,calculate,N(3),as NO2
+NO3,nitrate as mg NO3/L,read,mg/L,-1,calculate,N(5),as NO3
+N_kj,Total Kjeldahl Nitrogen as mg NH4/L,read,mg/L,0,calculate,N,None
+# formally this could be omitted because N is already valid columns because it is an atom,but keep it here too to allow to add name,,,,,,
+N,total nitrogen as mg N/L,read/ function,mg/L,0,calculate,N(0),as N
+PO4,total phosphate as mg PO4/L,read,mg/L,-1,calculate,P,as PO4
+PO4_ortho,ortho-phosphate as mg PO4/L,read,mg/L,-1,calculate,P,None
+# formally this could be omitted because P is already valid columns because it is an atom,but keep it here too to allow to add name,,,,,,
+P,total phosphorus as mg P/L,read/ function,mg/L,0,calculate,P,as P
+SiO2,silicic acid as mg SiO2/L,read,mg/L,0,calculate,Si,as SiO2
+SO4_ic,sulfate as measured by ion chromatography as mg SO4/L,read,mg/L,-2,calculate,S,None
+SO4,sulfate as mg SO4/L,read,mg/L,-2,calculate,S(6),as SO4
+doc,Dissolved Organic Carbon mg/L,read,mg/L,None,unknown,None,None
+toc,Total Organic Carbon as mg/L,read,mg/L,None,unknown,None,None
+cod,chemical oxygen demand by mg KMnO4/L,read,mg/L,None,unknown,None,None

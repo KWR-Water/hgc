@@ -1,7 +1,7 @@
 feature,name,example,unit,phreeq_name
-ec_field,EC in field,read,m/Sm,None
-ec_lab,EC in lab,read,m/Sm,None
-ec,EC,read,m/Sm,None
+ec_field,EC converted to 20°C in field,read,μS/cm,None
+ec_lab,EC converted to 20°C in lab,read,μS/cm,None
+ec,EC converted to 20°C,read,μS/cm,None
 ph_field,pH in field,read,-,None
 ph_lab,pH in lab,read,-,None
 ph,pH,read,-,pH
@@ -11,8 +11,3 @@ temp,Temperature,read,°C,temp
 eh_field,eH in field,read,mV,None
 turb,Turbidity,read,FTU,None
 uva254,UV adsorption at 254 nm,read,E/m,None
-# x,x-coordinate,read,m
-# y,y-coordinate,read,m
-# z,z-coordinate,read,m
-# date,date,read,-
-

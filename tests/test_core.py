@@ -35,7 +35,7 @@ def test_load_pickle():
     assert properties['ec_lab'].feature == 'ec_lab'
     assert properties['ec_lab'].name == 'EC in lab'
     assert properties['ec_lab'].example == 'read'
-    assert properties['ec_lab'].unit == 'm/Sm'
+    assert properties['ec_lab'].unit == 'μS/cm'
 
 
 

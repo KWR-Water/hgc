@@ -82,9 +82,6 @@ class SamplesFrame(object):
         allowed_hgc_columns = (list(constants.atoms.keys()) +
                                list(constants.ions.keys()) +
                                list(constants.properties.keys()))
-        # cast to lowercase to reduce case sensitivity
-        # allowed_concentration_columns = map(str.lower, allowed_concentration_columns)
-        # allowed_hgc_columns = map(str.lower, allowed_hgc_columns)
 
         hgc_cols = [item for item in allowed_hgc_columns if item in obj.columns]
         neg_conc_cols = []

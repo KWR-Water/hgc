@@ -203,7 +203,7 @@ def test_si_calcite(consolidated_data, phreeqpython_solutions_excel):
     pd.testing.assert_series_equal(si_calcite_hgc, si_calcite_pp)
 
 def test_for_docs():
-    ''' A test to check if the code in docs is wrong or only the building fails'''
+    ''' A test to check if the code in docs is wrong or only the building fails. This can be removed. '''
     testdata = {
         'ph_lab': [4.5, 5.5, 7.6], 'ph_field': [4.4, 6.1, 7.7],
         'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],

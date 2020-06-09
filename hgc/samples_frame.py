@@ -485,15 +485,20 @@ class SamplesFrame(object):
         how : {'phreeqc', 'analytic'}, default 'phreeqc'
             Method to compute missing concentrations.
         """
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
-    def fillna_ec(self):
+    def fillna_ec(self, use_phreeqc=True):
         """
         Calculate missing Electrical Conductivity measurements using
         known anions and cations.
         """
-        raise NotImplementedError
+        if use_phreeqc:
+            # use get_specific_conductance method on
+            # all N/A rows of EC columns
+            raise NotImplementedError()
+        else:
+            raise NotImplementedError()
 
 
     def make_valid(self):
@@ -590,6 +595,9 @@ class SamplesFrame(object):
         prop_columns = set(self._valid_properties).intersection(df.columns)
         phreeq_columns = list(atom_columns.union(ion_columns).union(prop_columns))
 
+        nitrogen_cols = set(phreeq_columns).intersection({'NO2', 'NO3', 'N', 'N_tot_k'})
+        phosphor_cols = set(phreeq_columns).intersection({'PO4', 'P', 'P_ortho', 'PO4_total'})
+
         # check whether ph and temp are in the list
         if 'ph' not in phreeq_columns:
             raise ValueError('The required column ph is missing in the dataframe. ' +
@@ -601,6 +609,35 @@ class SamplesFrame(object):
                              'to temp by running the method DataFrame.hgc.consolidate().')
         if 'doc' in phreeq_columns:
             logging.info('DOC column found in samples frame while using phreeqc as backend; influence of DOC on any value calculated using phreeqc is ignored.')
+
+        if len(nitrogen_cols) > 1:
+            # check if nitrogen is defined in more than one column (per sample)
+            duplicate_nitrogen = df[nitrogen_cols].apply(lambda x: sum(x > 0) > 1, axis=1)
+
+            if sum(duplicate_nitrogen) > 0:
+                logging.info('Some rows have more than one column defining N. ' +
+                             'Choose N over NO2 over NO3')
+
+            for index, row in df.loc[duplicate_nitrogen].iterrows():
+                for col in ['N', 'NO2', 'NO3']:
+                    if col in nitrogen_cols:
+                        if row[col] > 0:
+                            df.loc[index, list(nitrogen_cols-{col})] = 0.
+                            break
+
+        if len(phosphor_cols) > 1:
+            # check if phosphor is defined in more than one column (per sample)
+            duplicate_phosphor = df[phosphor_cols].apply(lambda x: sum(x > 0) > 1, axis=1)
+
+            if sum(duplicate_phosphor) > 0:
+                logging.info('Some rows have more than one column defining P. Choose P over PO4')
+
+            for index, row in df.loc[duplicate_phosphor].iterrows():
+                for col in ['P', 'PO4']:
+                    if col in phosphor_cols:
+                        if row[col] > 0:
+                            df.loc[index, list(phosphor_cols-{col})] = 0.
+                            break
 
 
         return phreeq_columns
@@ -632,37 +669,6 @@ class SamplesFrame(object):
         # TODO: this is ugly, refactor this. Testing which columns to use should be more
         #       straigtforward and defined at one location. Not both here and in get_preeq_columns
         phreeq_cols = self._get_phreeq_columns()
-        nitrogen_cols = set(phreeq_cols).intersection({'NO2', 'NO3', 'N', 'N_tot_k'})
-        phosphor_cols = set(phreeq_cols).intersection({'PO4', 'P', 'P_ortho', 'PO4_total'})
-
-        if len(nitrogen_cols) > 1:
-            # check if nitrogen is defined in more than one column (per sample)
-            duplicate_nitrogen = df[nitrogen_cols].apply(lambda x: sum(x > 0) > 1, axis=1)
-
-            if sum(duplicate_nitrogen) > 0:
-                logging.info('Some rows have more than one column defining N. ' +
-                             'Choose N over NO2 over NO3')
-
-            for index, row in df.loc[duplicate_nitrogen].iterrows():
-                for col in ['N', 'NO2', 'NO3']:
-                    if col in nitrogen_cols:
-                        if row[col] > 0:
-                            df.loc[index, list(nitrogen_cols-{col})] = 0.
-                            break
-
-        if len(phosphor_cols) > 1:
-            # check if phosphor is defined in more than one column (per sample)
-            duplicate_phosphor = df[phosphor_cols].apply(lambda x: sum(x > 0) > 1, axis=1)
-
-            if sum(duplicate_phosphor) > 0:
-                logging.info('Some rows have more than one column defining P. Choose P over PO4')
-
-            for index, row in df.loc[duplicate_phosphor].iterrows():
-                for col in ['P', 'PO4']:
-                    if col in phosphor_cols:
-                        if row[col] > 0:
-                            df.loc[index, list(phosphor_cols-{col})] = 0.
-                            break
 
         solutions = pd.Series(index=df.index, dtype='object')
         for index, row in df[phreeq_cols].iterrows():

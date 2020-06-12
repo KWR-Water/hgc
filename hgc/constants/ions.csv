@@ -6,10 +6,13 @@ CO2,carbon dioxide as mg CO2/L,read,mg/L,0,calculate,C(4),as CO2
 # HCO3 is referred to as alkalinity, CO3 is assumed to be zero
 # CO3,carbonate as mg CO3/L,read,mg/L,-2,calculate,C(4),as CO3
 # HCO3,HCO3,read,mg/L,-1,calculate,C(4),as HCO3
-alkalinity,Alkalinity as mg HCO3/L,read,mg/L,-1,calculate,Alkalinity,as HCO3
+alkalinity,alkalinity as mg HCO3/L,read,mg/L,-1,calculate,Alkalinity,as HCO3
 O2_field,oxygen as mg O2/L measured in the field,read,mg/L,0,calculate,None,None
 O2_lab,oxygen as mg O2/L measured in lab,read,mg/L,0,calculate,None,None
-O2,oxygen as mg O2/L,read,mg/L,0,calculate,O(0),as O2
+# for O2 the phreeq_concentration_as is empty. It would be most explicit if we add 'as O2'
+# but that is not working; the concentration is halved in that case. Maybe because O(0) is already
+# defined as O2
+O2,oxygen as mg O2/L,read,mg/L,0,calculate,O(0),None
 KMnO4, kalium permanganate as mg KMnO4/L, read, mg/L, 0, calculate, Mn(7), as KMnO4
 NH4,ammonium as mg NH4/L,read,mg/L,1,calculate,Amm,None
 NO2,nitrite as mg NO2/L,read,mg/L,-1,calculate,N(3),as NO2

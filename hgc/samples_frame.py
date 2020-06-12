@@ -122,7 +122,8 @@ class SamplesFrame(object):
     def _make_input_df(self, cols_req):
         """
         Make input DataFrame for calculations. This DataFrame contains columns for each required parameter,
-        which is 0 in case the parameter is not present in original HGC frame.
+        which is 0 in case the parameter is not present in original HGC frame. It also
+        replaces all NaN with 0.
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
@@ -133,6 +134,7 @@ class SamplesFrame(object):
                 df_in[col_req] = self._obj[col_req]
             else:
                 logging.info(f"Column {col_req} is not present in DataFrame, assuming concentration 0 for this compound for now.")
+        df_in = df_in.fillna(0.0)
 
         return df_in
 
@@ -312,6 +314,9 @@ class SamplesFrame(object):
         Calculate common hydrochemical ratios, will ignore any ratios
         in case their constituents are not present in the SamplesFrame.
 
+        It is assumed that only HCO<sub>3</sub><sup>-</sup> contributes to
+        the alkalinity.
+
         Notes
         -----
         HGC will attempt to calculate the following ratios:
@@ -344,11 +349,11 @@ class SamplesFrame(object):
             'ca_to_mg': ['Cl', 'Mg'],
             'ca_to_sr': ['Ca', 'Sr'],
             'fe_to_mn': ['Fe', 'Mn'],
-            'hco3_to_ca': ['HCO3', 'Ca'],
+            'hco3_to_ca': ['alkalinity', 'Ca'],
             '2h_to_18o': ['2H', '18O'],
             'suva': ['uva254', 'doc'],
-            'hco3_to_sum_anions': ['HCO3', 'sum_anions'],
-            'hco3_to_ca_and_mg': ['HCO3', 'Ca', 'Mg'],
+            'hco3_to_sum_anions': ['alkalinity', 'sum_anions'],
+            'hco3_to_ca_and_mg': ['alkalinity', 'Ca', 'Mg'],
             'monc': ['cod', 'Fe', 'NO2', 'doc'],
             'cod_to_doc': ['cod', 'Fe', 'NO2', 'doc']
         }
@@ -357,9 +362,9 @@ class SamplesFrame(object):
             has_cols = [const in self._obj.columns for const in constituents]
             if all(has_cols):
                 if ratio == 'hco3_to_sum_anions':
-                    df_ratios[ratio] = self._obj['HCO3'] / self.get_sum_anions_stuyfzand()
+                    df_ratios[ratio] = self._obj['alkalinity'] / self.get_sum_anions_stuyfzand()
                 elif ratio == 'hco3_to_ca_and_mg':
-                    df_ratios[ratio] = self._obj['HCO3'] / (self._obj['Ca'] + self._obj['Mg'])
+                    df_ratios[ratio] = self._obj['alkalinity'] / (self._obj['Ca'] + self._obj['Mg'])
                 elif ratio == 'monc':
                     df_ratios[ratio] = 4 - 1.5 * (self._obj['cod'] - 0.143 * self._obj['Fe'] - 0.348 * self._obj['NO2']) / (3.95 * self._obj['doc'])
                 elif ratio == 'cod_to_doc':
@@ -379,6 +384,9 @@ class SamplesFrame(object):
         5 components: Salinity, Alkalinity, Dominant Cation, Dominant Anion and Base Exchange Index.
         This results in a classification such as for example 'F3CaMix+'.
 
+        It is assumed that only HCO<sub>3</sub><sup>-</sup> contributes to
+        the alkalinity.
+
         Returns
         -------
         pandas.Series
@@ -390,7 +398,7 @@ class SamplesFrame(object):
         # Create input dataframe containing all required columns
         # Inherit column values from HGC frame, assume 0 if column
         # is not present
-        cols_req = ('Al', 'Ba', 'Br', 'Ca', 'Cl', 'Co', 'Cu', 'doc', 'F', 'Fe', 'HCO3', 'K', 'Li', 'Mg', 'Mn', 'Na', 'Ni', 'NH4', 'NO2', 'NO3', 'Pb', 'PO4', 'ph', 'SO4', 'Sr', 'Zn')
+        cols_req = ('Al', 'Ba', 'Br', 'Ca', 'Cl', 'Co', 'Cu', 'doc', 'F', 'Fe', 'alkalinity', 'K', 'Li', 'Mg', 'Mn', 'Na', 'Ni', 'NH4', 'NO2', 'NO3', 'Pb', 'PO4', 'ph', 'SO4', 'Sr', 'Zn')
         df_in = self._make_input_df(cols_req)
         df_out = pd.DataFrame(index=df_in.index)
 
@@ -406,14 +414,14 @@ class SamplesFrame(object):
 
         #Alkalinity
         df_out['swt_a'] = '*'
-        df_out.loc[df_in['HCO3'] > 31, 'swt_a'] = '0'
-        df_out.loc[df_in['HCO3'] > 61, 'swt_a'] = '1'
-        df_out.loc[df_in['HCO3'] > 122, 'swt_a'] = '2'
-        df_out.loc[df_in['HCO3'] > 244, 'swt_a'] = '3'
-        df_out.loc[df_in['HCO3'] > 488, 'swt_a'] = '4'
-        df_out.loc[df_in['HCO3'] > 976, 'swt_a'] = '5'
-        df_out.loc[df_in['HCO3'] > 1953, 'swt_a'] = '6'
-        df_out.loc[df_in['HCO3'] > 3905, 'swt_a'] = '7'
+        df_out.loc[df_in['alkalinity'] > 31, 'swt_a'] = '0'
+        df_out.loc[df_in['alkalinity'] > 61, 'swt_a'] = '1'
+        df_out.loc[df_in['alkalinity'] > 122, 'swt_a'] = '2'
+        df_out.loc[df_in['alkalinity'] > 244, 'swt_a'] = '3'
+        df_out.loc[df_in['alkalinity'] > 488, 'swt_a'] = '4'
+        df_out.loc[df_in['alkalinity'] > 976, 'swt_a'] = '5'
+        df_out.loc[df_in['alkalinity'] > 1953, 'swt_a'] = '6'
+        df_out.loc[df_in['alkalinity'] > 3905, 'swt_a'] = '7'
 
         #Dominant cation
         s_sum_cations = self.get_sum_cations_stuyfzand()
@@ -437,7 +445,7 @@ class SamplesFrame(object):
         is_doman_cl = (df_in['Cl']/35.453 > s_sum_anions/2)
         df_out.loc[is_doman_cl, 'swt_doman'] = "Cl"
 
-        is_doman_hco3 = ~is_doman_cl & (df_in['HCO3']/61.02 > s_sum_anions/2)
+        is_doman_hco3 = ~is_doman_cl & (df_in['alkalinity']/61.02 > s_sum_anions/2)
         df_out.loc[is_doman_hco3, 'swt_doman'] = "HCO3"
 
         is_doman_so4_or_no3 = ~is_doman_cl & ~is_doman_hco3 & (2*df_in['SO4']/96.06 + df_in['NO3']/62. > s_sum_anions/2)
@@ -514,21 +522,24 @@ class SamplesFrame(object):
         """
         Calculate sum of anions according to the Stuyfzand method.
 
+        It is assumed that only HCO<sub>3</sub><sup>-</sup> contributes to
+        the alkalinity.
+
         Returns
         -------
         pandas.Series
             Series with sum of cations for each row in SamplesFrame.
         """
-        cols_req = ('Br', 'Cl', 'doc', 'F', 'HCO3', 'NO2', 'NO3', 'PO4', 'SO4', 'ph')
+        cols_req = ('Br', 'Cl', 'doc', 'F', 'alkalinity', 'NO2', 'NO3', 'PO4', 'SO4', 'ph')
         df_in = self._make_input_df(cols_req)
-        s_sum_anions = pd.Series(index=df_in.index)
+        s_sum_anions = pd.Series(index=df_in.index,dtype='float64')
 
         k_org = 10**(0.039*df_in['ph']**2 - 0.9*df_in['ph']-0.96) # HGC manual equation 3.5
         a_org = k_org * df_in['doc'] / (100*k_org + (10**-df_in['ph'])/10) # HGC manual equation 3.4A
-        sum_ions = (df_in['Cl']/35.453 + df_in['SO4']/48.03 + df_in['HCO3']/61.02 + df_in['NO3']/62. +
+        sum_ions = (df_in['Cl']/35.453 + df_in['SO4']/48.03 + df_in['alkalinity']/61.02 + df_in['NO3']/62. +
                     df_in['NO2']/46.0055 + df_in['F']/18.9984 + df_in['Br']/79904 + df_in['PO4']/94.971) / (1 + 10**(df_in['ph']-7.21))
 
-        is_add_a_org = a_org > df_in['HCO3']/61.02
+        is_add_a_org = a_org > df_in['alkalinity']/61.02
 
         s_sum_anions.loc[is_add_a_org] = sum_ions + a_org
         s_sum_anions.loc[~is_add_a_org] = sum_ions
@@ -639,7 +650,7 @@ class SamplesFrame(object):
 
         return phreeq_columns
 
-    def get_phreeqpython_solutions(self, equilibrate_with='Na', append=False):
+    def get_phreeqpython_solutions(self, equilibrate_with='Na', inplace=False):
         """
         Return a series of `phreeqpython solutions <https://github.com/Vitens/phreeqpython>`_ derived from the (row)data in the SamplesFrame.
 
@@ -647,14 +658,14 @@ class SamplesFrame(object):
         ----------
         equilibrate_with : str, default 'Na'
             Ion to add for achieving charge equilibrium in the solutions.
-        append : bool, default False
+        inplace : bool, default False
             Whether the returned series is added to the DataFrame or not (default: False).
 
         Returns
         -------
         pandas.Series
         """
-        if append is True:
+        if inplace is True:
             raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
 
         if equilibrate_with is None:

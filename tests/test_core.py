@@ -24,7 +24,7 @@ def test_load_pickle():
     assert atoms['H'].reduced == 0
 
     assert ions['CH4'].feature == 'CH4'
-    assert ions['CH4'].name == 'CH4'
+    assert ions['CH4'].name == 'methane as mg CH4/L'
     assert ions['CH4'].example == 'read'
     assert ions['CH4'].unit == 'mg/L'
     assert ions['CH4'].valence == 0
@@ -33,7 +33,7 @@ def test_load_pickle():
     assert ions['doc'].mw == 'unknown'
 
     assert properties['ec_lab'].feature == 'ec_lab'
-    assert properties['ec_lab'].name == 'EC in lab'
+    assert properties['ec_lab'].name == 'EC converted to 20°C in lab'
     assert properties['ec_lab'].example == 'read'
     assert properties['ec_lab'].unit == 'μS/cm'
 

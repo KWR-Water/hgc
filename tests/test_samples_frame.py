@@ -78,7 +78,7 @@ def test_molar_weight():
 
 def test_get_sum_anions_stuyfzand_1():
     """ This testcase is based on row 11, sheet 4 of original Excel-based HGC """
-    df = pd.DataFrame([[56., 16., 1.5, 0.027, 0.0, 0.0, 3.4, 0.04, 7., 4.5]], columns=('Br', 'Cl', 'doc', 'F', 'HCO3', 'NO2', 'NO3', 'PO4', 'SO4', 'ph'))
+    df = pd.DataFrame([[56., 16., 1.5, 0.027, 0.0, 0.0, 3.4, 0.04, 7., 4.5]], columns=('Br', 'Cl', 'doc', 'F', 'alkalinity', 'NO2', 'NO3', 'PO4', 'SO4', 'ph'))
     df.hgc.make_valid()
     sum_anions = df.hgc.get_sum_anions_stuyfzand()
     assert np.round(sum_anions[0], 2)  == 0.67
@@ -90,7 +90,7 @@ def test_get_sum_anions_stuyfzand_2():
         'Cl': [19.0],
         'doc': [4.4],
         'F': [0.08],
-        'HCO3': [0.0],
+        'alkalinity': [0.0],
         'NO2': [0.0],
         'NO3': [22.6],
         'PO4': [0.04],
@@ -101,6 +101,40 @@ def test_get_sum_anions_stuyfzand_2():
     df.hgc.make_valid()
     sum_anions = df.hgc.get_sum_anions_stuyfzand()
     assert np.round(sum_anions[0], 2)  == 1.28
+
+def test_get_sum_anions_stuyfzand_3():
+    """ Test based on Bas vd Grift bug report """
+    testdata = {
+        'ph_lab': [7.5, 6.1, 7.6], 'ph_field': [4.4, 6.1, 7.7],
+        'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],
+        'temp': [10, 10, 10],
+        #'alkalinity':  [110, 7, 121],
+        'alkalinity':  [110, 7, 121],
+        'O2':  [11, 0, 0],
+        'Na': [2,40,310],
+        'K':[0.4, 2.1, 2.0],
+        'Ca':[40,3,47],
+        'Fe': [0.10, 2.33, 0.4],
+        'Mn': [0.02, 0.06, 0.13],
+        'NH4': [1.29, 0.08, 0.34],
+        'SiO2': [0.2, 15.4, 13.3],
+        'SO4': [7,19,35],
+        'NO3': [3.4,0.1,0],
+        'Cl': [10,50,310]
+    }
+
+    df = pd.DataFrame.from_dict(testdata)
+    df.hgc.make_valid()
+    df.hgc.consolidate(use_ph='lab', use_ec='lab', use_temp=None, use_so4=None, use_o2=None)
+
+    sum_anions = df.hgc.get_sum_anions_stuyfzand()
+    np.testing.assert_almost_equal(sum_anions.values,
+                                   np.array([0.77472968, 1.7837688, 3.3159489,
+                                             ]))
+
+    sum_cations = df.hgc.get_sum_cations_stuyfzand()
+    np.testing.assert_almost_equal(sum_cations.values,
+                                   np.array([2.1690812, 2.0341514, 15.9185133]))
 
 def test_get_sum_cations_stuyfzand():
     df = pd.DataFrame([[4.5, 9.0, 0.4, 1.0, 1.1, 0.1, 0.02, 1.29, 99.0, 3.0, 0.3, 3.2, 0.6, 0.6, 10.4, 7.0, 15.0]], columns=('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn'))
@@ -122,7 +156,7 @@ def test_get_stuyfzand_water_type():
         'doc': [4.4],
         'F': [0.08],
         'Fe': [0.29],
-        'HCO3': [0.0],
+        'alkalinity': [0.0],
         'K': [1.1],
         'Li': [5.0],
         'Mg': [1.6],

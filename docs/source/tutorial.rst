@@ -98,7 +98,7 @@ Or get the sum of all anions (using the Stuyfzand method):
 
 .. ipython:: python
 
-    sum_anions = df.hgc.get_sum_anions_stuyfzand()
+    sum_anions = df.hgc.get_sum_anions()
     sum_anions
 
 It is also possible to compute common hydrochemical ratios between different compounds.

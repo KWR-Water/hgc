@@ -166,12 +166,33 @@ def test_add_solution(consolidated_data, phreeqpython_solutions_excel):
 
 
 
+def test_solution_auto_equilibrate(consolidated_data):
+    """ assert that solutions are equilibrated with Na or Cl depending
+        on what their concentrations are """
+    df = consolidated_data
+    df = df.iloc[:3, :]
+    # make sure that equilibrating with Na will fail because
+    # it will needs a concentration below 0 to match the
+    # charge in balance
+    df.loc[0, 'Fe'] = 2*df.loc[0,'Na']
+    sol = df.hgc.get_phreeqpython_solutions(equilibrate_with='auto')
+    Na_in_sol = [s.total_element('Na') * mw('Na') for s in sol]
+    Cl_in_sol = [s.total_element('Cl') * mw('Cl') for s in sol]
+    # first one equilibrates with Cl
+    np.testing.assert_allclose(Na_in_sol[:1], df.loc[:0,'Na'].values, rtol=1.e-1)
+    np.testing.assert_raises(AssertionError, np.testing.assert_allclose(Na_in_sol[1:], df.loc[1:,'Na'].values, rtol=1.e-1))
+    # others one equilibrates with Na
+    np.testing.assert_allclose(Cl_in_sol[1:], df.loc[1:,'Cl'].values, rtol=1.e-1)
+
 def test_solution_equilibrate_with(consolidated_data):
     ''' Assert phreeqpython solutions are returned as series'''
     df = consolidated_data
+
     solutions_default = df.hgc.get_phreeqpython_solutions()
     solutions_Na = df.hgc.get_phreeqpython_solutions(equilibrate_with='Na')
     solutions_Cl = df.hgc.get_phreeqpython_solutions(equilibrate_with='Cl')
+    solutions_none = df.hgc.get_phreeqpython_solutions(equilibrate_with=None)
+    solutions_auto = df.hgc.get_phreeqpython_solutions(equilibrate_with='auto')
 
     # get the list of Na-concentrations in the phreeqpython-solutions (from mmol/L to
     # mg/L)
@@ -179,23 +200,34 @@ def test_solution_equilibrate_with(consolidated_data):
                          for s in solutions_default]
     Na_in_sol_Na = [s.total_element('Na') * mw('Na') for s in solutions_Na]
     Na_in_sol_Cl = [s.total_element('Na') * mw('Na') for s in solutions_Cl]
+    Na_in_sol_none = [s.total_element('Na') * mw('Na') for s in solutions_none]
+    Na_in_sol_auto = [s.total_element('Na') * mw('Na') for s in solutions_auto]
 
     # get the list of Na-concentrations in the phreeqpython-solutions (from mmol/L to
     # mg/L)
     Fe_in_sol_default = [s.total_element('Fe') * mw('Fe')
                          for s in solutions_default]
+    Fe_in_sol_none = [s.total_element('Fe') * mw('Fe')
+                         for s in solutions_none]
+    Fe_in_sol_auto = [s.total_element('Fe') * mw('Fe')
+                         for s in solutions_auto]
 
-    # test that default equilibrate with is Na by returning the same array
-    np.testing.assert_array_equal(Na_in_sol_default, Na_in_sol_Na)
+    # test that default equilibrate with is None by returning the same array
+    np.testing.assert_array_equal(Na_in_sol_default, Na_in_sol_none)
     # assert that indeed Na-concentration is altered by comparing it
     # to the Na concentration when Cl is used for equilibration
     assert all(np.not_equal(Na_in_sol_Cl, Na_in_sol_Na))
+    # assert that auto equals with Na for this case
+    assert all(np.not_equal(Na_in_sol_none, Na_in_sol_Na))
     # assert Na-concentration is not altered by using equilibrate with
     # Cl. Na concentration should be the same as in the original dataframe
     # to some extent of accuracy (this is generally not closer than 10% in my experience).
     np.testing.assert_allclose(Na_in_sol_Cl, df.Na.values, rtol=1.e-1)
+    np.testing.assert_allclose(Na_in_sol_none, df.Na.values, rtol=1.e-1)
     # same assertion but now for Fe
     np.testing.assert_allclose(Fe_in_sol_default, df.Fe.values, rtol=1.e-1)
+    np.testing.assert_allclose(Fe_in_sol_none, df.Fe.values, rtol=1.e-1)
+    np.testing.assert_allclose(Fe_in_sol_auto, df.Fe.values, rtol=1.e-1)
 
 
 

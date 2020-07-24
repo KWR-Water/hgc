@@ -102,6 +102,9 @@ class SamplesFrame(object):
         logging.info(f"DataFrame contains {len(hgc_cols)} HGC-columns")
         if len(hgc_cols) > 0:
             logging.info(f"Recognized HGC columns are: {','.join(hgc_cols)}")
+        # TODO: make a method for this, so users can extract this info
+        #       at any time, not just while validating
+        logging.info(f'These columns of the dataframe are not used by HGC: {set(obj.columns)-set(hgc_cols)}')
 
         logging.info(f"DataFrame contains {len(neg_conc_cols)} HGC-columns with negative concentrations")
         if len(neg_conc_cols) > 0:
@@ -362,7 +365,7 @@ class SamplesFrame(object):
             has_cols = [const in self._obj.columns for const in constituents]
             if all(has_cols):
                 if ratio == 'hco3_to_sum_anions':
-                    df_ratios[ratio] = self._obj['alkalinity'] / self.get_sum_anions_stuyfzand()
+                    df_ratios[ratio] = self._obj['alkalinity'] / self.get_sum_anions()
                 elif ratio == 'hco3_to_ca_and_mg':
                     df_ratios[ratio] = self._obj['alkalinity'] / (self._obj['Ca'] + self._obj['Mg'])
                 elif ratio == 'monc':
@@ -424,7 +427,7 @@ class SamplesFrame(object):
         df_out.loc[df_in['alkalinity'] > 3905, 'swt_a'] = '7'
 
         #Dominant cation
-        s_sum_cations = self.get_sum_cations_stuyfzand()
+        s_sum_cations = self.get_sum_cations()
 
         is_no_domcat = (df_in['Na']/22.99 + df_in['K']/39.1 + df_in['NH4']/18.04) < (s_sum_cations/2)
         df_out.loc[is_no_domcat, 'swt_domcat'] = ""
@@ -439,7 +442,7 @@ class SamplesFrame(object):
         df_out.loc[is_domcat_k, 'swt_domcat'] = "K"
 
         # Dominant anion
-        s_sum_anions = self.get_sum_anions_stuyfzand()
+        s_sum_anions = self.get_sum_anions()
 
         # TODO: consider renaming doman to dom_an or dom_anion
         is_doman_cl = (df_in['Cl']/35.453 > s_sum_anions/2)
@@ -518,7 +521,7 @@ class SamplesFrame(object):
         self.is_valid = True
 
 
-    def get_sum_anions_stuyfzand(self):
+    def get_sum_anions(self):
         """
         Calculate sum of anions according to the Stuyfzand method.
 
@@ -547,7 +550,7 @@ class SamplesFrame(object):
         return s_sum_anions
 
 
-    def get_sum_cations_stuyfzand(self):
+    def get_sum_cations(self):
         """
         Calculate sum of cations according to the Stuyfzand method.
 
@@ -650,13 +653,13 @@ class SamplesFrame(object):
 
         return phreeq_columns
 
-    def get_phreeqpython_solutions(self, equilibrate_with='Na', inplace=False):
+    def get_phreeqpython_solutions(self, equilibrate_with='none', inplace=False):
         """
         Return a series of `phreeqpython solutions <https://github.com/Vitens/phreeqpython>`_ derived from the (row)data in the SamplesFrame.
 
         Parameters
         ----------
-        equilibrate_with : str, default 'Na'
+        equilibrate_with : str, default 'none'
             Ion to add for achieving charge equilibrium in the solutions.
         inplace : bool, default False
             Whether the returned series is added to the DataFrame or not (default: False).
@@ -668,14 +671,9 @@ class SamplesFrame(object):
         if inplace is True:
             raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
 
-        if equilibrate_with is None:
-            raise NotImplementedError('Equilibrate with None is not yet implemented')
-
         pp = self._pp
         df = self._obj.copy()
 
-        # TODO: this is ugly, refactor this. Testing which columns to use should be more
-        #       straigtforward and defined at one location. Not both here and in get_preeq_columns
         phreeq_cols = self._get_phreeq_columns()
 
         solutions = pd.Series(index=df.index, dtype='object')
@@ -714,18 +712,38 @@ class SamplesFrame(object):
                     phreeq_as = phreeq_as.strip()
                     _sol[phreeq_name] = f"{value} {phreeq_unit} {phreeq_as}"
 
-            try:
-                # append the keyword charge to the compound that is used to charge balance
-                _sol[equilibrate_with] = _sol[equilibrate_with] + ' charge'
-            except KeyError:
-                logging.info(f'{equilibrate_with} not found in solution while it is selected to balance charge with. Starts initial guess with 20 mg/L to balance charge.')
-                _sol[equilibrate_with] = '20. mg/L charge'
+            if not (equilibrate_with.lower() in ['none', 'auto']):
+                try:
+                    # append the keyword charge to the compound that is used to charge balance
+                    _sol[equilibrate_with] = _sol[equilibrate_with] + ' charge'
+                except KeyError:
+                    logging.info(f'{equilibrate_with} not found in solution while it is selected to balance charge with. Starts initial guess with 20 mg/L to balance charge.')
+                    _sol[equilibrate_with] = '20. mg/L charge'
+            elif equilibrate_with.lower() == 'auto':
+                try:
+                    # append the keyword charge to the compound that is used to charge balance
+                    _sol['Na'] = _sol['Na'] + ' charge'
+                except KeyError:
+                    logging.info(f'Na is not found in solution while it is automatically selected to balance charge with. Starts initial guess with 20 mg/L Na to balance charge.')
+                    _sol[equilibrate_with] = '20. mg/L charge'
 
             try:
                 solutions[index] = pp.add_solution(_sol)
             except Exception as error:
-                logging.info(error)
-                raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}')
+                if equilibrate_with.lower() == 'auto':
+                    _sol['Na'] = _sol['Na'].replace(' charge', '')
+                    _sol['Cl'] = _sol['Cl'] + ' charge'
+                    try:
+                        logging.info(f"initializing solution with charge balancing with Na failed. Now trying to initialize solution by" +
+                                     " charge balancing with Cl.")
+                        solutions[index] = pp.add_solution(_sol)
+                    except Exception as error:
+                        logging.info(error)
+                        raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}. Charge balancing with both Na and Cl failed.')
+                else:
+                    logging.info(error)
+                    raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}. ' +
+                                     'Possibly charge balance could (sufficiently) reached.')
 
         # return the solutions as pandas series with the same index as the source dataframe
         return pd.Series(solutions, index=self._obj.index)

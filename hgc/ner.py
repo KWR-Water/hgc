@@ -9,7 +9,7 @@ import copy
 import numpy as np
 import pandas as pd
 import scipy.interpolate
-
+from pathlib import Path
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
@@ -28,7 +28,8 @@ def entire_feature_alias_table():
         These aliases must be separated by a semicolumn ";".
 
     """
-    df = pd.read_csv(r'\\nwg.local\dfs\projectdata\P402823_001\read_module\v20200727\default\default_features_alias.csv', encoding='utf-8', header=0) # SHOULD NOT BE LOCAL DRIVE !!!!!!!!!!!
+    file_path = Path(__file__).cwd() / 'hgc/constants/default_features_alias.csv'
+    df = pd.read_csv(file_path, encoding='utf-8', header=0) # SHOULD NOT BE LOCAL DRIVE !!!!!!!!!!!
     return df
 
 
@@ -44,7 +45,8 @@ def entire_unit_alias_table():
         These aliases must be separated by a semicolumn ";".
 
     """
-    df = pd.read_csv(r'\\nwg.local\dfs\projectdata\P402823_001\read_module\v20200727\default\default_units_alias.csv', encoding='utf-8', header=0) # SHOULD NOT BE LOCAL DRIVE !!!!!!!!!!!
+    file_path = Path(__file__).cwd() / 'hgc/constants/default_units_alias.csv'
+    df = pd.read_csv(file_path, encoding='utf-8', header=0) # SHOULD NOT BE LOCAL DRIVE !!!!!!!!!!!
     return df
 
 

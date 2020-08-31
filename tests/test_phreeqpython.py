@@ -5,7 +5,8 @@ import pytest
 from phreeqpython import PhreeqPython, Solution
 
 import hgc
-from hgc.constants.constants import atoms
+from hgc.constants.constants import mw
+
 
 
 
@@ -156,6 +157,7 @@ def test_add_solution(consolidated_data, phreeqpython_solutions_excel):
     for _i, sol in enumerate(solutions_hgc):
         sol_pp = solutions_direct[_i]
         assert sol.species_molalities == sol_pp.species_molalities, f'species molalities are not equal for solution #{_i}'
+        # assert sol.species_molalities == pytest.approx(sol_pp.species_molalities, abs=1.e-4, rel=1e-1), f'species molalities are not equal for solution #{_i}'
 
 
 
@@ -198,7 +200,7 @@ def test_solution_equilibrate_with(consolidated_data):
     Na_in_sol_none = [s.total_element('Na') * mw('Na') for s in solutions_none]
     Na_in_sol_auto = [s.total_element('Na') * mw('Na') for s in solutions_auto]
 
-    # get the list of Na-concentrations in the phreeqpython-solutions (from mmol/L to
+    # get the list of Fe-concentrations in the phreeqpython-solutions (from mmol/L to
     # mg/L)
     Fe_in_sol_default = [s.total_element('Fe') * mw('Fe')
                          for s in solutions_default]
@@ -288,28 +290,4 @@ def test_for_docs():
                        use_so4=None, use_o2=None)
 
     si_calcite = df.hgc.get_saturation_index('Calcite')
-
-
-def test_get_mw():
-    """ assert correct molar weights are returned """
-    assert hgc.mw('Hg') == 200.59
-    assert hgc.mw('Fe') == 55.845
-    with pytest.raises(KeyError):
-        hgc.mw('NH4')
-
-
-def test_get_units():
-    """ assert correct units are returned """
-    assert hgc.units('Hg') == 'mg/L'
-    assert hgc.units('Fe') == 'mg/L'
-    assert hgc.units('NH4') == 'mg/L'
-    assert hgc.units('SO4') == 'mg/L'
-    assert hgc.units('alkalinity') == 'mg/L as HCO3'
-    assert hgc.units('eh_field') == 'mV'
-    assert hgc.units('ph') == '-'
-
-    with pytest.raises(KeyError):
-        hgc.units('pH')
-    with pytest.raises(KeyError):
-        hgc.units('some other non sense')
 

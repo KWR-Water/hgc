@@ -25,7 +25,7 @@ PO4_ortho,ortho-phosphate as mg PO4/L,read,mg/L,-1,calculate,P,None
 # formally this could be omitted because P is already valid columns because it is an atom,but keep it here too to allow to add name,,,,,,
 P,total phosphorus as mg P/L,read/ function,mg/L,0,calculate,P,as P
 SiO2,silicic acid as mg SiO2/L,read,mg/L,0,calculate,Si,as SiO2
-SO4_ic,sulfate as measured by ion chromatography as mg SO4/L,read,mg/L,-2,calculate,S,None
+SO4_ic,sulfate as measured by ion chromatography as mg SO4/L,read,mg/L,-2,calculate,S(6),as SO4
 SO4,sulfate as mg SO4/L,read,mg/L,-2,calculate,S(6),as SO4
 doc,Dissolved Organic Carbon mg/L,read,mg/L,None,unknown,None,None
 toc,Total Organic Carbon as mg/L,read,mg/L,None,unknown,None,None

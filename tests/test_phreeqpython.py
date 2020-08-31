@@ -8,11 +8,6 @@ import hgc
 from hgc.constants.constants import atoms
 
 
-def mw(formula):
-    ''' convenience function to return the molar
-        weight of a molecule with `formula` '''
-    return atoms[formula].mw
-
 
 @pytest.fixture(name='mineral_data')
 def fixture_mineral_data():
@@ -293,4 +288,28 @@ def test_for_docs():
                        use_so4=None, use_o2=None)
 
     si_calcite = df.hgc.get_saturation_index('Calcite')
+
+
+def test_get_mw():
+    """ assert correct molar weights are returned """
+    assert hgc.mw('Hg') == 200.59
+    assert hgc.mw('Fe') == 55.845
+    with pytest.raises(KeyError):
+        hgc.mw('NH4')
+
+
+def test_get_units():
+    """ assert correct units are returned """
+    assert hgc.units('Hg') == 'mg/L'
+    assert hgc.units('Fe') == 'mg/L'
+    assert hgc.units('NH4') == 'mg/L'
+    assert hgc.units('SO4') == 'mg/L'
+    assert hgc.units('alkalinity') == 'mg/L as HCO3'
+    assert hgc.units('eh_field') == 'mV'
+    assert hgc.units('ph') == '-'
+
+    with pytest.raises(KeyError):
+        hgc.units('pH')
+    with pytest.raises(KeyError):
+        hgc.units('some other non sense')
 

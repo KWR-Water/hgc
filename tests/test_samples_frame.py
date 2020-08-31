@@ -193,40 +193,40 @@ def test_get_stuyfzand_water_type():
     water_type = df.hgc.get_stuyfzand_water_type()
     assert water_type[0] == 'g*NaNO3o'
 
-def test_get_stuyfzand_water_type(test_data_bas_vdg):
+def test_get_stuyfzand_water_type_2(test_data_bas_vdg):
     """ test based on bas van de grift his test data """
     # abbrevation
     df = test_data_bas_vdg
     df.hgc.consolidate(use_ph='lab', use_ec='lab',
                        use_temp=None, use_so4=None, use_o2=None)
-    assert df.hgc.get_stuyfzand_water_type().to_list() == ['g1CaHCO3o', 'F*NaClo' , 'B1NaCl']
+    assert df.hgc.get_stuyfzand_water_type().to_list() == ['g1CaHCO3o', 'F*NaClo', 'B1NaCl']
 
 
-testdata = {
-     'ph_lab': [7.5, 6.1, 7.6], 'ph_field': [4.4, 6.1, 7.7],
-     'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],
-     'temp': [10, 10, 10],
-     'alkalinity':  [110, 7, 121],
-    #  'HCO3':  [110, 7, 121],
-     'O2':  [11, 0, 0],
-     'Na': [2,40,310],
-     'K':[0.4, 2.1, 2.0],
-     'Ca':[40,3,47],
-     'Fe': [0.10, 2.33, 0.4],
-     'Mn': [0.02, 0.06, 0.13],
-     'NH4': [1.29, 0.08, 0.34],
-    #  'Amm': [1.29, 0.08, 0.34],
-     'SiO2': [0.2, 15.4, 13.3],
-     'SO4': [7,19,35],
-     'NO3': [3.4,0.1,0],
-     'Cl': [10,50,310]
-}
+    testdata = {
+        'ph_lab': [7.5, 6.1, 7.6], 'ph_field': [4.4, 6.1, 7.7],
+        'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],
+        'temp': [10, 10, 10],
+        'alkalinity':  [110, 7, 121],
+        #  'HCO3':  [110, 7, 121],
+        'O2':  [11, 0, 0],
+        'Na': [2,40,310],
+        'K':[0.4, 2.1, 2.0],
+        'Ca':[40,3,47],
+        'Fe': [0.10, 2.33, 0.4],
+        'Mn': [0.02, 0.06, 0.13],
+        'NH4': [1.29, 0.08, 0.34],
+        #  'Amm': [1.29, 0.08, 0.34],
+        'SiO2': [0.2, 15.4, 13.3],
+        'SO4': [7,19,35],
+        'NO3': [3.4,0.1,0],
+        'Cl': [10,50,310]
+    }
 
-df = pd.DataFrame.from_dict(testdata)
-df.hgc.make_valid()
-df.hgc.consolidate(use_ph='lab', use_ec='lab', use_temp=None, use_so4=None, use_o2=None)
-df.hgc.get_stuyfzand_water_type()
-[_.total('N') for _ in df.hgc.get_phreeqpython_solutions()]
+    df = pd.DataFrame.from_dict(testdata)
+    df.hgc.make_valid()
+    df.hgc.consolidate(use_ph='lab', use_ec='lab', use_temp=None, use_so4=None, use_o2=None)
+    df.hgc.get_stuyfzand_water_type()
+    [_.total('N') for _ in df.hgc.get_phreeqpython_solutions()]
 
 
 

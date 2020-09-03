@@ -37,31 +37,31 @@ Step 1: hgc.ner.generate_feature_map()
 ----------------------
 First map the features in the original file, to feature names recognized by HGC.
 """
+.. ipython:: python
+    import pandas as pd
+    import hgc 
+    from pathlib import Path
 
-import pandas as pd
-import hgc 
-from pathlib import Path
+    # compile a list of features by slicing the original file
+    lst_features = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Feature'])
 
-# compile a list of features by slicing the original file
-lst_features = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Feature'])
+    # automatically detect features using text recognition
+    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=lst_features)
 
-# automatically detect features using text recognition
-feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=lst_features)
+    """
+    Then we need to check whether the features are correctly mapped. And whether certain 
+    features did not meet the minimum score. 
+    """
 
-"""
-Then we need to check whether the features are correctly mapped. And whether certain 
-features did not meet the minimum score. 
-"""
+    # check if features are correctly mapped
+    assert(feature_map == {'chloride': 'Cl', 'nitrate (filtered)': 'NO3', 'manganese': 'Mn', 'nietrate': 'NO3'})
 
-# check if features are correctly mapped
-assert(feature_map == {'chloride': 'Cl', 'nitrate (filtered)': 'NO3', 'manganese': 'Mn', 'nietrate': 'NO3'})
+    # check for which features the algorithm was not able to find a match that met the minimum resemblance.
+    assert(feature_unmapped == ['EC new sensor'])
 
-# check for which features the algorithm was not able to find a match that met the minimum resemblance.
-assert(feature_unmapped == ['EC new sensor'])
-
-# The dataframe can be used to check in more detail the scores how well the original features were matched to HGC features. 
-# This can be handy if you want to identify common errors and update the underlying database.
-df_feature_map.head(5)
+    # The dataframe can be used to check in more detail the scores how well the original features were matched to HGC features. 
+    # This can be handy if you want to identify common errors and update the underlying database.
+    df_feature_map.head(5)
 
 """
 In this case we find that the algorithm was not able to find a match for one 

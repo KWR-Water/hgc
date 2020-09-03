@@ -147,6 +147,7 @@ Step 4: hgc.io.to_hgc()
 ----------------------
 Finally, we need to pivot the stacked data to the wide format used by HGC.
 The default is to use 'LocationID', 'Datetime' and 'SampleID' as index.
+
 .. ipython:: python
     df_hgc = hgc.io.stack_to_hgc(df)
 

@@ -1,12 +1,13 @@
+===================
 HGC.IO documentation (import functionality)
-
+===================
 From experience, we know that each organization has its own (different) formats and
 data models to store water quality data. Importing data to a uniform database
 that is suitable for analysis in HGC can therefore be quite cumbersome.
 
-===================
+
 Highlights
-===================
+------------
 
 The aim of this import module is to partly automate importing water quality data.
 It takes csv and excel files (or pandas' dataframe). And can handle both ‘wide’ data formats 
@@ -14,9 +15,9 @@ It takes csv and excel files (or pandas' dataframe). And can handle both ‘wide
 is stored in 1 column. Features are automatically recognized using an algorithm
 for named entity recognition.
 
-===================
+
 Steps
-===================
+------------
 Operating the import module typically involves 4 steps:
 1. Map the features in the original file to features recognized by HGC with
 “hgc.io.generate_feature_map()”. For example, “Iron”: “Fe”. Check the mapping
@@ -26,9 +27,9 @@ For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually and adjust i
 3. Read the original file and and convert the data with “hgc.io.import_file()”
 4. Convert the imported data to a dataframe in HGC wide format with “hgc.io.to_hgc()”
 
-===================
+
 Example: import stacked data
-===================
+------------
 Let’s try using an excel file with stacked data as a simple example.
 Note: the testing file is also availabe in the folder of 'tests': .\tests\test_example1.py
 
@@ -63,10 +64,10 @@ First map the features in the original file, to feature names recognized by HGC.
     # This can be handy if you want to identify common errors and update the underlying database.
     df_feature_map.head(5)
 
-"""
+
 In this case we find that the algorithm was not able to find a match for one 
 of the features ('EC new sensor'). Hence, we need to adjust the mapping manually.
-"""
+
 
 # manually adjust the mapping by merging with a user defined dictionary (optional)
 feature_map2 = {**feature_map, 'EC new sensor': 'ec_field'}

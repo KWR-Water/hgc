@@ -19,10 +19,9 @@ Steps
 ===================
 Operating the import module typically involves 4 steps:
 1. Map the features in the original file to features recognized by HGC with
-“hgc.io. generate_feature_map()”. For example, “Iron”: “Fe”. Check the mapping
+“hgc.io.generate_feature_map()”. For example, “Iron”: “Fe”. Check the mapping
 manually and adjust if necessary.
-2. Map the units in the original file to units recognized by HGC with “hgc.io.
-generate_unit_map()”. For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually
+2. Map the units in the original file to units recognized by HGC with “hgc.io.generate_unit_map()”. For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually
 and adjust if necessary.
 3. Read the original file and and convert the data with “hgc.io.import_file()”
 4. Convert the imported data to a dataframe in HGC wide format with “hgc.io.to_hgc()”
@@ -33,7 +32,7 @@ Example: import stacked data
 Let’s try using an excel file with stacked data as example.
 
 ----------------------
-Step 1: hgc.io. generate_feature_map()
+Step 1: hgc.io.generate_feature_map()
 ----------------------
 First map the features in the original file, to feature names recognized by HGC.
 """
@@ -43,7 +42,7 @@ import pandas as pd
 import hgc
 
 # compile a list of features by slicing the original file
-lst_features = list(pd.read_excel(r'd:\hgc\testfiles\example1.xlsx', sheet_name='stacked')['Feature'])
+lst_features = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Feature'])
 
 # automatically detect features using text recognition
 feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=lst_features)
@@ -78,7 +77,7 @@ Step 2: hgc.io. generate_unit_map()
 Next, we need to make a mapping for the units, using the same approach as for the features. 
 """
 
-lst_units = list(pd.read_excel(r'd:\hgc\testfiles\example1.xlsx', sheet_name='stacked')['Unit'])
+lst_units = list(pd.read_excel(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Unit'])
 unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=lst_units)
 print(unit_map)
 
@@ -118,7 +117,7 @@ print(hgc.io.default_column_dtype())  # use default values
 Now the we have defined all the arguments, lets import the data
 """
 
-df = hgc.io.import_file(file_path=r'd:\hgc\testfiles\example1.xlsx',
+df = hgc.io.import_file(file_path=pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx',
                     sheet_name='stacked',
                     shape='stacked',
                     slice_header= slice_header,
@@ -151,7 +150,7 @@ for hgc.io.import_file(). This requiresusing the argument “dataframe” instea
 An advantage of this approach is to prevent repeatedly reading the input file .
 """
 
-df_temp = pd.read_excel(r'd:\hgc\testfiles\example1.xlsx', sheet_name='wide', header=None) # ignore headers!
+df_temp = pd.read_excel(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='wide', header=None) # ignore headers!
 
 # step 1: generate feature map
 feature_map2, feature_unmapped2, df_feature_map2 = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, 5:]))

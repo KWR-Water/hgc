@@ -48,10 +48,8 @@ First map the features in the original file, to feature names recognized by HGC.
     # automatically detect features using text recognition
     feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=lst_features)
 
-    """
     Then we need to check whether the features are correctly mapped. And whether certain 
     features did not meet the minimum score. 
-    """
 
     # check if features are correctly mapped
     assert(feature_map == {'chloride': 'Cl', 'nitrate (filtered)': 'NO3', 'manganese': 'Mn', 'nietrate': 'NO3'})

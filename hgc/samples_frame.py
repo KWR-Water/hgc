@@ -670,6 +670,8 @@ class SamplesFrame(object):
         """
         if inplace is True:
             raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
+        if equilibrate_with is None:
+            equilibrate_with = 'none'
 
         pp = self._pp
         df = self._obj.copy()

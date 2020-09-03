@@ -13,6 +13,7 @@ import pandas as pd
 # from unit_converter.converter import convert, converts
 import molmass
 from pathlib import Path
+from hgc import constants
 
 # %% hgc.io.defaults
 # @Tin: complete the following function so that we get the units from HGC.constants.
@@ -52,7 +53,7 @@ def default_feature_units():
         'ec': 'μS/cm',
         'ec_field': 'μS/cm',
     }
-    df = pd.read_csv(Path(__file__).cwd() / 'hgc/constants/default_features_alias.csv', encoding='utf-8', header=0)
+    df = pd.read_csv(Path(constants.__file__).parent / 'default_features_alias.csv', encoding='utf-8', header=0)
     mask = ~(df['DefaultUnits'].isnull())
     dct = {**dict(zip(df['Feature'][mask], df['DefaultUnits'][mask])),
            'ph_field': '1', # give pH unit 1 to prevent error
@@ -755,7 +756,6 @@ def import_file(dataframe=None, file_path='', sheet_name=0, shape='stacked',
 
     # generate a log file
     # global logger
-    Path(__file__).cwd()
     logger = logging.getLogger(r'../import_file.log')
     logger.setLevel(logging.INFO)
     file_handler = logging.FileHandler('import_file.log')

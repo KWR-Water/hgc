@@ -40,6 +40,7 @@ First map the features in the original file, to feature names recognized by HGC.
 .. ipython:: python
     import pandas as pd
     import hgc 
+    from hgc import constants
     from pathlib import Path
 
     # compile a list of features by slicing the original file

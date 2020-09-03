@@ -12,6 +12,7 @@ import scipy.interpolate
 from pathlib import Path
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
+from hgc import constants
 
 # %% Defaults
 
@@ -28,7 +29,7 @@ def entire_feature_alias_table():
         These aliases must be separated by a semicolumn ";".
 
     """
-    file_path = Path(__file__).cwd() / 'hgc/constants/default_features_alias.csv'
+    file_path = Path(constants.__file__).parent / 'default_features_alias.csv'
     df = pd.read_csv(file_path, encoding='utf-8', header=0) # SHOULD NOT BE LOCAL DRIVE !!!!!!!!!!!
     return df
 

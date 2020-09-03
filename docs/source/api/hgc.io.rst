@@ -1,6 +1,6 @@
 HGC.IO documentation (import functionality)
 
-From experience, we know that each organization has its own different format and
+From experience, we know that each organization has its own (different) formats and
 data models to store water quality data. Importing data to a uniform database
 that is suitable for analysis in HGC can therefore be quite cumbersome.
 
@@ -9,8 +9,8 @@ Highlights
 ===================
 
 The aim of this import module is to partly automate importing water quality data.
-It takes csv and excel files. And can handle both ‘wide’ data formats (with each
-parameter stored in a different column) and ‘stacked’ data formats where all data
+It takes csv and excel files (or pandas' dataframe). And can handle both ‘wide’ data formats 
+(with each parameter stored in a different column) and ‘stacked’ data formats where all data
 is stored in 1 column. Features are automatically recognized using an algorithm
 for named entity recognition.
 
@@ -21,25 +21,26 @@ Operating the import module typically involves 4 steps:
 1. Map the features in the original file to features recognized by HGC with
 “hgc.io.generate_feature_map()”. For example, “Iron”: “Fe”. Check the mapping
 manually and adjust if necessary.
-2. Map the units in the original file to units recognized by HGC with “hgc.io.generate_unit_map()”. For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually
-and adjust if necessary.
+2. Map the units in the original file to units recognized by HGC with “hgc.io.generate_unit_map()”. 
+For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually and adjust if necessary.
 3. Read the original file and and convert the data with “hgc.io.import_file()”
 4. Convert the imported data to a dataframe in HGC wide format with “hgc.io.to_hgc()”
 
 ===================
 Example: import stacked data
 ===================
-Let’s try using an excel file with stacked data as example.
+Let’s try using an excel file with stacked data as a simple example.
+Note: the testing file is also availabe in the folder of 'tests': .\tests\test_example1.py
 
 ----------------------
-Step 1: hgc.io.generate_feature_map()
+Step 1: hgc.ner.generate_feature_map()
 ----------------------
 First map the features in the original file, to feature names recognized by HGC.
 """
 
-
 import pandas as pd
-import hgc
+import hgc 
+from pathlib import Path
 
 # compile a list of features by slicing the original file
 lst_features = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Feature'])
@@ -53,13 +54,14 @@ features did not meet the minimum score.
 """
 
 # check if features are correctly mapped
-print(feature_map)
+assert(feature_map == {'chloride': 'Cl', 'nitrate (filtered)': 'NO3', 'manganese': 'Mn', 'nietrate': 'NO3'})
 
 # check for which features the algorithm was not able to find a match that met the minimum resemblance.
-print(feature_unmapped)
+assert(feature_unmapped == ['EC new sensor'])
 
-# The dataframe can be used to check in more detail the scores how well the original features were matched to HGC features. This can be handy if you want to identify common errors and update the underlying database.
-print(df_feature_map)
+# The dataframe can be used to check in more detail the scores how well the original features were matched to HGC features. 
+# This can be handy if you want to identify common errors and update the underlying database.
+df_feature_map.head(5)
 
 """
 In this case we find that the algorithm was not able to find a match for one 
@@ -77,23 +79,22 @@ Step 2: hgc.io. generate_unit_map()
 Next, we need to make a mapping for the units, using the same approach as for the features. 
 """
 
-lst_units = list(pd.read_excel(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Unit'])
+lst_units = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Unit'])
 unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=lst_units)
-print(unit_map)
-
+assert(unit_map == {'mg-N/L': 'mg/L N', 'mg/L': 'mg/L', 'ug/L': 'μg/L', 'μS/cm': 'μS/cm'})
 """
 ----------------------
 Step 3: hgc.io.import_file()
 ----------------------
 
 The third step is to read the original file and and convert the data to the desired 
-datamodel. This requires that we first tell python where to find the data and how to 
+datamodel. This requires that we first indicate where to find the data and how to 
 convert it.
 """
 
 # Arguments defining where to find data
 slice_header = [0, slice(0, 6)]  # row 0
-slice_data = [slice(1, None)]  # row 1 till end of file. Use "None" instead of “:” when slicing
+slice_data = [slice(1, None)]  # row 1 till end of file. "None" indicates "end" here. 
 
 # Arguments how to convert the data
 
@@ -106,8 +107,10 @@ map_header = {**hgc.io.default_map_header(),
 # map_units --> see step 2
 
 # feature_units -->  mapping of the desired units for each feature
-# We can inspect the default units for Cl, NO3 and ec_field
-print(dict((key, hgc.io.default_feature_units()[key]) for key in ['Cl', 'NO3', 'ec_field']))
+# For instance, we can inspect the default units for Cl, NO3 and ec_field
+assert(io.default_feature_units()['Cl'] == 'mg/L')
+assert(io.default_feature_units()['NO3'] == 'mg/L')
+assert(io.default_feature_units()['ec_field'] == 'mS/m')
 
 # column_dtype --> desired dtypefor columns
 # we will use the default dtype
@@ -117,7 +120,7 @@ print(hgc.io.default_column_dtype())  # use default values
 Now the we have defined all the arguments, lets import the data
 """
 
-df = hgc.io.import_file(file_path=pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx',
+df = io.import_file(file_path=str(Path(__file__).cwd()/'tests/example1.xlsx'),
                     sheet_name='stacked',
                     shape='stacked',
                     slice_header= slice_header,
@@ -125,6 +128,25 @@ df = hgc.io.import_file(file_path=pd.read_excel(Path(__file__).cwd()/'tests/exam
                     map_header=map_header,
                     map_features=feature_map2,
                     map_units=unit_map)[0]
+df.head(3) # imported data                     
+df_1 = io.import_file(file_path=str(Path(__file__).cwd()/'tests/example1.xlsx'),
+                    sheet_name='stacked',
+                    shape='stacked',
+                    slice_header= slice_header,
+                    slice_data=slice_data,
+                    map_header=map_header,
+                    map_features=feature_map2,
+                    map_units=unit_map)[1]
+df_1.head(3) # duplication
+df_2 = io.import_file(file_path=str(Path(__file__).cwd()/'tests/example1.xlsx'),
+                    sheet_name='stacked',
+                    shape='stacked',
+                    slice_header= slice_header,
+                    slice_data=slice_data,
+                    map_header=map_header,
+                    map_features=feature_map2,
+                    map_units=unit_map)[2]                        
+df_2.head(3) # nan values   
 """
 Note that we put a '[0]' behind the function, the [1] and [2] are the data
 that was dropped because duplicate or nan_value
@@ -132,7 +154,7 @@ that was dropped because duplicate or nan_value
 ----------------------
 Step 4: hgc.io.to_hgc()
 ----------------------
-Finally, we need to pivot the stacked data to the wide dataframe used by HGC.
+Finally, we need to pivot the stacked data to the wide format used by HGC.
 The default is to use 'LocationID', 'Datetime' and 'SampleID' as index.
 """
 
@@ -146,7 +168,7 @@ Example: import wide data
 Next, we will import the same data, but from a ‘wide’ shaped file.
 
 Note that it is also possible to use a dataframe instead of excel or csv as input
-for hgc.io.import_file(). This requiresusing the argument “dataframe” instead of “file_name”.
+for hgc.io.import_file(). This requires using the argument “dataframe” instead of “file_name”.
 An advantage of this approach is to prevent repeatedly reading the input file .
 """
 
@@ -154,9 +176,11 @@ df_temp = pd.read_excel(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx'
 
 # step 1: generate feature map
 feature_map2, feature_unmapped2, df_feature_map2 = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, 5:]))
+assert(feature_map2 == {'chloride': 'Cl', 'manganese': 'Mn', 'nietrate': 'NO3', 'nitrate (filtered)': 'NO3'})
 
 # step 2: generate unit map
 unit_map2, unit_unmapped2, df_unit_map2 = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[3, 5:]))
+assert(unit_map2 == {'mg-N/L': 'mg/L N', 'mg/L': 'mg/L', 'ug/L': 'μg/L', 'μS/cm': 'μS/cm'})
 
 # step 3: import file
 df2 = hgc.io.import_file(dataframe=df_temp,
@@ -170,7 +194,7 @@ df2 = hgc.io.import_file(dataframe=df_temp,
                           map_features={**feature_map2, 'EC new sensor': 'ec_field'},
                           map_units=unit_map2)[0]
 
-# step 4: cpnvert to wide format
+# step 4: convert to wide format
 df2_hgc = hgc.io.stack_to_hgc(df2)
 
 ===================

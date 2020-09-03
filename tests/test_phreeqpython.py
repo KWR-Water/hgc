@@ -8,8 +8,6 @@ import hgc
 from hgc.constants.constants import mw
 
 
-
-
 @pytest.fixture(name='mineral_data')
 def fixture_mineral_data():
     ''' fixture that loads the test data into a dataframe and makes it valid
@@ -32,6 +30,7 @@ def fixture_consolidated_data():
     df.hgc.make_valid()
     df.hgc.consolidate(inplace=True, use_so4=None, use_ph='lab')
     return df
+
 
 @pytest.fixture(name='phreeqpython_solutions_excel')
 def fixture_phreeqpython_solutions_excel():
@@ -77,7 +76,6 @@ def fixture_phreeqpython_solutions_excel():
         {'temp': 11.0, 'Alkalinity': '2635 as HCO3', 'O(0)':  '0 ', 'C(-4)':    '0 as CH4', 'pH': 7.8, 'Na': '3380 charge', 'K':  95.0, 'Ca': 160, 'Mg': 390.0, 'Fe': 2.30, 'Mn': 0.03, 'Amm': 49.00, 'Si': '71.6 as SiO2', 'Cl': 5285, 'S(6)':  '4 as SO4', 'N(5)':  '0.0 as NO3', 'F':  0.00000, 'Mn(7)': '160.0 as KMnO4'},
     ]
 
-
     solutions = [None] * len(solution_dictionaries)
     for _i, sol_dict in enumerate(solution_dictionaries):
         sol_dict['units'] = 'mg/L'
@@ -107,6 +105,7 @@ def test_phreeqpython_installed():
     pp = PhreeqPython()
     pp.add_solution_simple({'CaCl2': 1.0, 'NaHCO3': 2.0})
 
+
 def test_add_oxygen(consolidated_data, phreeqpython_solutions_excel):
     ''' Test oxygen is added and returned correctly to and from
     phreeqpython with or without. Test it in pure phreeqpython (because there
@@ -117,13 +116,13 @@ def test_add_oxygen(consolidated_data, phreeqpython_solutions_excel):
     - test that adding in the SamplesFrame O2 concentration yields correct results '''
     pp = PhreeqPython()
     test_solution_dict = {'units': 'mg/L',
-                            'Cl': 8.0,
-                           'Na': '2.0 charge',
-                           'Alkalinity': '2.0 as HCO3',
-                           'Ca': 1.0,
-                           'pH': 7,
-                           'temp': 11
-                           }
+                          'Cl': 8.0,
+                          'Na': '2.0 charge',
+                          'Alkalinity': '2.0 as HCO3',
+                          'Ca': 1.0,
+                          'pH': 7,
+                          'temp': 11
+                          }
     sol = pp.add_solution(test_solution_dict)
     assert sol.total_element('O') == 0.0
 
@@ -139,9 +138,11 @@ def test_add_oxygen(consolidated_data, phreeqpython_solutions_excel):
                               'Ca': 1, 'O2': 3, 'ph': 7,
                               'temp': 11}, index=[0])
     test_data.hgc.make_valid()
-    test_data.hgc.consolidate(use_so4=None, use_ph=None, use_ec=None, use_temp=None)
+    test_data.hgc.consolidate(
+        use_so4=None, use_ph=None, use_ec=None, use_temp=None)
     sols = test_data.hgc.get_phreeqpython_solutions()
-    assert sols[0].species['O2'] * 2 * mw('O') * 1000. == pytest.approx(3., 1.e-4)
+    assert sols[0].species['O2'] * 2 * \
+        mw('O') * 1000. == pytest.approx(3., 1.e-4)
 
 
 def test_add_solution(consolidated_data, phreeqpython_solutions_excel):
@@ -160,9 +161,6 @@ def test_add_solution(consolidated_data, phreeqpython_solutions_excel):
         # assert sol.species_molalities == pytest.approx(sol_pp.species_molalities, abs=1.e-4, rel=1e-1), f'species molalities are not equal for solution #{_i}'
 
 
-
-
-
 def test_solution_auto_equilibrate(consolidated_data):
     """ assert that solutions are equilibrated with Na or Cl depending
         on what their concentrations are """
@@ -171,15 +169,19 @@ def test_solution_auto_equilibrate(consolidated_data):
     # make sure that equilibrating with Na will fail because
     # it will needs a concentration below 0 to match the
     # charge in balance
-    df.loc[0, 'Fe'] = 2*df.loc[0,'Na']
+    df.loc[0, 'Fe'] = 2*df.loc[0, 'Na']
     sol = df.hgc.get_phreeqpython_solutions(equilibrate_with='auto')
     Na_in_sol = [s.total_element('Na') * mw('Na') for s in sol]
     Cl_in_sol = [s.total_element('Cl') * mw('Cl') for s in sol]
     # first one equilibrates with Cl
-    np.testing.assert_allclose(Na_in_sol[:1], df.loc[:0,'Na'].values, rtol=1.e-1)
-    np.testing.assert_raises(AssertionError, np.testing.assert_allclose(Na_in_sol[1:], df.loc[1:,'Na'].values, rtol=1.e-1))
+    np.testing.assert_allclose(
+        Na_in_sol[:1], df.loc[:0, 'Na'].values, rtol=1.e-1)
+    np.testing.assert_raises(AssertionError, np.testing.assert_allclose(
+        Na_in_sol[1:], df.loc[1:, 'Na'].values, rtol=1.e-1))
     # others one equilibrates with Na
-    np.testing.assert_allclose(Cl_in_sol[1:], df.loc[1:,'Cl'].values, rtol=1.e-1)
+    np.testing.assert_allclose(
+        Cl_in_sol[1:], df.loc[1:, 'Cl'].values, rtol=1.e-1)
+
 
 def test_solution_equilibrate_with(consolidated_data):
     ''' Assert phreeqpython solutions are returned as series'''
@@ -205,9 +207,9 @@ def test_solution_equilibrate_with(consolidated_data):
     Fe_in_sol_default = [s.total_element('Fe') * mw('Fe')
                          for s in solutions_default]
     Fe_in_sol_none = [s.total_element('Fe') * mw('Fe')
-                         for s in solutions_none]
+                      for s in solutions_none]
     Fe_in_sol_auto = [s.total_element('Fe') * mw('Fe')
-                         for s in solutions_auto]
+                      for s in solutions_auto]
 
     # test that default equilibrate with is None by returning the same array
     np.testing.assert_array_equal(Na_in_sol_default, Na_in_sol_none)
@@ -225,7 +227,6 @@ def test_solution_equilibrate_with(consolidated_data):
     np.testing.assert_allclose(Fe_in_sol_default, df.Fe.values, rtol=1.e-1)
     np.testing.assert_allclose(Fe_in_sol_none, df.Fe.values, rtol=1.e-1)
     np.testing.assert_allclose(Fe_in_sol_auto, df.Fe.values, rtol=1.e-1)
-
 
 
 # def test_calculate_ec_with_measured_values(mineral_data):
@@ -254,6 +255,7 @@ def test_sc(consolidated_data, phreeqpython_solutions_excel):
 
     pd.testing.assert_series_equal(sc_hgc, sc_pp)
 
+
 def test_si_calcite(consolidated_data, phreeqpython_solutions_excel):
     ''' Assert get_si wrapper returns correct saturation indices of all test
         solutions in the fixtures '''
@@ -267,6 +269,7 @@ def test_si_calcite(consolidated_data, phreeqpython_solutions_excel):
 
     pd.testing.assert_series_equal(si_calcite_hgc, si_calcite_pp)
 
+
 def test_for_docs():
     ''' A test to check if the code in docs is wrong or only the building fails. This can be removed. '''
     test_data = {
@@ -275,14 +278,14 @@ def test_for_docs():
         'temp': [10, 10, 10],
         'alkalinity':  [0, 7, 121],
         'O2':  [11, 0, 0],
-        'Na': [9,20,31], 'K':[0.4, 2.1, 2.0],
-        'Ca':[1,3,47],
+        'Na': [9, 20, 31], 'K': [0.4, 2.1, 2.0],
+        'Ca': [1, 3, 47],
         'Fe': [0.10, 2.33, 0.4],
         'Mn': [0.02, 0.06, 0.13],
         'NH4': [1.29, 0.08, 0.34],
         'SiO2': [0.2, 15.4, 13.3],
-        'SO4': [7,19,35],
-        'NO3': [3.4,0.1,0],
+        'SO4': [7, 19, 35],
+        'NO3': [3.4, 0.1, 0],
     }
     df = pd.DataFrame.from_dict(test_data)
     df.hgc.make_valid()
@@ -290,4 +293,3 @@ def test_for_docs():
                        use_so4=None, use_o2=None)
 
     si_calcite = df.hgc.get_saturation_index('Calcite')
-

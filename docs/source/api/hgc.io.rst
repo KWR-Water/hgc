@@ -18,12 +18,16 @@ for named entity recognition.
 Steps
 ------------
 Operating the import module typically involves 4 steps:
+
 1. Map the features in the original file to features recognized by HGC with
 “hgc.io.generate_feature_map()”. For example, “Iron”: “Fe”. Check the mapping
 manually and adjust if necessary.
+
 2. Map the units in the original file to units recognized by HGC with “hgc.io.generate_unit_map()”. 
 For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually and adjust if necessary.
+
 3. Read the original file and and convert the data with “hgc.io.import_file()”
+
 4. Convert the imported data to a dataframe in HGC wide format with “hgc.io.to_hgc()”
 
 Example: import stacked data

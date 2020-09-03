@@ -72,7 +72,6 @@ of the features ('EC new sensor'). Hence, we need to adjust the mapping manually
 
 Step 2: hgc.io. generate_unit_map()
 ----------------------
-
 Next, we need to make a mapping for the units, using the same approach as for the features. 
 
 .. ipython:: python
@@ -82,7 +81,6 @@ Next, we need to make a mapping for the units, using the same approach as for th
 
 Step 3: hgc.io.import_file()
 ----------------------
-
 The third step is to read the original file and and convert the data to the desired 
 datamodel. This requires that we first indicate where to find the data and how to 
 convert it.
@@ -157,15 +155,14 @@ Step 4: hgc.io.to_hgc()
 
 
 Example: import wide data
+Next, we will import the same data, but from a ‘wide’ shaped file.
+
+Note that it is also possible to use a dataframe instead of excel or csv as input
+for hgc.io.import_file(). This requires using the argument “dataframe” instead of “file_name”.
+An advantage of this approach is to prevent repeatedly reading the input file .
+
 ===================
 .. ipython:: python
-    Next, we will import the same data, but from a ‘wide’ shaped file.
-
-    Note that it is also possible to use a dataframe instead of excel or csv as input
-    for hgc.io.import_file(). This requires using the argument “dataframe” instead of “file_name”.
-    An advantage of this approach is to prevent repeatedly reading the input file .
-    """
-
     df_temp = pd.read_excel(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='wide', header=None) # ignore headers!
 
     # step 1: generate feature map
@@ -210,13 +207,12 @@ alias provides the best match (= highest score) for each original feature.
     # Print first lines of default database for mapping features.
     print(hgc.ner.default_feature_alias_dutch_english.head())
 
-    By default, all columns are used except for 'CAS'.
+By default, all columns are used except for 'CAS'.
 
-    It is possible to change the selection of colums through the argument 'alias_cols'
-    In the next example, we will attempt mapping using the CAS number.
+It is possible to change the selection of colums through the argument 'alias_cols'
+In the next example, we will attempt mapping using the CAS number.
 
-    """
-
+.. ipython:: python
     # example with mapping with CAS number
     df_feature_alias = hgc.ner.generate_entity_alias(
         df=hgc.ner.entire_feature_alias_table,
@@ -231,33 +227,28 @@ alias provides the best match (= highest score) for each original feature.
     # check if features are correctly mapped
     print(feature_map3)
 
-    """
-    The results of the mapping with CAS number are very poor compared to the previous
-    mapping. This is logical in this case, since there are no CAS numbers in the
-    original file.
+    
+The results of the mapping with CAS number are very poor compared to the previous
+mapping. This is logical in this case, since there are no CAS numbers in the
+original file.
 
-    Note that in this case we will adjust the argument 'match_method' to 'exact'
-    This works faster, but features must be spelled exactly the same as in the feature list. The mapping method can be
-    adjusted with the argument .
+Note that in this case we will adjust the argument 'match_method' to 'exact'
+This works faster, but features must be spelled exactly the same as in the feature list. The mapping method can be
+adjusted with the argument .
 
-    It is also possible to load a user defined database with the argument
-    'df_entity_alias'.
+It is also possible to load a user defined database with the argument
+'df_entity_alias'.
 
-    ===================
-    Mapping units
-    ===================
 
-    For mapping units, similar functionalities are availabe as for mapping features.
-    Only with a differente database and alias_cols
+Mapping units
+===================
 
-    """
-
+For mapping units, similar functionalities are availabe as for mapping features.
+Only with a differente database and alias_cols
+.. ipython:: python
     # Print first lines of default database for mapping units.
     print(hgc.ner.default_unit_alias.head())
 
-
-    """
-    WARNING: 
-    give pH as units '1'
-    same for kve, pve, etc. replace them by '1' to prevent problems with NaN errors
-    """
+WARNING: 
+give pH as units '1'
+same for kve, pve, etc. replace them by '1' to prevent problems with NaN errors

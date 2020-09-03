@@ -200,7 +200,6 @@ both features and a selection of alias (synonyms). The NER function will try fin
 alias provides the best match (= highest score) for each original feature.
 
 .. ipython:: python
-
     # Print first lines of default database for mapping features.
     print(hgc.ner.default_feature_alias_dutch_english.head())
 
@@ -239,9 +238,9 @@ It is also possible to load a user defined database with the argument
 
 Mapping units
 ===================
-
 For mapping units, similar functionalities are availabe as for mapping features.
 Only with a differente database and alias_cols
+
 .. ipython:: python
     # Print first lines of default database for mapping units.
     print(hgc.ner.default_unit_alias.head())

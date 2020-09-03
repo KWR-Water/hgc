@@ -7,7 +7,7 @@ that is suitable for analysis in HGC can therefore be quite cumbersome.
 
 
 Highlights
-------------
+===================
 
 The aim of this import module is to partly automate importing water quality data.
 It takes csv and excel files (or pandas' dataframe). And can handle both ‘wide’ data formats 
@@ -109,9 +109,7 @@ convert it.
     # we will use the default dtype
     print(hgc.io.default_column_dtype())  # use default values
 
-
-    Now the we have defined all the arguments, lets import the data
-
+    # Now the we have defined all the arguments, lets import the data
 
     df = io.import_file(file_path=str(Path(__file__).cwd()/'tests/example1.xlsx'),
                         sheet_name='stacked',
@@ -141,27 +139,26 @@ convert it.
                         map_units=unit_map)[2]                        
     df_2.head(3) # nan values   
   
-    Note that we put a '[0]' behind the function, the [1] and [2] are the data
-    that was dropped because duplicate or nan_value
+Note that we put a '[0]' behind the function, the [1] and [2] are the data
+that was dropped because duplicate or nan_value
 
 
 Step 4: hgc.io.to_hgc()
 ----------------------
+Finally, we need to pivot the stacked data to the wide format used by HGC.
+The default is to use 'LocationID', 'Datetime' and 'SampleID' as index.
 .. ipython:: python
-    Finally, we need to pivot the stacked data to the wide format used by HGC.
-    The default is to use 'LocationID', 'Datetime' and 'SampleID' as index.
-
     df_hgc = hgc.io.stack_to_hgc(df)
 
 
 Example: import wide data
+=====================
 Next, we will import the same data, but from a ‘wide’ shaped file.
 
 Note that it is also possible to use a dataframe instead of excel or csv as input
 for hgc.io.import_file(). This requires using the argument “dataframe” instead of “file_name”.
 An advantage of this approach is to prevent repeatedly reading the input file .
 
-===================
 .. ipython:: python
     df_temp = pd.read_excel(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='wide', header=None) # ignore headers!
 

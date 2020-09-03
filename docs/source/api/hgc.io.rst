@@ -96,14 +96,13 @@ convert it.
 slice_header = [0, slice(0, 6)]  # row 0
 slice_data = [slice(1, None)]  # row 1 till end of file. "None" indicates "end" here. 
 
-# Arguments how to convert the data
-
 # map_header -->  mapping how to adjust headers name
 # Note: The headers 'Value', 'Unit' and 'SampleID' are compulsory. Other headers can be any string
 map_header = {**hgc.io.default_map_header(), 
               'loc.': 'LocationID', 'date': 'Datetime', 'sample': 'SampleID'}
 
 # map_features --> see step 1
+
 # map_units --> see step 2
 
 # feature_units -->  mapping of the desired units for each feature

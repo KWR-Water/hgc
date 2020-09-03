@@ -30,7 +30,7 @@ def entire_feature_alias_table():
 
     """
     file_path = Path(constants.__file__).parent / 'default_features_alias.csv'
-    df = pd.read_csv(file_path, encoding='utf-8', header=0) # SHOULD NOT BE LOCAL DRIVE !!!!!!!!!!!
+    df = pd.read_csv(file_path, encoding='utf-8', header=0) 
     return df
 
 
@@ -46,7 +46,7 @@ def entire_unit_alias_table():
         These aliases must be separated by a semicolumn ";".
 
     """
-    file_path = Path(__file__).cwd() / 'hgc/constants/default_units_alias.csv'
+    file_path = Path(constants.__file__).parent / 'default_units_alias.csv'
     df = pd.read_csv(file_path, encoding='utf-8', header=0) # SHOULD NOT BE LOCAL DRIVE !!!!!!!!!!!
     return df
 

@@ -142,7 +142,7 @@ def test_add_oxygen(consolidated_data, phreeqpython_solutions_excel):
     test_data.hgc.make_valid()
     test_data.hgc.consolidate(
         use_so4=None, use_ph=None, use_ec=None, use_temp=None)
-    sols = test_data.hgc.get_phreeqpython_solutions()
+    sols = test_data.hgc.get_phreeqpython_solutions(inplace=False)
     assert sols[0].species['O2'] * 2 * \
         mw('O') * 1000. == pytest.approx(3., 1.e-4)
 
@@ -185,23 +185,23 @@ def test_warning_with_hco3_column(caplog):
         use_so4=None, use_ph=None, use_ec=None, use_temp=None)
 
     with caplog.at_level(logging.WARNING):
-        sol_no_alk = test_data_no_alk.hgc.get_phreeqpython_solutions()
+        sol_no_alk = test_data_no_alk.hgc.get_phreeqpython_solutions(inplace=False)
     assert caplog.text == ''
     caplog.clear()
     with caplog.at_level(logging.WARNING):
-        sol_alk = test_data_alk.hgc.get_phreeqpython_solutions()
+        sol_alk = test_data_alk.hgc.get_phreeqpython_solutions(inplace=False)
     assert caplog.text == ''
     caplog.clear()
     with caplog.at_level(logging.WARNING):
-        sol_hco3 = test_data_hco3.hgc.get_phreeqpython_solutions()
+        sol_hco3 = test_data_hco3.hgc.get_phreeqpython_solutions(inplace=False)
     assert 'bicarbonate (or hco3) is found, but no alkalinity' in caplog.text
     caplog.clear()
     with caplog.at_level(logging.WARNING):
-        sol_bicarb = test_data_bicarb.hgc.get_phreeqpython_solutions()
+        sol_bicarb = test_data_bicarb.hgc.get_phreeqpython_solutions(inplace=False)
     assert 'bicarbonate (or hco3) is found, but no alkalinity' in caplog.text
     caplog.clear()
     with caplog.at_level(logging.WARNING):
-        sol_both = test_data_both.hgc.get_phreeqpython_solutions()
+        sol_both = test_data_both.hgc.get_phreeqpython_solutions(inplace=False)
     assert 'bicarbonate (or hco3) and alkalinity' in caplog.text
     caplog.clear()
 
@@ -221,7 +221,7 @@ def test_add_solution(consolidated_data, phreeqpython_solutions_excel):
     # pp = phreeqpython_solutions_excel[0]
     solutions_direct = phreeqpython_solutions_excel[1]
 
-    solutions_hgc = df.hgc.get_phreeqpython_solutions()
+    solutions_hgc = df.hgc.get_phreeqpython_solutions(inplace=False)
     assert all([isinstance(s, Solution) for s in solutions_hgc])
 
     for _i, sol in enumerate(solutions_hgc):
@@ -239,7 +239,7 @@ def test_solution_auto_equilibrate(consolidated_data):
     # it will needs a concentration below 0 to match the
     # charge in balance
     df.loc[0, 'Fe'] = 2*df.loc[0, 'Na']
-    sol = df.hgc.get_phreeqpython_solutions(equilibrate_with='auto')
+    sol = df.hgc.get_phreeqpython_solutions(equilibrate_with='auto', inplace=False)
     Na_in_sol = [s.total_element('Na') * mw('Na') for s in sol]
     Cl_in_sol = [s.total_element('Cl') * mw('Cl') for s in sol]
     # first one equilibrates with Cl
@@ -258,11 +258,11 @@ def test_solution_equilibrate_with(consolidated_data):
     ''' Assert phreeqpython solutions are returned as series'''
     df = consolidated_data
 
-    solutions_default = df.hgc.get_phreeqpython_solutions()
-    solutions_Na = df.hgc.get_phreeqpython_solutions(equilibrate_with='Na')
-    solutions_Cl = df.hgc.get_phreeqpython_solutions(equilibrate_with='Cl')
-    solutions_none = df.hgc.get_phreeqpython_solutions(equilibrate_with=None)
-    solutions_auto = df.hgc.get_phreeqpython_solutions(equilibrate_with='auto')
+    solutions_default = df.hgc.get_phreeqpython_solutions(inplace=False)
+    solutions_Na = df.hgc.get_phreeqpython_solutions(equilibrate_with='Na', inplace=False)
+    solutions_Cl = df.hgc.get_phreeqpython_solutions(equilibrate_with='Cl', inplace=False)
+    solutions_none = df.hgc.get_phreeqpython_solutions(equilibrate_with=None, inplace=False)
+    solutions_auto = df.hgc.get_phreeqpython_solutions(equilibrate_with='auto', inplace=False)
 
     # get the list of Na-concentrations in the phreeqpython-solutions (from mmol/L to
     # mg/L)
@@ -321,8 +321,8 @@ def test_sc(consolidated_data, phreeqpython_solutions_excel):
         solutions in the fixtures '''
     df = consolidated_data
     solutions_direct = phreeqpython_solutions_excel[1]
-    sc_hgc = df.hgc.get_specific_conductance()
-    sc_pp = pd.Series([sol.sc for sol in solutions_direct], index=sc_hgc.index)
+    sc_hgc = df.hgc.get_specific_conductance(inplace=False)
+    sc_pp = pd.Series([sol.sc for sol in solutions_direct], index=sc_hgc.index, name=sc_hgc.name)
 
     pd.testing.assert_series_equal(sc_hgc, sc_pp)
 
@@ -334,9 +334,10 @@ def test_si_calcite(consolidated_data, phreeqpython_solutions_excel):
     # pp = phreeqpython_solutions_excel[0]
     solutions_direct = phreeqpython_solutions_excel[1]
 
-    si_calcite_hgc = df.hgc.get_saturation_index('Calcite')
+    si_calcite_hgc = df.hgc.get_saturation_index('Calcite', inplace=False)
     si_calcite_pp = pd.Series([sol.si('Calcite') for sol in solutions_direct],
-                              index=si_calcite_hgc.index)
+                              index=si_calcite_hgc.index,
+                              name=si_calcite_hgc.name)
 
     pd.testing.assert_series_equal(si_calcite_hgc, si_calcite_pp)
 

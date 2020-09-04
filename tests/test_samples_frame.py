@@ -84,7 +84,7 @@ def test_get_ratios():
         suva=[None] * 17))
     df_ratios_original['2h_to_18o'] = [None] * 17
 
-    df_ratios = df.hgc.get_ratios()
+    df_ratios = df.hgc.get_ratios(inplace=False)
 
 
     assert isinstance(df_ratios, pd.core.frame.DataFrame)
@@ -115,7 +115,7 @@ def test_get_sum_anions_1():
     """ This testcase is based on row 11, sheet 4 of original Excel-based HGC """
     df = pd.DataFrame([[56., 16., 1.5, 0.027, 0.0, 0.0, 3.4, 0.04, 7., 4.5]], columns=('Br', 'Cl', 'doc', 'F', 'alkalinity', 'NO2', 'NO3', 'PO4', 'SO4', 'ph'))
     df.hgc.make_valid()
-    sum_anions = df.hgc.get_sum_anions()
+    sum_anions = df.hgc.get_sum_anions(inplace=False)
     assert np.round(sum_anions[0], 2)  == 0.67
 
 def test_get_sum_anions_2():
@@ -134,7 +134,7 @@ def test_get_sum_anions_2():
     }
     df = pd.DataFrame.from_dict(testdata)
     df.hgc.make_valid()
-    sum_anions = df.hgc.get_sum_anions()
+    sum_anions = df.hgc.get_sum_anions(inplace=False)
     assert np.round(sum_anions[0], 2)  == 1.28
 
 def test_get_sum_anions_3(test_data_bas_vdg):
@@ -142,19 +142,19 @@ def test_get_sum_anions_3(test_data_bas_vdg):
     df = test_data_bas_vdg
     df.hgc.consolidate(use_ph='lab', use_ec='lab', use_temp=None, use_so4=None, use_o2=None)
 
-    sum_anions = df.hgc.get_sum_anions()
+    sum_anions = df.hgc.get_sum_anions(inplace=False)
     np.testing.assert_almost_equal(sum_anions.values,
                                    np.array([0.77472968, 1.7837688, 3.3159489,
                                              ]))
 
-    sum_cations = df.hgc.get_sum_cations()
+    sum_cations = df.hgc.get_sum_cations(inplace=False)
     np.testing.assert_almost_equal(sum_cations.values,
                                    np.array([2.1690812, 2.0341514, 15.9185133]))
 
 def test_get_sum_cations():
     df = pd.DataFrame([[4.5, 9.0, 0.4, 1.0, 1.1, 0.1, 0.02, 1.29, 99.0, 3.0, 0.3, 3.2, 0.6, 0.6, 10.4, 7.0, 15.0]], columns=('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn'))
     df.hgc.make_valid()
-    sum_cations = df.hgc.get_sum_cations()
+    sum_cations = df.hgc.get_sum_cations(inplace=False)
     assert np.round(sum_cations[0], 2)  == 0.66
 
 
@@ -190,7 +190,7 @@ def test_get_stuyfzand_water_type():
     }
     df = pd.DataFrame.from_dict(testdata)
     df.hgc.make_valid()
-    water_type = df.hgc.get_stuyfzand_water_type()
+    water_type = df.hgc.get_stuyfzand_water_type(inplace=False)
     assert water_type[0] == 'g*NaNO3o'
 
 def test_get_stuyfzand_water_type_2(test_data_bas_vdg):
@@ -199,7 +199,7 @@ def test_get_stuyfzand_water_type_2(test_data_bas_vdg):
     df = test_data_bas_vdg
     df.hgc.consolidate(use_ph='lab', use_ec='lab',
                        use_temp=None, use_so4=None, use_o2=None)
-    assert df.hgc.get_stuyfzand_water_type().to_list() == ['g1CaHCO3o', 'F*NaClo', 'B1NaCl']
+    assert df.hgc.get_stuyfzand_water_type(inplace=False).to_list() == ['g1CaHCO3o', 'F*NaClo', 'B1NaCl']
 
 
     testdata = {
@@ -225,8 +225,7 @@ def test_get_stuyfzand_water_type_2(test_data_bas_vdg):
     df = pd.DataFrame.from_dict(testdata)
     df.hgc.make_valid()
     df.hgc.consolidate(use_ph='lab', use_ec='lab', use_temp=None, use_so4=None, use_o2=None)
-    df.hgc.get_stuyfzand_water_type()
-    [_.total('N') for _ in df.hgc.get_phreeqpython_solutions()]
+    df.hgc.get_stuyfzand_water_type(inplace=False)
 
 
 
@@ -234,5 +233,91 @@ def test_get_bex():
     """ Sheet 5 - col EC in HGC Excel """
     df = pd.DataFrame([[15., 1.1, 1.6, 19.]], columns=('Na', 'K', 'Mg', 'Cl'))
     df.hgc.make_valid()
-    bex = df.hgc.get_bex()
+    bex = df.hgc.get_bex(inplace=False)
     assert np.round(bex[0], 2)  == 0.24
+
+def test_inplace(test_data_bas_vdg):
+    """ Test to see if the inplace argument behaves as expected: returning
+    a series in inplace=False and appending the column if inplace=True"""
+    test_data_bas_vdg.hgc.consolidate(use_so4=None, use_o2=None, use_ph='lab')
+    def assert_column_added_inplace(column, is_added, method_name, method_kwargs):
+        """ assert whether a column is added to the dataframe or not when
+        a method with its arguments method_kwargs are called """
+        df = test_data_bas_vdg.copy(deep=True)
+        n_columns = len(df.columns)
+        assert column not in df.columns
+        method = getattr(df.hgc, method_name)
+        df_out = method(**method_kwargs)
+        if is_added:
+            assert column in df.columns
+            assert n_columns != len(df.columns)
+            assert df_out is None
+        else:
+            assert column not in df.columns
+            assert n_columns == len(df.columns)
+            assert df_out is not None
+
+    assert_column_added_inplace('bex', is_added=True, method_name='get_bex',
+                                method_kwargs=dict(inplace=True))
+    assert_column_added_inplace('bex', is_added=True, method_name='get_bex',
+                                method_kwargs=dict())
+    assert_column_added_inplace('bex', is_added=False, method_name='get_bex',
+                                method_kwargs=dict(inplace=False))
+
+    assert_column_added_inplace('cl_to_na', is_added=True, method_name='get_ratios',
+                                method_kwargs=dict(inplace=True))
+    assert_column_added_inplace('cl_to_na', is_added=True, method_name='get_ratios',
+                                method_kwargs=dict())
+    assert_column_added_inplace('cl_to_na', is_added=False, method_name='get_ratios',
+                                method_kwargs=dict(inplace=False))
+
+    assert_column_added_inplace('water_type', is_added=True, method_name='get_stuyfzand_water_type',
+                                method_kwargs=dict(inplace=True))
+    assert_column_added_inplace('water_type', is_added=True, method_name='get_stuyfzand_water_type',
+                                method_kwargs=dict())
+    assert_column_added_inplace('water_type', is_added=False, method_name='get_stuyfzand_water_type',
+                                method_kwargs=dict(inplace=False))
+
+    assert_column_added_inplace('dominant_anion', is_added=True, method_name='get_dominant_anions',
+                                method_kwargs=dict(inplace=True))
+    assert_column_added_inplace('dominant_anion', is_added=True, method_name='get_dominant_anions',
+                                method_kwargs=dict())
+    assert_column_added_inplace('dominant_anion', is_added=False, method_name='get_dominant_anions',
+                                method_kwargs=dict(inplace=False))
+
+    assert_column_added_inplace('sum_anions', is_added=True, method_name='get_sum_anions',
+                                method_kwargs=dict(inplace=True))
+    assert_column_added_inplace('sum_anions', is_added=True, method_name='get_sum_anions',
+                                method_kwargs=dict())
+    assert_column_added_inplace('sum_anions', is_added=False, method_name='get_sum_anions',
+                                method_kwargs=dict(inplace=False))
+
+    assert_column_added_inplace('sum_cations', is_added=True, method_name='get_sum_cations',
+                                method_kwargs=dict(inplace=True))
+    assert_column_added_inplace('sum_cations', is_added=True, method_name='get_sum_cations',
+                                method_kwargs=dict())
+    assert_column_added_inplace('sum_cations', is_added=False, method_name='get_sum_cations',
+                                method_kwargs=dict(inplace=False))
+
+
+    assert_column_added_inplace('pp_solutions', is_added=True, method_name='get_phreeqpython_solutions',
+                                method_kwargs=dict(inplace=True))
+    assert_column_added_inplace('pp_solutions', is_added=True, method_name='get_phreeqpython_solutions',
+                                method_kwargs=dict())
+    assert_column_added_inplace('pp_solutions', is_added=False, method_name='get_phreeqpython_solutions',
+                                method_kwargs=dict(inplace=False))
+
+    assert_column_added_inplace('SI calcite', is_added=True, method_name='get_saturation_index',
+                                method_kwargs=dict(inplace=True, mineral_or_gas='calcite'))
+    assert_column_added_inplace('SI calcite', is_added=True, method_name='get_saturation_index',
+                                method_kwargs=dict(mineral_or_gas='calcite'))
+    assert_column_added_inplace('SI calcite', is_added=False, method_name='get_saturation_index',
+                                method_kwargs=dict(inplace=False, mineral_or_gas='calcite'))
+
+    assert_column_added_inplace('sc', is_added=True, method_name='get_specific_conductance',
+                                method_kwargs=dict(inplace=True))
+    assert_column_added_inplace('sc', is_added=True, method_name='get_specific_conductance',
+                                method_kwargs=dict())
+    assert_column_added_inplace('sc', is_added=False, method_name='get_specific_conductance',
+                                method_kwargs=dict(inplace=False))
+

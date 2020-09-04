@@ -215,7 +215,7 @@ class SamplesFrame(object):
         merge_on_na : bool, default False
             Fill NaN's from one measurement method with measurements from other method.
         inplace : bool, default True
-            Modify SamplesFrame in place?
+            Modify SamplesFrame in place. inplace=False is not allowed
 
 
         Raises
@@ -228,7 +228,7 @@ class SamplesFrame(object):
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
 
         if inplace is False:
-            raise NotImplementedError('inplace=False is not (yet) implemented. It will become the default though')
+            raise NotImplementedError('inplace=False is not (yet) implemented.')
 
         param_mapping = {
             'ph': use_ph,
@@ -274,7 +274,7 @@ class SamplesFrame(object):
                                  f"this column.")
 
 
-    def get_bex(self, watertype="G"):
+    def get_bex(self, watertype="G", inplace=True):
         """
         Get Base Exchange Index (meq/L). By default this is the BEX without dolomite.
 
@@ -310,10 +310,13 @@ class SamplesFrame(object):
 
         df_out['bex'] = df_out['Na_nonmarine']/22.99 + df_out['K_nonmarine']/39.098 + df_out['Mg_nonmarine']/12.153
 
-        return df_out['bex']
+        if inplace:
+            self._obj['bex'] = df_out['bex']
+        else:
+            return df_out['bex']
 
 
-    def get_ratios(self):
+    def get_ratios(self, inplace=True):
         """
         Calculate common hydrochemical ratios, will ignore any ratios
         in case their constituents are not present in the SamplesFrame.
@@ -366,7 +369,7 @@ class SamplesFrame(object):
             has_cols = [const in self._obj.columns for const in constituents]
             if all(has_cols):
                 if ratio == 'hco3_to_sum_anions':
-                    df_ratios[ratio] = self._obj['alkalinity'] / self.get_sum_anions()
+                    df_ratios[ratio] = self._obj['alkalinity'] / self.get_sum_anions(inplace=False)
                 elif ratio == 'hco3_to_ca_and_mg':
                     df_ratios[ratio] = self._obj['alkalinity'] / (self._obj['Ca'] + self._obj['Mg'])
                 elif ratio == 'monc':
@@ -379,10 +382,13 @@ class SamplesFrame(object):
                 missing_cols = [i for (i, v) in zip(constituents, has_cols) if not v]
                 logging.info(f"Cannot calculate ratio {ratio} since columns {','.join(missing_cols)} are not present.")
 
-        return df_ratios
+        if inplace:
+            self._obj[df_ratios.columns] = df_ratios
+        else:
+            return df_ratios
 
 
-    def get_stuyfzand_water_type(self):
+    def get_stuyfzand_water_type(self, inplace=True):
         """
         Get Stuyfzand water type. This water type classification contains
         5 components: Salinity, Alkalinity, Dominant Cation, Dominant Anion and Base Exchange Index.
@@ -428,12 +434,12 @@ class SamplesFrame(object):
         df_out.loc[df_in['alkalinity'] > 3905, 'swt_a'] = '7'
 
         #Dominant cation
-        s_sum_cations = self.get_sum_cations()
+        s_sum_cations = self.get_sum_cations(inplace=False)
 
         df_out['swt_domcat'] = self._get_dominant_anions_of_df(df_in)
 
         # Dominant anion
-        s_sum_anions = self.get_sum_anions()
+        s_sum_anions = self.get_sum_anions(inplace=False)
         cl_mmol = df_in.Cl/mw('Cl')
         hco3_mmol = df_in.alkalinity/(mw('H') + mw('C') + 3*mw('O'))
         no3_mmol = df_in.alkalinity/(mw('N') + 3*mw('O'))
@@ -455,7 +461,7 @@ class SamplesFrame(object):
         df_out.loc[is_mix, 'swt_doman'] = "Mix"
 
         # Base Exchange Index
-        s_bex = self.get_bex()
+        s_bex = self.get_bex(inplace=False)
         threshold1 = 0.5 + 0.02*cl_mmol
         threshold2 = -0.5-0.02*cl_mmol
         is_plus = (s_bex > threshold1) & (s_bex > 1.5*(s_sum_cations-s_sum_anions))
@@ -481,11 +487,17 @@ class SamplesFrame(object):
         #Putting it all together
         df_out['swt'] = df_out['swt_s'].str.cat(df_out[['swt_a', 'swt_domcat', 'swt_doman', 'swt_bex']])
 
-        return df_out['swt']
+        if inplace:
+            self._obj['water_type'] = df_out['swt']
+        else:
+            return df_out['swt']
 
     def _get_dominant_anions_of_df(self, df_in):
         """  calculates the dominant anions of the dataframe df_in """
-        s_sum_cations = self.get_sum_cations()
+        s_sum_cations = self.get_sum_cations(inplace=False)
+
+        cols_req = ('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn')
+        df_in = df_in.hgc._make_input_df(cols_req)
 
         na_mmol = df_in.Na/mw('Na')
         k_mmol = df_in.K/mw('K')
@@ -544,7 +556,7 @@ class SamplesFrame(object):
         is_domcat_fe = is_domcat_fe_mn & (fe_mmol > mn_mmol)
         is_domcat_mn = is_domcat_fe_mn & (mn_mmol > fe_mmol)
 
-        sr_out = pd.Series(index=df_in.index)
+        sr_out = pd.Series(index=df_in.index, dtype='object')
         sr_out[:] = ""
         sr_out[is_domcat_nh4] = "NH4"
         sr_out[is_domcat_na] = "Na"
@@ -559,9 +571,12 @@ class SamplesFrame(object):
         return sr_out
 
 
-    def get_dominant_anions(self):
+    def get_dominant_anions(self, inplace=True):
         """ returns a series with the dominant anions."""
-        return self._get_dominant_anions_of_df(self._obj)
+        if inplace:
+            self._obj['dominant_anion'] = self._get_dominant_anions_of_df(self._obj)
+        else:
+            return self._get_dominant_anions_of_df(self._obj)
 
     def fillna_concentrations(self, how="phreeqc"):
         """
@@ -587,7 +602,6 @@ class SamplesFrame(object):
         else:
             raise NotImplementedError()
 
-
     def make_valid(self):
         """
         Try to convert the DataFrame into a valid HGC-SamplesFrame.
@@ -600,7 +614,7 @@ class SamplesFrame(object):
         self.is_valid = True
 
 
-    def get_sum_anions(self):
+    def get_sum_anions(self, inplace=True):
         """
         Calculate sum of anions according to the Stuyfzand method.
 
@@ -630,10 +644,12 @@ class SamplesFrame(object):
         s_sum_anions.loc[is_add_a_org] = sum_ions + a_org
         s_sum_anions.loc[~is_add_a_org] = sum_ions
 
-        return s_sum_anions
+        if inplace:
+            self._obj['sum_anions'] = s_sum_anions
+        else:
+            return s_sum_anions
 
-
-    def get_sum_cations(self):
+    def get_sum_cations(self, inplace=True):
         """
         Calculate sum of cations according to the Stuyfzand method.
 
@@ -669,7 +685,10 @@ class SamplesFrame(object):
                     df_in['Sr']/87620 + \
                     df_in['Zn']/65380
 
-        return s_sum_cations
+        if inplace:
+            self._obj['sum_cations'] = s_sum_cations
+        else:
+            return s_sum_cations
 
 
     def get_phreeq_columns(self):
@@ -750,7 +769,7 @@ class SamplesFrame(object):
 
         return phreeq_columns
 
-    def get_phreeqpython_solutions(self, equilibrate_with='none', inplace=False):
+    def get_phreeqpython_solutions(self, equilibrate_with='none', inplace=True):
         """
         Return a series of `phreeqpython solutions <https://github.com/Vitens/phreeqpython>`_ derived from the (row)data in the SamplesFrame.
 
@@ -758,15 +777,13 @@ class SamplesFrame(object):
         ----------
         equilibrate_with : str, default 'none'
             Ion to add for achieving charge equilibrium in the solutions.
-        inplace : bool, default False
+        inplace : bool, default True
             Whether the returned series is added to the DataFrame or not (default: False).
 
         Returns
         -------
         pandas.Series
         """
-        if inplace is True:
-            raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
         # `None` is also a valid argument and is translated to the strin `'none'`
         if equilibrate_with is None:
             equilibrate_with = 'none'
@@ -845,10 +862,14 @@ class SamplesFrame(object):
                     raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}. ' +
                                      'Possibly charge balance could (sufficiently) reached.')
 
-        # return the solutions as pandas series with the same index as the source dataframe
-        return pd.Series(solutions, index=self._obj.index)
+        return_series = pd.Series(solutions, index=self._obj.index)
+        if inplace:
+            self._obj['pp_solutions'] = return_series
+        else:
+            # return the solutions as pandas series with the same index as the source dataframe
+            return return_series
 
-    def get_saturation_index(self, mineral_or_gas, use_phreeqc=True, inplace=False, **kwargs):
+    def get_saturation_index(self, mineral_or_gas, use_phreeqc=True, inplace=True, **kwargs):
         ''' adds or returns the saturation index of a mineral or the partial pressure of a gas using phreeqc.
 
            Parameters
@@ -865,21 +886,25 @@ class SamplesFrame(object):
            -------
                 pandas.Series
                              with values of SI for each row of the input dataframe '''
-        if inplace:
-            raise NotImplementedError('inplace argument is not yet implemented.')
         if not use_phreeqc:
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')
 
 
-        solutions = self.get_phreeqpython_solutions(**kwargs)
+        solutions = self.get_phreeqpython_solutions(inplace=False, **kwargs)
         saturation_index = [s.si(mineral_or_gas) if s is not None else None for s in solutions]
 
         self._clean_up_phreeqpython_solutions(solutions)
 
         # return it as series with the same index as the dataframe
-        return pd.Series(saturation_index, index=self._obj.index)
+        name_series = 'SI '+ mineral_or_gas
+        return_series = pd.Series(saturation_index, index=self._obj.index,
+                                  name=name_series)
+        if inplace:
+            self._obj[name_series] = return_series
+        else:
+            return return_series
 
-    def get_specific_conductance(self, use_phreeqc=True, **kwargs):
+    def get_specific_conductance(self, use_phreeqc=True, inplace=True, **kwargs):
         ''' returns the specific conductance (sc) of a water sample using phreeqc. sc is
             also known as electric conductivity (ec) or egv measurements.
 
@@ -898,11 +923,17 @@ class SamplesFrame(object):
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')
 
         # create phreeqpython solutions
-        solutions = self.get_phreeqpython_solutions(**kwargs)
+        solutions = self.get_phreeqpython_solutions(inplace=False, **kwargs)
         # extract sc from them
         specific_conductance = [s.sc for s in solutions]
         # clean up
         self._clean_up_phreeqpython_solutions(solutions)
 
         # return it as series with the same index as the dataframe
-        return pd.Series(specific_conductance, index=self._obj.index)
+        series_name = 'sc'
+        return_series = pd.Series(specific_conductance, index=self._obj.index,
+                                  name=series_name)
+        if inplace:
+            self._obj[series_name] = return_series
+        else:
+            return return_series

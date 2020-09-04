@@ -1,4 +1,6 @@
 ''' Testing of the integration of phreeqpython in hgc '''
+import logging
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -143,6 +145,73 @@ def test_add_oxygen(consolidated_data, phreeqpython_solutions_excel):
     sols = test_data.hgc.get_phreeqpython_solutions()
     assert sols[0].species['O2'] * 2 * \
         mw('O') * 1000. == pytest.approx(3., 1.e-4)
+
+
+def test_warning_with_hco3_column(caplog):
+    """ test whether a warning is logged when using hco3 as column (and not
+    alkalinity). and whether hco3 and bicarbonate columns in SamplesFrame are
+    ignored in phreeq calculations"""
+    test_data_no_alk = pd.DataFrame({'Cl': 8, 'Na': 2,
+                                     'Ca': 1, 'O2': 3, 'ph': 7,
+                                     'temp': 11}, index=[0])
+    test_data_alk = pd.DataFrame({'Cl': 8, 'Na': 2, 'alkalinity': 2,
+                                  'Ca': 1, 'O2': 3, 'ph': 7,
+                                  'temp': 11}, index=[0])
+    test_data_hco3 = pd.DataFrame({'Cl': 8, 'Na': 2, 'hco3': 2,
+                                   'Ca': 1, 'O2': 3, 'ph': 7,
+                                   'temp': 11}, index=[0])
+    test_data_bicarb = pd.DataFrame({'Cl': 8, 'Na': 2, 'bicarbonate': 2,
+                                     'Ca': 1, 'O2': 3, 'ph': 7,
+                                     'temp': 11}, index=[0])
+    test_data_both = pd.DataFrame({'Cl': 8, 'Na': 2, 'bicarbonate': 2,
+                                   'alkalinity': 2,
+                                   'Ca': 1, 'O2': 3, 'ph': 7,
+                                   'temp': 11}, index=[0])
+    test_data_no_alk.hgc.make_valid()
+    test_data_alk.hgc.make_valid()
+    test_data_hco3.hgc.make_valid()
+    test_data_bicarb.hgc.make_valid()
+    test_data_both.hgc.make_valid()
+
+    test_data_no_alk.hgc.consolidate(
+        use_so4=None, use_ph=None, use_ec=None, use_temp=None)
+    test_data_alk.hgc.consolidate(
+        use_so4=None, use_ph=None, use_ec=None, use_temp=None)
+    test_data_hco3.hgc.consolidate(
+        use_so4=None, use_ph=None, use_ec=None, use_temp=None)
+    test_data_bicarb.hgc.consolidate(
+        use_so4=None, use_ph=None, use_ec=None, use_temp=None)
+    test_data_both.hgc.consolidate(
+        use_so4=None, use_ph=None, use_ec=None, use_temp=None)
+
+    with caplog.at_level(logging.WARNING):
+        sol_no_alk = test_data_no_alk.hgc.get_phreeqpython_solutions()
+    assert caplog.text == ''
+    caplog.clear()
+    with caplog.at_level(logging.WARNING):
+        sol_alk = test_data_alk.hgc.get_phreeqpython_solutions()
+    assert caplog.text == ''
+    caplog.clear()
+    with caplog.at_level(logging.WARNING):
+        sol_hco3 = test_data_hco3.hgc.get_phreeqpython_solutions()
+    assert 'bicarbonate (or hco3) is found, but no alkalinity' in caplog.text
+    caplog.clear()
+    with caplog.at_level(logging.WARNING):
+        sol_bicarb = test_data_bicarb.hgc.get_phreeqpython_solutions()
+    assert 'bicarbonate (or hco3) is found, but no alkalinity' in caplog.text
+    caplog.clear()
+    with caplog.at_level(logging.WARNING):
+        sol_both = test_data_both.hgc.get_phreeqpython_solutions()
+    assert 'bicarbonate (or hco3) and alkalinity' in caplog.text
+    caplog.clear()
+
+    assert sol_hco3.values[0].species == sol_bicarb.values[0].species
+    assert sol_hco3.values[0].species == sol_no_alk.values[0].species
+    assert sol_hco3.values[0].species != sol_alk.values[0].species
+    assert sol_both.values[0].species == sol_alk.values[0].species
+
+
+
 
 
 def test_add_solution(consolidated_data, phreeqpython_solutions_excel):

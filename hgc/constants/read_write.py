@@ -14,8 +14,8 @@ PATH = Path(__file__).parent
 PICKLE_PATH_FILE = PATH / 'constants.pickle'
 
 def _formula_parser(formula, calculate_or_not, atoms):
-    ''' parses the chemical formula if calculate_or_not
-        equals `calculate`, otherwise, do nothing. Use
+    ''' parses the chemical formula and determine its mol weight. But only
+        if `calculate_or_not` equals `calculate`, otherwise, do nothing. Use
         the molecular weight from atoms dict. '''
 
     if (calculate_or_not != 'calculate') or (formula in ['N_tot_k', 'PO4_ortho', 'SO4_ic', 'alkalinity']):

@@ -9,6 +9,7 @@ import pandas as pd
 from phreeqpython import PhreeqPython
 
 from hgc.constants import constants
+from hgc.constants.constants import mw
 
 
 @pd.api.extensions.register_dataframe_accessor("hgc")
@@ -429,30 +430,24 @@ class SamplesFrame(object):
         #Dominant cation
         s_sum_cations = self.get_sum_cations()
 
-        is_no_domcat = (df_in['Na']/22.99 + df_in['K']/39.1 + df_in['NH4']/18.04) < (s_sum_cations/2)
-        df_out.loc[is_no_domcat, 'swt_domcat'] = ""
-
-        is_domcat_nh4 = ~is_no_domcat & (df_in['NH4']/18.04 > (df_in['Na']/22.99 + df_in['K']/39.1))
-        df_out.loc[is_domcat_nh4, 'swt_domcat'] = ""
-
-        is_domcat_na = ~is_no_domcat & ~is_domcat_nh4 & (df_in['Na']/22.99 > df_in['K']/39.1)
-        df_out.loc[is_domcat_na, 'swt_domcat'] = "Na"
-
-        is_domcat_k = ~is_no_domcat & ~is_domcat_nh4 & ~is_domcat_na
-        df_out.loc[is_domcat_k, 'swt_domcat'] = "K"
+        df_out['swt_domcat'] = self._get_dominant_anions_of_df(df_in)
 
         # Dominant anion
         s_sum_anions = self.get_sum_anions()
+        cl_mmol = df_in.Cl/mw('Cl')
+        hco3_mmol = df_in.alkalinity/(mw('H') + mw('C') + 3*mw('O'))
+        no3_mmol = df_in.alkalinity/(mw('N') + 3*mw('O'))
+        so4_mmol = df_in.alkalinity/(mw('S') + 4*mw('O'))
 
         # TODO: consider renaming doman to dom_an or dom_anion
-        is_doman_cl = (df_in['Cl']/35.453 > s_sum_anions/2)
+        is_doman_cl = (cl_mmol > s_sum_anions/2)
         df_out.loc[is_doman_cl, 'swt_doman'] = "Cl"
 
-        is_doman_hco3 = ~is_doman_cl & (df_in['alkalinity']/61.02 > s_sum_anions/2)
+        is_doman_hco3 = ~is_doman_cl & (hco3_mmol > s_sum_anions/2)
         df_out.loc[is_doman_hco3, 'swt_doman'] = "HCO3"
 
-        is_doman_so4_or_no3 = ~is_doman_cl & ~is_doman_hco3 & (2*df_in['SO4']/96.06 + df_in['NO3']/62. > s_sum_anions/2)
-        is_doman_so4 = (2*df_in['SO4']/96.06 > df_in['NO3']/62.)
+        is_doman_so4_or_no3 = ~is_doman_cl & ~is_doman_hco3 & (2*so4_mmol + no3_mmol > s_sum_anions/2)
+        is_doman_so4 = (2*so4_mmol > no3_mmol)
         df_out.loc[is_doman_so4_or_no3 & is_doman_so4, 'swt_doman'] = "SO4"
         df_out.loc[is_doman_so4_or_no3 & ~is_doman_so4, 'swt_doman'] = "NO3"
 
@@ -461,21 +456,26 @@ class SamplesFrame(object):
 
         # Base Exchange Index
         s_bex = self.get_bex()
-        threshold1 = 0.5 + 0.02*df_in['Cl']/35.453
-        threshold2 = -0.5-0.02*df_in['Cl']/35.453
+        threshold1 = 0.5 + 0.02*cl_mmol
+        threshold2 = -0.5-0.02*cl_mmol
         is_plus = (s_bex > threshold1) & (s_bex > 1.5*(s_sum_cations-s_sum_anions))
-        df_out.loc[is_plus, 'swt_bex'] = '+'
 
         is_minus = ~is_plus & (s_bex < threshold2) & (s_bex < 1.5*(s_sum_cations-s_sum_anions))
-        df_out.loc[is_minus, 'swt_bex'] = '-'
 
-        is_neutral = ~is_plus & ~is_minus & ((s_bex > threshold2) & (s_bex < threshold1) & (s_sum_cations == s_sum_anions)) | \
-                     ((s_bex > threshold2) & \
-                     ((abs(s_bex + threshold1*(s_sum_cations-s_sum_anions))/abs(s_sum_cations-s_sum_anions)) > abs(1.5*(s_sum_cations-s_sum_anions))))
-
-        df_out.loc[is_neutral, 'swt_bex'] = 'o'
+        is_neutral = (~is_plus & ~is_minus &
+                      (s_bex > threshold2) & (s_bex < threshold1) &
+                      ((s_sum_cations == s_sum_anions) |
+                       ((abs(s_bex + threshold1*(s_sum_cations-s_sum_anions))/abs(s_sum_cations-s_sum_anions))
+                        > abs(1.5*(s_sum_cations-s_sum_anions)))
+                       )
+                      )
 
         is_none = ~is_plus & ~is_minus & ~is_neutral
+
+
+        df_out.loc[is_plus, 'swt_bex'] = '+'
+        df_out.loc[is_minus, 'swt_bex'] = '-'
+        df_out.loc[is_neutral, 'swt_bex'] = 'o'
         df_out.loc[is_none, 'swt_bex'] = ''
 
         #Putting it all together
@@ -483,6 +483,85 @@ class SamplesFrame(object):
 
         return df_out['swt']
 
+    def _get_dominant_anions_of_df(self, df_in):
+        """  calculates the dominant anions of the dataframe df_in """
+        s_sum_cations = self.get_sum_cations()
+
+        na_mmol = df_in.Na/mw('Na')
+        k_mmol = df_in.K/mw('K')
+        nh4_mmol = df_in.NH4/(mw('N')+4*mw('H'))
+        ca_mmol = df_in.Ca/mw('Ca')
+        mg_mmol = df_in.Mg/mw('Mg')
+        fe_mmol = df_in.Fe/mw('Fe')
+        mn_mmol = df_in.Mn/mw('Mn')
+        h_mmol = (10**-df_in.ph) / 1000  # ph -> mol/L -> mmol/L
+        al_mmol = 1000. * df_in.Al/mw('Al')  # ug/L ->mg/L -> mmol/L
+
+        # - Na, K, NH4
+        # select rows that do not have Na, K or NH4 as dominant cation
+        is_no_domcat_na_nh4_k = (na_mmol + k_mmol + nh4_mmol) < (s_sum_cations/2)
+
+        is_domcat_nh4 = ~is_no_domcat_na_nh4_k & (nh4_mmol > (na_mmol + k_mmol))
+
+        is_domcat_na = ~is_no_domcat_na_nh4_k & ~is_domcat_nh4 & (na_mmol > k_mmol)
+
+        is_domcat_k = ~is_no_domcat_na_nh4_k & ~is_domcat_nh4 & ~is_domcat_na
+
+        # abbreviation
+        is_domcat_na_nh4_k = is_domcat_na | is_domcat_nh4 | is_domcat_k
+
+        # - Ca, Mg
+        is_domcat_ca_mg = (
+            # not na or nh4 or k dominant
+            ~is_domcat_na_nh4_k & (
+                # should be any of Ca or Mg available
+                ((ca_mmol > 0) | (mg_mmol > 0)) |
+                # should be more of Ca or Mg then sum of H, Fe, Al, Mn
+                # (compensated for charge)
+                (2*ca_mmol+2*mg_mmol < h_mmol+3*al_mmol+2*fe_mmol+2*mn_mmol)))
+
+        is_domcat_ca = is_domcat_ca_mg & (ca_mmol >= mg_mmol)
+        is_domcat_mg = is_domcat_ca_mg & (ca_mmol < mg_mmol)
+
+        # - H, Al, Fe, Mn
+        # IF(IF(h_mmol+3*IF(al_mmol)>2*(fe_mol+mn_mol),IF(h_mmol>3*al_mmol,"H","Al"),IF(fe_mol>mn_mol,"Fe","Mn")))
+        is_domcat_fe_mn_al_h = (
+            # not na, nh4, k, ca or Mg dominant
+            ~is_domcat_na_nh4_k & ~is_domcat_ca & ~is_domcat_mg & (
+                # should be any of Fe, Mn, Al or H available
+                (fe_mmol > 0) | (mn_mmol > 0) | (h_mmol > 0) | (al_mmol > 0)  # |
+                # # should be more of Ca or Mg then sum of H, Fe, Al, Mn
+                # # (compensated for charge)
+                # (2*ca_mmol+2*mg_mmol < h_mmol+3*al_mmol+2*fe_mmol+2*mn_mmol)
+            )
+        )
+
+        is_domcat_h_al=is_domcat_fe_mn_al_h & ((h_mmol + 3*al_mmol) > (2*fe_mmol + 2*mn_mmol))
+        is_domcat_h = is_domcat_h_al & (h_mmol > al_mmol)
+        is_domcat_al = is_domcat_h_al & (al_mmol > h_mmol)
+
+        is_domcat_fe_mn = is_domcat_fe_mn_al_h & ~is_domcat_h_al
+        is_domcat_fe = is_domcat_fe_mn & (fe_mmol > mn_mmol)
+        is_domcat_mn = is_domcat_fe_mn & (mn_mmol > fe_mmol)
+
+        sr_out = pd.Series(index=df_in.index)
+        sr_out[:] = ""
+        sr_out[is_domcat_nh4] = "NH4"
+        sr_out[is_domcat_na] = "Na"
+        sr_out[is_domcat_k] = "K"
+        sr_out[is_domcat_ca] = 'Ca'
+        sr_out[is_domcat_mg] = 'Mg'
+        sr_out[is_domcat_fe] = 'Fe'
+        sr_out[is_domcat_mn] = 'Mn'
+        sr_out[is_domcat_al] = 'Al'
+        sr_out[is_domcat_h] = 'H'
+
+        return sr_out
+
+
+    def get_dominant_anions(self):
+        """ returns a series with the dominant anions."""
+        return self._get_dominant_anions_of_df(self._obj)
 
     def fillna_concentrations(self, how="phreeqc"):
         """
@@ -539,10 +618,14 @@ class SamplesFrame(object):
 
         k_org = 10**(0.039*df_in['ph']**2 - 0.9*df_in['ph']-0.96) # HGC manual equation 3.5
         a_org = k_org * df_in['doc'] / (100*k_org + (10**-df_in['ph'])/10) # HGC manual equation 3.4A
-        sum_ions = (df_in['Cl']/35.453 + df_in['SO4']/48.03 + df_in['alkalinity']/61.02 + df_in['NO3']/62. +
-                    df_in['NO2']/46.0055 + df_in['F']/18.9984 + df_in['Br']/79904 + df_in['PO4']/94.971) / (1 + 10**(df_in['ph']-7.21))
+        sum_ions = (df_in['Cl']/35.453 + df_in['SO4']/48.03 +
+                    df_in['alkalinity']/61.02 + df_in['NO3']/62. +
+                    df_in['NO2']/46.0055 + df_in['F']/18.9984 +
+                    df_in['Br']/79904 +
+                    (df_in['PO4']/94.971) / (1 + 10**(df_in['ph']-7.21))
+                   )
 
-        is_add_a_org = a_org > df_in['alkalinity']/61.02
+        is_add_a_org = (a_org > df_in['alkalinity']/61.02)
 
         s_sum_anions.loc[is_add_a_org] = sum_ions + a_org
         s_sum_anions.loc[~is_add_a_org] = sum_ions
@@ -589,7 +672,7 @@ class SamplesFrame(object):
         return s_sum_cations
 
 
-    def _get_phreeq_columns(self):
+    def get_phreeq_columns(self):
         """
         Returns the columns from the DataFrame that might be used
         by PhreeqPython.
@@ -600,6 +683,20 @@ class SamplesFrame(object):
             Usable PhreeqPython columns
         """
         df = self._obj
+
+        bicarbonate_in_columns = any([('hco' in _c.lower()) or
+                                      ('bicarbona' in _c.lower())
+                                      for _c in df.columns])
+        alkalinity_in_columns = any(['alkalinity' in _c.lower()
+                                     for _c in df.columns])
+        if bicarbonate_in_columns:
+            if alkalinity_in_columns:
+                logging.warning('Warning: both bicarbonate (or hco3) and alkalinity are ' +
+                'defined as columns. Note that only alkalinity column is used')
+            else:
+                logging.warning('Warning: bicarbonate (or hco3) is found, but no alkalinity ' +
+                'is defined as columns. Note that only alkalinity column are used')
+
 
         atom_columns = set(self._valid_atoms).intersection(df.columns)
         ion_columns = set(self._valid_ions).intersection(df.columns)
@@ -670,13 +767,14 @@ class SamplesFrame(object):
         """
         if inplace is True:
             raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
+        # `None` is also a valid argument and is translated to the strin `'none'`
         if equilibrate_with is None:
             equilibrate_with = 'none'
 
         pp = self._pp
         df = self._obj.copy()
 
-        phreeq_cols = self._get_phreeq_columns()
+        phreeq_cols = self.get_phreeq_columns()
 
         solutions = pd.Series(index=df.index, dtype='object')
         for index, row in df[phreeq_cols].iterrows():

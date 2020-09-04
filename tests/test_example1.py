@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sep 3
-
 Testing a simple example
-
 @author: Xin Tian 
 """
 
@@ -21,7 +19,7 @@ def test_exm_stacked():
     """
 
     # compile a list of features by slicing the original file
-    lst_features = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Feature'])
+    lst_features = list(pd.read_excel('./tests/example1.xlsx', sheet_name='stacked')['Feature'])
 
     # automatically detect features using text recognition
     feature_map, feature_unmapped, df_feature_map = ner.generate_feature_map(entity_orig=lst_features)

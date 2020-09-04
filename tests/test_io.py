@@ -12,11 +12,12 @@ import hgc
 import os
 from hgc import ner 
 from hgc import io
+import tests
 
 def test_ner():
     ''' to test whether the function ner can generate correctly mapped features and units '''
     # WD = os.path.join(os.path.dirname(os.path.realpath(__file__)))  # set work directory to current module
-    WD = Path(__file__).cwd()
+    WD = WD = Path(tests.__file__).parent
     # os.chdir(WD) @ Martin K: why do we have to change dir here?
     # @Xin/ MartinK: Test if all HGC features are included in hgc_io.default_features()
     df_temp = pd.read_excel(WD / 'tests/testfile1_io.xlsx')

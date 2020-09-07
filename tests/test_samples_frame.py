@@ -144,7 +144,7 @@ def test_get_sum_anions_3(test_data_bas_vdg):
 
     sum_anions = df.hgc.get_sum_anions(inplace=False)
     np.testing.assert_almost_equal(sum_anions.values,
-                                   np.array([0.77472968, 1.7837688, 3.3159489,
+                                   np.array([2.285332174633880, 1.9222333673010, 11.4556385209268
                                              ]))
 
     sum_cations = df.hgc.get_sum_cations(inplace=False)

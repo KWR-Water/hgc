@@ -442,8 +442,8 @@ class SamplesFrame(object):
         s_sum_anions = self.get_sum_anions(inplace=False)
         cl_mmol = df_in.Cl/mw('Cl')
         hco3_mmol = df_in.alkalinity/(mw('H') + mw('C') + 3*mw('O'))
-        no3_mmol = df_in.alkalinity/(mw('N') + 3*mw('O'))
-        so4_mmol = df_in.alkalinity/(mw('S') + 4*mw('O'))
+        no3_mmol = df_in.NO3/(mw('N') + 3*mw('O'))
+        so4_mmol = df_in.SO4/(mw('S') + 4*mw('O'))
 
         # TODO: consider renaming doman to dom_an or dom_anion
         is_doman_cl = (cl_mmol > s_sum_anions/2)

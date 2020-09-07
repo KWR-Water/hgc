@@ -2,7 +2,7 @@
 """
 Created on Sun Jul 26 21:55:57 2020
 
-@author: schanma
+@author: Xin Tian 
 """
 import pytest
 import pandas as pd
@@ -17,10 +17,10 @@ import tests
 def test_ner():
     ''' to test whether the function ner can generate correctly mapped features and units '''
     # WD = os.path.join(os.path.dirname(os.path.realpath(__file__)))  # set work directory to current module
-    WD = WD = Path(tests.__file__).parent
+    WD = Path(tests.__file__).parent
     # os.chdir(WD) @ Martin K: why do we have to change dir here?
     # @Xin/ MartinK: Test if all HGC features are included in hgc_io.default_features()
-    df_temp = pd.read_excel(WD / 'tests/testfile1_io.xlsx')
+    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx')
     feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
     unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
     assert feature_map['Acidity'] == 'ph'
@@ -32,14 +32,14 @@ def test_ner():
 
 def test_io_wide():
     '''test wide-shaped file'''
-    WD = Path(__file__).cwd()
+    WD = Path(tests.__file__).parent
     # get feature_map and unit_map for testing
-    df_temp = pd.read_excel(WD / 'tests/testfile1_io.xlsx')
+    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx', sheet_name='wide')
     feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
     unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
     # define input dictionary
     dct1_arguments = {
-        'file_path': str(WD / 'tests/testfile1_io.xlsx'),
+        'file_path': str(WD / 'testfile1_io.xlsx'),
         'sheet_name': 'wide',
         'shape': 'wide',
         'slice_header': [[9, slice(2, 5)], [8, slice(32, 33)]],
@@ -62,21 +62,18 @@ def test_io_wide():
     assert max(df1_hgc.min()) < 1.001
     # NOTE: "As" 2nd column not yet correctly read !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-def test_default_feature_units():
-    io.default_feature_units()
-
 def test_io_stacked():
     '''test stacked shape'''
-    WD = Path(__file__).cwd()
+    WD = Path(tests.__file__).parent
     # get feature_map and unit_map for testing
-    df_temp = pd.read_excel(WD / 'tests/testfile1_io.xlsx')
-    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
-    unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
+    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx', sheet_name='stacked')
+    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[slice(3, None), 6].dropna()))
+    unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[slice(3, None), 7].dropna()))
     dct2_arguments = {
-        'file_path': str(WD / 'tests/testfile1_io.xlsx'),
+        'file_path': str(WD / 'testfile1_io.xlsx'),
         'sheet_name': 'stacked',
         'shape': 'stacked',
-        'slice_header': [2, slice(2, 9)],
+        'slice_header': [2, slice(2, None)],
         'slice_data': [slice(3, None)],
         'map_header': {
             **hgc.io.default_map_header(),
@@ -95,7 +92,32 @@ def test_io_stacked():
     assert max(df2_hgc.min()) < 1.001
 
 
-
+def test_Gilian_file():
+    ''' test an example from Gilian '''
+    WD = Path(tests.__file__).parent
+    # get feature_map and unit_map for testing
+    df_temp = pd.read_excel(WD / 'BO_exmp.xlsx')
+    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[slice(1, None), 6].dropna()))
+    unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[slice(1, None), 8].dropna()))
+    dct3_arguments = {
+        'file_path': str(WD / 'BO_exmp.xlsx'),
+        'sheet_name': 'example',
+        'shape': 'stacked',
+        'slice_header': [0, slice(0, None)],
+        'slice_data': [slice(1, None)],
+        'map_header': {
+            **hgc.io.default_map_header(),
+            'sampled.date': 'Datetime',
+            'sample.id': 'SampleID',  
+            'eenheid': 'Unit',
+            'value.result': 'Value',
+            'component': 'Feature'
+        },
+        'map_features': feature_map,
+        'map_units': unit_map,
+    }
+    df2 = hgc.io.import_file(**dct3_arguments)[0]
+    df2_hgc = hgc.io.stack_to_hgc(df2)
 
 
 

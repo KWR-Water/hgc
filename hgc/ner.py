@@ -4,7 +4,6 @@ Routine for recognizing features and units using NER.
 Xin Tian, Martin van der Schans
 KWR, April-July 2020
 """
-
 import copy
 import numpy as np
 import pandas as pd
@@ -16,7 +15,6 @@ from hgc import constants
 
 # %% Defaults
 
-# @Tin: adapt the following function so that the table gets installed with the package.
 def entire_feature_alias_table():
     """Dataframe with HGC features and various columns with alias (synonyms) for these features.
 
@@ -33,8 +31,6 @@ def entire_feature_alias_table():
     df = pd.read_csv(file_path, encoding='utf-8', header=0) 
     return df
 
-
-# @Tin: adapt the following function so that the table gets installed with the package.
 def entire_unit_alias_table():
     """Dataframe with units recognized by HGC and various columns with alias (synonyms) for these features.
 
@@ -47,13 +43,11 @@ def entire_unit_alias_table():
 
     """
     file_path = Path(constants.__file__).parent / 'default_units_alias.csv'
-    df = pd.read_csv(file_path, encoding='utf-8', header=0) # SHOULD NOT BE LOCAL DRIVE !!!!!!!!!!!
+    df = pd.read_csv(file_path, encoding='utf-8', header=0)
     return df
 
-
-entire_feature_alias_table = entire_feature_alias_table()
-entire_unit_alias_table = entire_unit_alias_table()
-
+# entire_feature_alias_table = entire_feature_alias_table()
+# entire_unit_alias_table = entire_unit_alias_table()
 
 def generate_entity_alias(df=None, entity_col='', alias_cols=''):
     """Melt a dataframe with multiple "Alias" columns to one "Features"/ "Units" column and one "Alias" column.
@@ -124,26 +118,26 @@ def generate_entity_alias(df=None, entity_col='', alias_cols=''):
 
 def default_feature_alias_dutch_english():
     """Table with default HGC features and aliases."""
-    df = generate_entity_alias(
-            df=entire_feature_alias_table,
+    df0 = generate_entity_alias(
+            df=entire_feature_alias_table(),
             entity_col='Feature',
             alias_cols=['Feature', 'IUPAC (Dutch)', 'IUPAC (English)',
                         'User defined (Dutch)', 'User defined (English)',
                         'SIKB_Code', 'SIKB_Omschrijving'])
-    return df
+    return df0
 
 
 def default_unit_alias():
     """Table with default HGC units and aliases."""
-    df = generate_entity_alias(
-            df=entire_unit_alias_table,
+    df0 = generate_entity_alias(
+            df=entire_unit_alias_table(),
             entity_col='Unit',
             alias_cols=['Unit', 'Alias (Dutch)', 'Alias (English)'])
-    return df
+    return df0
 
 
-default_feature_alias_dutch_english = default_feature_alias_dutch_english()
-default_unit_alias = default_unit_alias()
+# default_feature_alias_dutch_english = default_feature_alias_dutch_english()
+# default_unit_alias = default_unit_alias()
 
 
 def default_feature_minscore():
@@ -151,10 +145,10 @@ def default_feature_minscore():
     dct = {
         1: 100,
         3: 100,
-        4: 90,
-        5: 85,
-        6: 80,
-        8: 75
+        4: 75, # at most one mismatching
+        5: 80, # at most one mismatching
+        6: 66, # at most two mismatching
+        8: 75  # at most two mismatching
     }
     return dct
 
@@ -163,11 +157,12 @@ def default_unit_minscore():
     """Relation between word length (keys) and minimum score for named entity recognition of units (values)."""
     dct = {
         1: 100,
-        5: 100,
-        6: 90,
-        7: 85,
-        8: 80,
-        10: 75
+        3: 100,
+        4: 75, # at most one mismatching
+        5: 80, # at most one mismatching
+        6: 66, # at most two mismatching
+        8: 75, # at most two mismatching
+        10: 70 # at most three mismatching
     }
     return dct
 
@@ -186,12 +181,16 @@ def strings2remove_from_features():
 
 
 # generate a list of default features (only ions, atoms and other)
-mask = entire_feature_alias_table['Category'].isin(['atoms', 'ions', 'other'])
-features2remove = list(set(list(entire_feature_alias_table['Feature'][mask])))
+def generate_feature2remove(default_table = entire_feature_alias_table, default_list = ['atoms', 'ions', 'other']):
+    '''generate a list of features to remove. Use the default table/list if no input is given by users.'''
+
+    mask = entire_feature_alias_table()['Category'].isin(default_list)
+    features2remove = list(set(list(entire_feature_alias_table()['Feature'][mask]))) # NH4
+    return features2remove
 
 
-def strings2remove_from_units(features2remove=features2remove,
-                              other_strings2remove=['eenh', 'nvt']):
+def strings2remove_from_units(features2remove = generate_feature2remove(entire_feature_alias_table),
+                              other_strings2remove = ['eenh', 'nvt']):
     """Generate a list of unwantes strings that are sometimes combined with the units.
 
     The function generates a list of strings that needs to be removed from the original units
@@ -305,7 +304,7 @@ def _cleanup_alias(df=None, col='', col2='', string2whitespace=[], string2replac
     if isinstance(string2replace, dict):
         for key, value in string2replace.items():
             df[col2] = df[col2].str.replace(key, value)
-
+                
     # fuzzywuzzy uses only numbers and ascii letters (a-z; A-Z) and replaces all other symbols by whitespace
     # this may lead to a large number of tokens (words) that are easy to match
     # therefore, the script removes these other symbols to prevent an excess amount of whitespaces
@@ -487,7 +486,7 @@ def generate_entity_map(entity_orig=[],
     
     
 def generate_feature_map(entity_orig=[],
-                         df_entity_alias=default_feature_alias_dutch_english,
+                         df_entity_alias=default_feature_alias_dutch_english(),
                          entity_col='Feature',
                          string2whitespace=[],
                          string2replace={'Ä': 'a', 'ä': 'a', 'Ë': 'e', 'ë': 'e',
@@ -513,7 +512,7 @@ def generate_feature_map(entity_orig=[],
 
 
 def generate_unit_map(entity_orig=[],
-                      df_entity_alias=default_unit_alias,
+                      df_entity_alias=default_unit_alias(),
                       entity_col='Unit',
                       string2whitespace=['/', '-'],
                       string2replace={'Ä': 'a', 'ä': 'a', 'Ë': 'e', 'ë': 'e',

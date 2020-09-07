@@ -21,21 +21,15 @@ negative concentrations or text placeholders.
 
 .. ipython:: python
 
-    testdata = {
-        'Al': [2600], 'Ba': [44.0],
-        'Br': [0.0], 'Ca': [2.0],
-        'Cl': [19.0], 'Co': [1.2],
-        'Cu': [4.0], 'doc': [4.4],
-        'F': [0.08], 'Fe': [0.29],
-        'HCO3': [0.0], 'K': [1.1],
-        'Li': [5.0], 'Mg': [1.6],
-        'Mn': ['< 0.05'], 'Na': [15.0],
-        'Ni': [7.0], 'NH4': ['< 0.05'],
-        'NO2': [0.0], 'NO3': [22.6],
-        'Pb': [2.7], 'PO4': ['0.04'],
-        'ph': [4.3], 'SO4': [16.0],
-        'Sr': [50], 'Zn': [60.0]
-    }
+    testdata = {'alkalinity', 'Al': [2600], 'Ba': [44.0],
+                'Br': [0.0], 'Ca': [2.0], 'Cl': [19.0],
+                'Co': [1.2], 'Cu': [4.0], 'doc': [4.4],
+                'F': [0.08], 'Fe': [0.29], 'K': [1.1],
+                'Li': [5.0], 'Mg': [1.6], 'Mn': ['< 0.05'],
+                'Na': [15.0], 'Ni': [7.0], 'NH4': ['< 0.05'],
+                'NO2': [0.0], 'NO3': [22.6], 'Pb': [2.7],
+                'PO4': ['0.04'], 'ph': [4.3], 'SO4': [16.0],
+                'Sr': [50], 'Zn': [60.0] }
     df = pd.DataFrame.from_dict(testdata)
     df
 
@@ -104,7 +98,7 @@ Or get the sum of all anions (using the Stuyfzand method):
 
 .. ipython:: python
 
-    sum_anions = df.hgc.get_sum_anions_stuyfzand()
+    sum_anions = df.hgc.get_sum_anions()
     sum_anions
 
 It is also possible to compute common hydrochemical ratios between different compounds.

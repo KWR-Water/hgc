@@ -14,8 +14,8 @@ PATH = Path(__file__).parent
 PICKLE_PATH_FILE = PATH / 'constants.pickle'
 
 def _formula_parser(formula, calculate_or_not, atoms):
-    ''' parses the chemical formula if calculate_or_not
-        equals `calculate`, otherwise, do nothing. Use
+    ''' parses the chemical formula and determine its mol weight. But only
+        if `calculate_or_not` equals `calculate`, otherwise, do nothing. Use
         the molecular weight from atoms dict. '''
 
     if (calculate_or_not != 'calculate') or (formula in ['N_tot_k', 'PO4_ortho', 'SO4_ic', 'alkalinity']):
@@ -86,7 +86,7 @@ def convert_csv_to_tuples():
     '''
     default_read_csv_args = dict(na_values=[None, 'None'], comment='#')
     atoms = pd.read_csv(PATH / 'atoms.csv', **default_read_csv_args)
-    ions = pd.read_csv(PATH / 'ions_and_organic_compounds.csv', **default_read_csv_args)
+    ions = pd.read_csv(PATH / 'ions.csv', **default_read_csv_args)
     properties = pd.read_csv(PATH / 'other_than_concentrations.csv', **default_read_csv_args)
 
     # convert nan to None

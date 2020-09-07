@@ -9,6 +9,7 @@ import pandas as pd
 from phreeqpython import PhreeqPython
 
 from hgc.constants import constants
+from hgc.constants.constants import mw
 
 
 @pd.api.extensions.register_dataframe_accessor("hgc")
@@ -82,9 +83,6 @@ class SamplesFrame(object):
         allowed_hgc_columns = (list(constants.atoms.keys()) +
                                list(constants.ions.keys()) +
                                list(constants.properties.keys()))
-        # cast to lowercase to reduce case sensitivity
-        # allowed_concentration_columns = map(str.lower, allowed_concentration_columns)
-        # allowed_hgc_columns = map(str.lower, allowed_hgc_columns)
 
         hgc_cols = [item for item in allowed_hgc_columns if item in obj.columns]
         neg_conc_cols = []
@@ -105,6 +103,9 @@ class SamplesFrame(object):
         logging.info(f"DataFrame contains {len(hgc_cols)} HGC-columns")
         if len(hgc_cols) > 0:
             logging.info(f"Recognized HGC columns are: {','.join(hgc_cols)}")
+        # TODO: make a method for this, so users can extract this info
+        #       at any time, not just while validating
+        logging.info(f'These columns of the dataframe are not used by HGC: {set(obj.columns)-set(hgc_cols)}')
 
         logging.info(f"DataFrame contains {len(neg_conc_cols)} HGC-columns with negative concentrations")
         if len(neg_conc_cols) > 0:
@@ -125,7 +126,8 @@ class SamplesFrame(object):
     def _make_input_df(self, cols_req):
         """
         Make input DataFrame for calculations. This DataFrame contains columns for each required parameter,
-        which is 0 in case the parameter is not present in original HGC frame.
+        which is 0 in case the parameter is not present in original HGC frame. It also
+        replaces all NaN with 0.
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
@@ -136,6 +138,7 @@ class SamplesFrame(object):
                 df_in[col_req] = self._obj[col_req]
             else:
                 logging.info(f"Column {col_req} is not present in DataFrame, assuming concentration 0 for this compound for now.")
+        df_in = df_in.fillna(0.0)
 
         return df_in
 
@@ -212,7 +215,7 @@ class SamplesFrame(object):
         merge_on_na : bool, default False
             Fill NaN's from one measurement method with measurements from other method.
         inplace : bool, default True
-            Modify SamplesFrame in place?
+            Modify SamplesFrame in place. inplace=False is not allowed
 
 
         Raises
@@ -225,7 +228,7 @@ class SamplesFrame(object):
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
 
         if inplace is False:
-            raise NotImplementedError('inplace=False is not (yet) implemented. It will become the default though')
+            raise NotImplementedError('inplace=False is not (yet) implemented.')
 
         param_mapping = {
             'ph': use_ph,
@@ -271,7 +274,7 @@ class SamplesFrame(object):
                                  f"this column.")
 
 
-    def get_bex(self, watertype="G"):
+    def get_bex(self, watertype="G", inplace=True):
         """
         Get Base Exchange Index (meq/L). By default this is the BEX without dolomite.
 
@@ -307,13 +310,19 @@ class SamplesFrame(object):
 
         df_out['bex'] = df_out['Na_nonmarine']/22.99 + df_out['K_nonmarine']/39.098 + df_out['Mg_nonmarine']/12.153
 
-        return df_out['bex']
+        if inplace:
+            self._obj['bex'] = df_out['bex']
+        else:
+            return df_out['bex']
 
 
-    def get_ratios(self):
+    def get_ratios(self, inplace=True):
         """
         Calculate common hydrochemical ratios, will ignore any ratios
         in case their constituents are not present in the SamplesFrame.
+
+        It is assumed that only HCO<sub>3</sub><sup>-</sup> contributes to
+        the alkalinity.
 
         Notes
         -----
@@ -347,11 +356,11 @@ class SamplesFrame(object):
             'ca_to_mg': ['Cl', 'Mg'],
             'ca_to_sr': ['Ca', 'Sr'],
             'fe_to_mn': ['Fe', 'Mn'],
-            'hco3_to_ca': ['HCO3', 'Ca'],
+            'hco3_to_ca': ['alkalinity', 'Ca'],
             '2h_to_18o': ['2H', '18O'],
             'suva': ['uva254', 'doc'],
-            'hco3_to_sum_anions': ['HCO3', 'sum_anions'],
-            'hco3_to_ca_and_mg': ['HCO3', 'Ca', 'Mg'],
+            'hco3_to_sum_anions': ['alkalinity', 'sum_anions'],
+            'hco3_to_ca_and_mg': ['alkalinity', 'Ca', 'Mg'],
             'monc': ['cod', 'Fe', 'NO2', 'doc'],
             'cod_to_doc': ['cod', 'Fe', 'NO2', 'doc']
         }
@@ -360,9 +369,9 @@ class SamplesFrame(object):
             has_cols = [const in self._obj.columns for const in constituents]
             if all(has_cols):
                 if ratio == 'hco3_to_sum_anions':
-                    df_ratios[ratio] = self._obj['HCO3'] / self.get_sum_anions_stuyfzand()
+                    df_ratios[ratio] = self._obj['alkalinity'] / self.get_sum_anions(inplace=False)
                 elif ratio == 'hco3_to_ca_and_mg':
-                    df_ratios[ratio] = self._obj['HCO3'] / (self._obj['Ca'] + self._obj['Mg'])
+                    df_ratios[ratio] = self._obj['alkalinity'] / (self._obj['Ca'] + self._obj['Mg'])
                 elif ratio == 'monc':
                     df_ratios[ratio] = 4 - 1.5 * (self._obj['cod'] - 0.143 * self._obj['Fe'] - 0.348 * self._obj['NO2']) / (3.95 * self._obj['doc'])
                 elif ratio == 'cod_to_doc':
@@ -373,14 +382,20 @@ class SamplesFrame(object):
                 missing_cols = [i for (i, v) in zip(constituents, has_cols) if not v]
                 logging.info(f"Cannot calculate ratio {ratio} since columns {','.join(missing_cols)} are not present.")
 
-        return df_ratios
+        if inplace:
+            self._obj[df_ratios.columns] = df_ratios
+        else:
+            return df_ratios
 
 
-    def get_stuyfzand_water_type(self):
+    def get_stuyfzand_water_type(self, inplace=True):
         """
         Get Stuyfzand water type. This water type classification contains
         5 components: Salinity, Alkalinity, Dominant Cation, Dominant Anion and Base Exchange Index.
         This results in a classification such as for example 'F3CaMix+'.
+
+        It is assumed that only HCO<sub>3</sub><sup>-</sup> contributes to
+        the alkalinity.
 
         Returns
         -------
@@ -393,7 +408,7 @@ class SamplesFrame(object):
         # Create input dataframe containing all required columns
         # Inherit column values from HGC frame, assume 0 if column
         # is not present
-        cols_req = ('Al', 'Ba', 'Br', 'Ca', 'Cl', 'Co', 'Cu', 'doc', 'F', 'Fe', 'HCO3', 'K', 'Li', 'Mg', 'Mn', 'Na', 'Ni', 'NH4', 'NO2', 'NO3', 'Pb', 'PO4', 'ph', 'SO4', 'Sr', 'Zn')
+        cols_req = ('Al', 'Ba', 'Br', 'Ca', 'Cl', 'Co', 'Cu', 'doc', 'F', 'Fe', 'alkalinity', 'K', 'Li', 'Mg', 'Mn', 'Na', 'Ni', 'NH4', 'NO2', 'NO3', 'Pb', 'PO4', 'ph', 'SO4', 'Sr', 'Zn')
         df_in = self._make_input_df(cols_req)
         df_out = pd.DataFrame(index=df_in.index)
 
@@ -409,42 +424,36 @@ class SamplesFrame(object):
 
         #Alkalinity
         df_out['swt_a'] = '*'
-        df_out.loc[df_in['HCO3'] > 31, 'swt_a'] = '0'
-        df_out.loc[df_in['HCO3'] > 61, 'swt_a'] = '1'
-        df_out.loc[df_in['HCO3'] > 122, 'swt_a'] = '2'
-        df_out.loc[df_in['HCO3'] > 244, 'swt_a'] = '3'
-        df_out.loc[df_in['HCO3'] > 488, 'swt_a'] = '4'
-        df_out.loc[df_in['HCO3'] > 976, 'swt_a'] = '5'
-        df_out.loc[df_in['HCO3'] > 1953, 'swt_a'] = '6'
-        df_out.loc[df_in['HCO3'] > 3905, 'swt_a'] = '7'
+        df_out.loc[df_in['alkalinity'] > 31, 'swt_a'] = '0'
+        df_out.loc[df_in['alkalinity'] > 61, 'swt_a'] = '1'
+        df_out.loc[df_in['alkalinity'] > 122, 'swt_a'] = '2'
+        df_out.loc[df_in['alkalinity'] > 244, 'swt_a'] = '3'
+        df_out.loc[df_in['alkalinity'] > 488, 'swt_a'] = '4'
+        df_out.loc[df_in['alkalinity'] > 976, 'swt_a'] = '5'
+        df_out.loc[df_in['alkalinity'] > 1953, 'swt_a'] = '6'
+        df_out.loc[df_in['alkalinity'] > 3905, 'swt_a'] = '7'
 
         #Dominant cation
-        s_sum_cations = self.get_sum_cations_stuyfzand()
+        s_sum_cations = self.get_sum_cations(inplace=False)
 
-        is_no_domcat = (df_in['Na']/22.99 + df_in['K']/39.1 + df_in['NH4']/18.04) < (s_sum_cations/2)
-        df_out.loc[is_no_domcat, 'swt_domcat'] = ""
-
-        is_domcat_nh4 = ~is_no_domcat & (df_in['NH4']/18.04 > (df_in['Na']/22.99 + df_in['K']/39.1))
-        df_out.loc[is_domcat_nh4, 'swt_domcat'] = ""
-
-        is_domcat_na = ~is_no_domcat & ~is_domcat_nh4 & (df_in['Na']/22.99 > df_in['K']/39.1)
-        df_out.loc[is_domcat_na, 'swt_domcat'] = "Na"
-
-        is_domcat_k = ~is_no_domcat & ~is_domcat_nh4 & ~is_domcat_na
-        df_out.loc[is_domcat_k, 'swt_domcat'] = "K"
+        df_out['swt_domcat'] = self._get_dominant_anions_of_df(df_in)
 
         # Dominant anion
-        s_sum_anions = self.get_sum_anions_stuyfzand()
+        s_sum_anions = self.get_sum_anions(inplace=False)
+        cl_mmol = df_in.Cl/mw('Cl')
+        hco3_mmol = df_in.alkalinity/(mw('H') + mw('C') + 3*mw('O'))
+        no3_mmol = df_in.NO3/(mw('N') + 3*mw('O'))
+        so4_mmol = df_in.SO4/(mw('S') + 4*mw('O'))
 
         # TODO: consider renaming doman to dom_an or dom_anion
-        is_doman_cl = (df_in['Cl']/35.453 > s_sum_anions/2)
+        is_doman_cl = (cl_mmol > s_sum_anions/2)
         df_out.loc[is_doman_cl, 'swt_doman'] = "Cl"
 
-        is_doman_hco3 = ~is_doman_cl & (df_in['HCO3']/61.02 > s_sum_anions/2)
+        is_doman_hco3 = ~is_doman_cl & (hco3_mmol > s_sum_anions/2)
         df_out.loc[is_doman_hco3, 'swt_doman'] = "HCO3"
 
-        is_doman_so4_or_no3 = ~is_doman_cl & ~is_doman_hco3 & (2*df_in['SO4']/96.06 + df_in['NO3']/62. > s_sum_anions/2)
-        is_doman_so4 = (2*df_in['SO4']/96.06 > df_in['NO3']/62.)
+        is_doman_so4_or_no3 = ~is_doman_cl & ~is_doman_hco3 & (2*so4_mmol + no3_mmol > s_sum_anions/2)
+        is_doman_so4 = (2*so4_mmol > no3_mmol)
         df_out.loc[is_doman_so4_or_no3 & is_doman_so4, 'swt_doman'] = "SO4"
         df_out.loc[is_doman_so4_or_no3 & ~is_doman_so4, 'swt_doman'] = "NO3"
 
@@ -452,29 +461,122 @@ class SamplesFrame(object):
         df_out.loc[is_mix, 'swt_doman'] = "Mix"
 
         # Base Exchange Index
-        s_bex = self.get_bex()
-        threshold1 = 0.5 + 0.02*df_in['Cl']/35.453
-        threshold2 = -0.5-0.02*df_in['Cl']/35.453
+        s_bex = self.get_bex(inplace=False)
+        threshold1 = 0.5 + 0.02*cl_mmol
+        threshold2 = -0.5-0.02*cl_mmol
         is_plus = (s_bex > threshold1) & (s_bex > 1.5*(s_sum_cations-s_sum_anions))
-        df_out.loc[is_plus, 'swt_bex'] = '+'
 
         is_minus = ~is_plus & (s_bex < threshold2) & (s_bex < 1.5*(s_sum_cations-s_sum_anions))
-        df_out.loc[is_minus, 'swt_bex'] = '-'
 
-        is_neutral = ~is_plus & ~is_minus & ((s_bex > threshold2) & (s_bex < threshold1) & (s_sum_cations == s_sum_anions)) | \
-                     ((s_bex > threshold2) & \
-                     ((abs(s_bex + threshold1*(s_sum_cations-s_sum_anions))/abs(s_sum_cations-s_sum_anions)) > abs(1.5*(s_sum_cations-s_sum_anions))))
-
-        df_out.loc[is_neutral, 'swt_bex'] = 'o'
+        is_neutral = (~is_plus & ~is_minus &
+                      (s_bex > threshold2) & (s_bex < threshold1) &
+                      ((s_sum_cations == s_sum_anions) |
+                       ((abs(s_bex + threshold1*(s_sum_cations-s_sum_anions))/abs(s_sum_cations-s_sum_anions))
+                        > abs(1.5*(s_sum_cations-s_sum_anions)))
+                       )
+                      )
 
         is_none = ~is_plus & ~is_minus & ~is_neutral
+
+
+        df_out.loc[is_plus, 'swt_bex'] = '+'
+        df_out.loc[is_minus, 'swt_bex'] = '-'
+        df_out.loc[is_neutral, 'swt_bex'] = 'o'
         df_out.loc[is_none, 'swt_bex'] = ''
 
         #Putting it all together
         df_out['swt'] = df_out['swt_s'].str.cat(df_out[['swt_a', 'swt_domcat', 'swt_doman', 'swt_bex']])
 
-        return df_out['swt']
+        if inplace:
+            self._obj['water_type'] = df_out['swt']
+        else:
+            return df_out['swt']
 
+    def _get_dominant_anions_of_df(self, df_in):
+        """  calculates the dominant anions of the dataframe df_in """
+        s_sum_cations = self.get_sum_cations(inplace=False)
+
+        cols_req = ('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn')
+        df_in = df_in.hgc._make_input_df(cols_req)
+
+        na_mmol = df_in.Na/mw('Na')
+        k_mmol = df_in.K/mw('K')
+        nh4_mmol = df_in.NH4/(mw('N')+4*mw('H'))
+        ca_mmol = df_in.Ca/mw('Ca')
+        mg_mmol = df_in.Mg/mw('Mg')
+        fe_mmol = df_in.Fe/mw('Fe')
+        mn_mmol = df_in.Mn/mw('Mn')
+        h_mmol = (10**-df_in.ph) / 1000  # ph -> mol/L -> mmol/L
+        al_mmol = 1000. * df_in.Al/mw('Al')  # ug/L ->mg/L -> mmol/L
+
+        # - Na, K, NH4
+        # select rows that do not have Na, K or NH4 as dominant cation
+        is_no_domcat_na_nh4_k = (na_mmol + k_mmol + nh4_mmol) < (s_sum_cations/2)
+
+        is_domcat_nh4 = ~is_no_domcat_na_nh4_k & (nh4_mmol > (na_mmol + k_mmol))
+
+        is_domcat_na = ~is_no_domcat_na_nh4_k & ~is_domcat_nh4 & (na_mmol > k_mmol)
+
+        is_domcat_k = ~is_no_domcat_na_nh4_k & ~is_domcat_nh4 & ~is_domcat_na
+
+        # abbreviation
+        is_domcat_na_nh4_k = is_domcat_na | is_domcat_nh4 | is_domcat_k
+
+        # - Ca, Mg
+        is_domcat_ca_mg = (
+            # not na or nh4 or k dominant
+            ~is_domcat_na_nh4_k & (
+                # should be any of Ca or Mg available
+                ((ca_mmol > 0) | (mg_mmol > 0)) |
+                # should be more of Ca or Mg then sum of H, Fe, Al, Mn
+                # (compensated for charge)
+                (2*ca_mmol+2*mg_mmol < h_mmol+3*al_mmol+2*fe_mmol+2*mn_mmol)))
+
+        is_domcat_ca = is_domcat_ca_mg & (ca_mmol >= mg_mmol)
+        is_domcat_mg = is_domcat_ca_mg & (ca_mmol < mg_mmol)
+
+        # - H, Al, Fe, Mn
+        # IF(IF(h_mmol+3*IF(al_mmol)>2*(fe_mol+mn_mol),IF(h_mmol>3*al_mmol,"H","Al"),IF(fe_mol>mn_mol,"Fe","Mn")))
+        is_domcat_fe_mn_al_h = (
+            # not na, nh4, k, ca or Mg dominant
+            ~is_domcat_na_nh4_k & ~is_domcat_ca & ~is_domcat_mg & (
+                # should be any of Fe, Mn, Al or H available
+                (fe_mmol > 0) | (mn_mmol > 0) | (h_mmol > 0) | (al_mmol > 0)  # |
+                # # should be more of Ca or Mg then sum of H, Fe, Al, Mn
+                # # (compensated for charge)
+                # (2*ca_mmol+2*mg_mmol < h_mmol+3*al_mmol+2*fe_mmol+2*mn_mmol)
+            )
+        )
+
+        is_domcat_h_al=is_domcat_fe_mn_al_h & ((h_mmol + 3*al_mmol) > (2*fe_mmol + 2*mn_mmol))
+        is_domcat_h = is_domcat_h_al & (h_mmol > al_mmol)
+        is_domcat_al = is_domcat_h_al & (al_mmol > h_mmol)
+
+        is_domcat_fe_mn = is_domcat_fe_mn_al_h & ~is_domcat_h_al
+        is_domcat_fe = is_domcat_fe_mn & (fe_mmol > mn_mmol)
+        is_domcat_mn = is_domcat_fe_mn & (mn_mmol > fe_mmol)
+
+        sr_out = pd.Series(index=df_in.index, dtype='object')
+        sr_out[:] = ""
+        sr_out[is_domcat_nh4] = "NH4"
+        sr_out[is_domcat_na] = "Na"
+        sr_out[is_domcat_k] = "K"
+        sr_out[is_domcat_ca] = 'Ca'
+        sr_out[is_domcat_mg] = 'Mg'
+        sr_out[is_domcat_fe] = 'Fe'
+        sr_out[is_domcat_mn] = 'Mn'
+        sr_out[is_domcat_al] = 'Al'
+        sr_out[is_domcat_h] = 'H'
+
+        return sr_out
+
+
+    def get_dominant_anions(self, inplace=True):
+        """ returns a series with the dominant anions."""
+        if inplace:
+            self._obj['dominant_anion'] = self._get_dominant_anions_of_df(self._obj)
+        else:
+            return self._get_dominant_anions_of_df(self._obj)
 
     def fillna_concentrations(self, how="phreeqc"):
         """
@@ -500,7 +602,6 @@ class SamplesFrame(object):
         else:
             raise NotImplementedError()
 
-
     def make_valid(self):
         """
         Try to convert the DataFrame into a valid HGC-SamplesFrame.
@@ -513,33 +614,42 @@ class SamplesFrame(object):
         self.is_valid = True
 
 
-    def get_sum_anions_stuyfzand(self):
+    def get_sum_anions(self, inplace=True):
         """
         Calculate sum of anions according to the Stuyfzand method.
+
+        It is assumed that only HCO<sub>3</sub><sup>-</sup> contributes to
+        the alkalinity.
 
         Returns
         -------
         pandas.Series
             Series with sum of cations for each row in SamplesFrame.
         """
-        cols_req = ('Br', 'Cl', 'doc', 'F', 'HCO3', 'NO2', 'NO3', 'PO4', 'SO4', 'ph')
+        cols_req = ('Br', 'Cl', 'doc', 'F', 'alkalinity', 'NO2', 'NO3', 'PO4', 'SO4', 'ph')
         df_in = self._make_input_df(cols_req)
-        s_sum_anions = pd.Series(index=df_in.index)
+        s_sum_anions = pd.Series(index=df_in.index,dtype='float64')
 
         k_org = 10**(0.039*df_in['ph']**2 - 0.9*df_in['ph']-0.96) # HGC manual equation 3.5
         a_org = k_org * df_in['doc'] / (100*k_org + (10**-df_in['ph'])/10) # HGC manual equation 3.4A
-        sum_ions = (df_in['Cl']/35.453 + df_in['SO4']/48.03 + df_in['HCO3']/61.02 + df_in['NO3']/62. +
-                    df_in['NO2']/46.0055 + df_in['F']/18.9984 + df_in['Br']/79904 + df_in['PO4']/94.971) / (1 + 10**(df_in['ph']-7.21))
+        sum_ions = (df_in['Cl']/35.453 + df_in['SO4']/48.03 +
+                    df_in['alkalinity']/61.02 + df_in['NO3']/62. +
+                    df_in['NO2']/46.0055 + df_in['F']/18.9984 +
+                    df_in['Br']/79904 +
+                    (df_in['PO4']/94.971) / (1 + 10**(df_in['ph']-7.21))
+                   )
 
-        is_add_a_org = a_org > df_in['HCO3']/61.02
+        is_add_a_org = (a_org > df_in['alkalinity']/61.02)
 
         s_sum_anions.loc[is_add_a_org] = sum_ions + a_org
         s_sum_anions.loc[~is_add_a_org] = sum_ions
 
-        return s_sum_anions
+        if inplace:
+            self._obj['sum_anions'] = s_sum_anions
+        else:
+            return s_sum_anions
 
-
-    def get_sum_cations_stuyfzand(self):
+    def get_sum_cations(self, inplace=True):
         """
         Calculate sum of cations according to the Stuyfzand method.
 
@@ -575,10 +685,13 @@ class SamplesFrame(object):
                     df_in['Sr']/87620 + \
                     df_in['Zn']/65380
 
-        return s_sum_cations
+        if inplace:
+            self._obj['sum_cations'] = s_sum_cations
+        else:
+            return s_sum_cations
 
 
-    def _get_phreeq_columns(self):
+    def get_phreeq_columns(self):
         """
         Returns the columns from the DataFrame that might be used
         by PhreeqPython.
@@ -589,6 +702,20 @@ class SamplesFrame(object):
             Usable PhreeqPython columns
         """
         df = self._obj
+
+        bicarbonate_in_columns = any([('hco' in _c.lower()) or
+                                      ('bicarbona' in _c.lower())
+                                      for _c in df.columns])
+        alkalinity_in_columns = any(['alkalinity' in _c.lower()
+                                     for _c in df.columns])
+        if bicarbonate_in_columns:
+            if alkalinity_in_columns:
+                logging.warning('Warning: both bicarbonate (or hco3) and alkalinity are ' +
+                'defined as columns. Note that only alkalinity column is used')
+            else:
+                logging.warning('Warning: bicarbonate (or hco3) is found, but no alkalinity ' +
+                'is defined as columns. Note that only alkalinity column are used')
+
 
         atom_columns = set(self._valid_atoms).intersection(df.columns)
         ion_columns = set(self._valid_ions).intersection(df.columns)
@@ -642,33 +769,29 @@ class SamplesFrame(object):
 
         return phreeq_columns
 
-    def get_phreeqpython_solutions(self, equilibrate_with='Na', append=False):
+    def get_phreeqpython_solutions(self, equilibrate_with='none', inplace=True):
         """
         Return a series of `phreeqpython solutions <https://github.com/Vitens/phreeqpython>`_ derived from the (row)data in the SamplesFrame.
 
         Parameters
         ----------
-        equilibrate_with : str, default 'Na'
+        equilibrate_with : str, default 'none'
             Ion to add for achieving charge equilibrium in the solutions.
-        append : bool, default False
+        inplace : bool, default True
             Whether the returned series is added to the DataFrame or not (default: False).
 
         Returns
         -------
         pandas.Series
         """
-        if append is True:
-            raise NotImplementedError('appending a columns to SamplesFrame is not implemented yet')
-
+        # `None` is also a valid argument and is translated to the strin `'none'`
         if equilibrate_with is None:
-            raise NotImplementedError('Equilibrate with None is not yet implemented')
+            equilibrate_with = 'none'
 
         pp = self._pp
         df = self._obj.copy()
 
-        # TODO: this is ugly, refactor this. Testing which columns to use should be more
-        #       straigtforward and defined at one location. Not both here and in get_preeq_columns
-        phreeq_cols = self._get_phreeq_columns()
+        phreeq_cols = self.get_phreeq_columns()
 
         solutions = pd.Series(index=df.index, dtype='object')
         for index, row in df[phreeq_cols].iterrows():
@@ -706,23 +829,47 @@ class SamplesFrame(object):
                     phreeq_as = phreeq_as.strip()
                     _sol[phreeq_name] = f"{value} {phreeq_unit} {phreeq_as}"
 
-            try:
-                # append the keyword charge to the compound that is used to charge balance
-                _sol[equilibrate_with] = _sol[equilibrate_with] + ' charge'
-            except KeyError:
-                logging.info(f'{equilibrate_with} not found in solution while it is selected to balance charge with. Starts initial guess with 20 mg/L to balance charge.')
-                _sol[equilibrate_with] = '20. mg/L charge'
+            if not (equilibrate_with.lower() in ['none', 'auto']):
+                try:
+                    # append the keyword charge to the compound that is used to charge balance
+                    _sol[equilibrate_with] = _sol[equilibrate_with] + ' charge'
+                except KeyError:
+                    logging.info(f'{equilibrate_with} not found in solution while it is selected to balance charge with. Starts initial guess with 20 mg/L to balance charge.')
+                    _sol[equilibrate_with] = '20. mg/L charge'
+            elif equilibrate_with.lower() == 'auto':
+                try:
+                    # append the keyword charge to the compound that is used to charge balance
+                    _sol['Na'] = _sol['Na'] + ' charge'
+                except KeyError:
+                    logging.info(f'Na is not found in solution while it is automatically selected to balance charge with. Starts initial guess with 20 mg/L Na to balance charge.')
+                    _sol[equilibrate_with] = '20. mg/L charge'
 
             try:
                 solutions[index] = pp.add_solution(_sol)
             except Exception as error:
-                logging.info(error)
-                raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}')
+                if equilibrate_with.lower() == 'auto':
+                    _sol['Na'] = _sol['Na'].replace(' charge', '')
+                    _sol['Cl'] = _sol['Cl'] + ' charge'
+                    try:
+                        logging.info(f"initializing solution with charge balancing with Na failed. Now trying to initialize solution by" +
+                                     " charge balancing with Cl.")
+                        solutions[index] = pp.add_solution(_sol)
+                    except Exception as error:
+                        logging.info(error)
+                        raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}. Charge balancing with both Na and Cl failed.')
+                else:
+                    logging.info(error)
+                    raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}. ' +
+                                     'Possibly charge balance could (sufficiently) reached.')
 
-        # return the solutions as pandas series with the same index as the source dataframe
-        return pd.Series(solutions, index=self._obj.index)
+        return_series = pd.Series(solutions, index=self._obj.index)
+        if inplace:
+            self._obj['pp_solutions'] = return_series
+        else:
+            # return the solutions as pandas series with the same index as the source dataframe
+            return return_series
 
-    def get_saturation_index(self, mineral_or_gas, use_phreeqc=True, inplace=False, **kwargs):
+    def get_saturation_index(self, mineral_or_gas, use_phreeqc=True, inplace=True, **kwargs):
         ''' adds or returns the saturation index of a mineral or the partial pressure of a gas using phreeqc.
 
            Parameters
@@ -739,21 +886,25 @@ class SamplesFrame(object):
            -------
                 pandas.Series
                              with values of SI for each row of the input dataframe '''
-        if inplace:
-            raise NotImplementedError('inplace argument is not yet implemented.')
         if not use_phreeqc:
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')
 
 
-        solutions = self.get_phreeqpython_solutions(**kwargs)
+        solutions = self.get_phreeqpython_solutions(inplace=False, **kwargs)
         saturation_index = [s.si(mineral_or_gas) if s is not None else None for s in solutions]
 
         self._clean_up_phreeqpython_solutions(solutions)
 
         # return it as series with the same index as the dataframe
-        return pd.Series(saturation_index, index=self._obj.index)
+        name_series = 'SI '+ mineral_or_gas
+        return_series = pd.Series(saturation_index, index=self._obj.index,
+                                  name=name_series)
+        if inplace:
+            self._obj[name_series] = return_series
+        else:
+            return return_series
 
-    def get_specific_conductance(self, use_phreeqc=True, **kwargs):
+    def get_specific_conductance(self, use_phreeqc=True, inplace=True, **kwargs):
         ''' returns the specific conductance (sc) of a water sample using phreeqc. sc is
             also known as electric conductivity (ec) or egv measurements.
 
@@ -772,11 +923,17 @@ class SamplesFrame(object):
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')
 
         # create phreeqpython solutions
-        solutions = self.get_phreeqpython_solutions(**kwargs)
+        solutions = self.get_phreeqpython_solutions(inplace=False, **kwargs)
         # extract sc from them
         specific_conductance = [s.sc for s in solutions]
         # clean up
         self._clean_up_phreeqpython_solutions(solutions)
 
         # return it as series with the same index as the dataframe
-        return pd.Series(specific_conductance, index=self._obj.index)
+        series_name = 'sc'
+        return_series = pd.Series(specific_conductance, index=self._obj.index,
+                                  name=series_name)
+        if inplace:
+            self._obj[series_name] = return_series
+        else:
+            return return_series

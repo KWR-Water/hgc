@@ -143,8 +143,8 @@ def default_unit_alias():
 def default_feature_minscore():
     """Relation between word length (keys) and minimum score for named entity recognition of features (values)."""
     dct = {
-        1: 100,
-        3: 100,
+        1: 100, # exactly matching
+        3: 100, # exactly matching
         4: 75, # at most one mismatching
         5: 80, # at most one mismatching
         6: 66, # at most two mismatching
@@ -156,8 +156,8 @@ def default_feature_minscore():
 def default_unit_minscore():
     """Relation between word length (keys) and minimum score for named entity recognition of units (values)."""
     dct = {
-        1: 100,
-        3: 100,
+        1: 100, # exactly matching
+        3: 100, # exactly matching
         4: 75, # at most one mismatching
         5: 80, # at most one mismatching
         6: 66, # at most two mismatching
@@ -189,7 +189,7 @@ def generate_feature2remove(default_table = entire_feature_alias_table, default_
     return features2remove
 
 
-def strings2remove_from_units(features2remove = generate_feature2remove(entire_feature_alias_table),
+def strings2remove_from_units(features2remove = generate_feature2remove(entire_feature_alias_table()),
                               other_strings2remove = ['eenh', 'nvt']):
     """Generate a list of unwantes strings that are sometimes combined with the units.
 
@@ -209,7 +209,7 @@ def strings2remove_from_units(features2remove = generate_feature2remove(entire_f
 
     """
     # retain N, P, S and Si (for mg-N/L, mg-P/L, etc.)
-    lst = list(set(features2remove) - set(['N', 'P', 'S', 'Si']))
+    lst = list(set(features2remove) - set(['N', 'P', 'S', 'Si', 'NO3', 'NH4', 'NO2']))
 
     # add a white space before feature and make lower case
     lst = [' ' + x.lower() for x in lst]

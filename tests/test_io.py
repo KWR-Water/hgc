@@ -91,7 +91,6 @@ def test_io_stacked():
     assert min(df2_hgc.min()) > 0.999
     assert max(df2_hgc.min()) < 1.001
 
-
 def test_Gilian_file():
     ''' test an example from Gilian '''
     WD = Path(tests.__file__).parent

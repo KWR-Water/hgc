@@ -14,10 +14,9 @@ import pandas as pd
 import molmass
 from pathlib import Path
 from hgc import constants # for reading the default csv files
-from hgc.constants.constants import mw, units_wth_as
+from hgc.constants.constants import mw, units_wt_as
 
 # %% hgc.io.defaults
-# @Tin: complete the following function so that we get the units from HGC.constants.
 def default_feature_units():
     """
     Generate a dictionary with the desired prefixes-units (values) for all feature defined in HGC (keys).
@@ -31,33 +30,17 @@ def default_feature_units():
     {'Fe': 'mg/L', 'Al': 'µg/L'}
 
     """
-    dct = {
-        'Cl': 'mg/L',
-        'Fe': 'mg/L',
-        'Ca': 'mg/L',
-        'Na': 'mg/L',
-        'Mn': 'mg/L',
-        'NH4': 'mg/L',
-        'NO2': 'mg/L',
-        'NO3': 'mg/L',
-        'SO4': 'mg/L',
-        'Al': 'µg/L',
-        'As': 'μg/L',
-        'PO4': 'mg/L',
-        'SiO2': 'mg/L',
-        'ph': '',
-        'ec': 'μS/cm',
-        'ec_field': 'μS/cm',
-    }
     # load default alias table
     df = pd.read_csv(Path(constants.__file__).parent / 'default_features_alias.csv', encoding='utf-8', header=0)
     mask = ~(df['DefaultUnits'].isnull())
+    dct_alias = dict(zip(df['Feature'][mask], df['DefaultUnits'][mask]))
     # extract feature names and get units defined in HGC
     feature = df['Feature']
-    DefaultUnits = [units_wth_as(key) for key in feature] 
+    DefaultUnits = [units_wt_as(key) for key in feature] # OR use command: list(map(units_wt_as, feature))
+    dct_hgc = {k: v for k, v in dict(zip(feature, DefaultUnits)).items() if v is not None}
     # combine dictionaries for default units. If defined in HGC, use it. Otherwise use whatever defined in the alias table. 
-    dct = {**dict(zip(df['Feature'][mask], df['DefaultUnits'][mask])),
-           **dict(zip(feature, DefaultUnits)), 
+    dct = {**dct_alias,
+           **dct_hgc, 
            'ph_field': '1', # give pH unit 1 to prevent error --> check in the future release
            'ph_lab': '1',
            'ph': '1',

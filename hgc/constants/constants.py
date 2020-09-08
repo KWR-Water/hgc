@@ -34,7 +34,7 @@ def units(item):
                                + ' ions or properties tables.'
                                + f' valid keys are {valid_keys}')
 
-def units_wth_as(item):
+def units_wt_as(item):
     try:
         return atoms[item].unit
     except KeyError:

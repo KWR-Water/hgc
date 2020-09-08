@@ -14,7 +14,6 @@ from fuzzywuzzy import process
 from hgc import constants
 
 # %% Defaults
-
 def entire_feature_alias_table():
     """Dataframe with HGC features and various columns with alias (synonyms) for these features.
 
@@ -209,7 +208,7 @@ def strings2remove_from_units(features2remove = generate_feature2remove(entire_f
 
     """
     # retain N, P, S and Si (for mg-N/L, mg-P/L, etc.)
-    lst = list(set(features2remove) - set(['N', 'P', 'S', 'Si', 'NO3', 'NH4', 'NO2']))
+    lst = list(set(features2remove) - set(['N', 'P', 'S', 'Si']))
 
     # add a white space before feature and make lower case
     lst = [' ' + x.lower() for x in lst]
@@ -222,7 +221,7 @@ def strings2remove_from_units(features2remove = generate_feature2remove(entire_f
     return lst
 
 
-def strings_filtered():
+def _strings_filtered():
     """Generate a list of strings that can be used to recognize if a sample is filtered.
 
     Note: put whitespace before string, lowercase, only letters and symbols."""
@@ -230,20 +229,7 @@ def strings_filtered():
     return lst
 
 
-# @ Tin/ MartinK:
-# functions are not directly callable in functions.
-# Why is it necessary to first generate a variable ??
-
-default_feature_minscore = default_feature_minscore()
-default_unit_minscore = default_unit_minscore()
-strings2remove_from_features = strings2remove_from_features()
-strings2remove_from_units = strings2remove_from_units()
-strings_filtered = strings_filtered()
-
-
 # %% main function
-
-
 def _interp1d_fill_value(x=[], y=[]):
     """
     Generate a linear interpolatation function with fixed fill value outside x-range.
@@ -335,11 +321,12 @@ def generate_entity_map(entity_orig=[],
                         string2whitespace=[],
                         string2replace={},
                         string2remove=[],
-                        strings_filtered=[],
+                        strings_filtered_gem=[],
                         entity_minscore={},
                         match_method='levenshtein'):
     """
     Generate a map to convert a list of original entities (features/ units) to HGC compatible features.
+    Called by generate_feature_map and generate_unit_map
 
     The funtion uses Named Entity Recognition (NER) techniques to match original entities to the entities used by HGC.
     It is based on the fuzzywuzzy module. And uses Levenshtein Distance to calculate the differences between
@@ -416,7 +403,7 @@ def generate_entity_map(entity_orig=[],
                                     string2replace=string2replace,
                                     string2whitespace=string2whitespace,
                                     string2remove=string2remove,
-                                    strings_filtered=strings_filtered)
+                                    strings_filtered=strings_filtered_gem)
     if 'Filtered' not in df_entity_orig.columns:
         df_entity_orig['Filtered']=np.nan
 
@@ -492,9 +479,9 @@ def generate_feature_map(entity_orig=[],
                          string2replace={'Ä': 'a', 'ä': 'a', 'Ë': 'e', 'ë': 'e',
                                          'Ö': 'o', 'ö': 'o', 'ï': 'i', 'Ï': 'i',
                                          'μ': 'u', 'µ': 'u', '%': 'percentage'},
-                         string2remove=strings2remove_from_features,
-                         strings_filtered=strings_filtered,
-                         entity_minscore=default_feature_minscore,
+                         string2remove=strings2remove_from_features(),
+                         strings_filtered_gfm=_strings_filtered(),
+                         entity_minscore=default_feature_minscore(),
                          match_method='levenshtein'):
     """Convenience function based on "generate_entity_map" but with recommended defaults for mapping features."""
     feature_map, feature_unmapped, df_feature_map =\
@@ -504,8 +491,8 @@ def generate_feature_map(entity_orig=[],
                             string2whitespace=string2whitespace,
                             string2replace=string2replace,
                             string2remove=string2remove,
-                            strings_filtered=strings_filtered,
-                            entity_minscore=default_feature_minscore,
+                            strings_filtered_gem=strings_filtered_gfm,
+                            entity_minscore=default_feature_minscore(),
                             match_method=match_method)
 
     return feature_map, feature_unmapped, df_feature_map
@@ -518,11 +505,12 @@ def generate_unit_map(entity_orig=[],
                       string2replace={'Ä': 'a', 'ä': 'a', 'Ë': 'e', 'ë': 'e',
                                       'Ö': 'o', 'ö': 'o', 'ï': 'i', 'Ï': 'i',
                                       'μ': 'u', 'µ': 'u', '%': 'percentage'},
-                      string2remove=strings2remove_from_units,
-                      strings_filtered=[],
-                      entity_minscore=default_unit_minscore,
-                      match_method='levenshtein'):
+                      string2remove=strings2remove_from_units(),
+                      strings_filtered_gum=[],
+                      entity_minscore=default_unit_minscore(),
+                      match_method='levenshtein'):                      
     """Convenience function based on "generate_entity_map" but with recommended defaults for mapping units."""
+    
     unit_map, unit_unmapped, df_unit_map =\
         generate_entity_map(entity_orig=entity_orig,
                             df_entity_alias=df_entity_alias,
@@ -530,7 +518,7 @@ def generate_unit_map(entity_orig=[],
                             string2whitespace=string2whitespace,
                             string2replace=string2replace,
                             string2remove=string2remove,
-                            strings_filtered=strings_filtered,
+                            strings_filtered_gem=strings_filtered_gum,
                             entity_minscore=entity_minscore,
                             match_method=match_method)
 

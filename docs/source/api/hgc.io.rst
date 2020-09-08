@@ -36,6 +36,7 @@ Note: the testing file is also availabe in the folder of 'tests': .\tests\test_e
 Step 1: hgc.ner.generate_feature_map()
 ----------------------
 First map the features in the original file, to feature names recognized by HGC.
+Note: input of hgc.ner.generate_feature_map() must be a list, e.g., ['NO3']
 
 .. ipython:: python
     import pandas as pd
@@ -73,6 +74,8 @@ of the features ('EC new sensor'). Hence, we need to adjust the mapping manually
 Step 2: hgc.io. generate_unit_map()
 ----------------------
 Next, we need to make a mapping for the units, using the same approach as for the features. 
+Note: input of hgc.ner.generate_unit_map() must be a list, e.g., ['mg/l NO3']
+
 
 .. ipython:: python
     lst_units = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Unit'])

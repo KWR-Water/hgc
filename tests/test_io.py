@@ -120,6 +120,7 @@ def test_Gilian_file():
     df2_hgc = hgc.io.stack_to_hgc(df2)
 
 def test_io_default_features():
+    ''' testing whether features have right units '''
     dct_feature = io.default_feature_units()
     assert dct_feature['Cl'] == 'mg/L'   
     assert dct_feature['Fe'] == 'mg/L'      
@@ -135,7 +136,11 @@ def test_io_default_features():
     assert dct_feature['ec_field'] == 'μS/cm'         
     assert dct_feature['ph'] == '1'    
 
+def test_ner_units():
+    ''' testing whether ner returns right units and features '''
 
+    print(hgc.ner.generate_unit_map(entity_orig=['mg/l NH4'])[0])
+    print(hgc.ner.generate_unit_map(entity_orig=[' mg/l NH4'])[0]) # remove white space before unit
 
 
 

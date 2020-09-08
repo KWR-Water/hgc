@@ -140,7 +140,7 @@ def test_ner_units():
     ''' testing whether ner returns right units and features '''
 
     print(hgc.ner.generate_unit_map(entity_orig=['mg/l NH4'])[0])
-    print(hgc.ner.generate_unit_map(entity_orig=[' mg/l NH4'])[0]) # remove white space before unit
+    print(hgc.ner.generate_unit_map(entity_orig=['    mg/l NH4', 'mg/L NO3   '])[0]) # remove whitespace before unit
 
 
 

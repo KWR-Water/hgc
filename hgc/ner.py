@@ -511,8 +511,11 @@ def generate_unit_map(entity_orig=[],
                       match_method='levenshtein'):                      
     """Convenience function based on "generate_entity_map" but with recommended defaults for mapping units."""
     
+    # removing leading white spaces in the string
+    entity_orig_lstrip = [string.lstrip() for string in entity_orig]
+
     unit_map, unit_unmapped, df_unit_map =\
-        generate_entity_map(entity_orig=entity_orig,
+        generate_entity_map(entity_orig=entity_orig_lstrip,
                             df_entity_alias=df_entity_alias,
                             entity_col=entity_col,
                             string2whitespace=string2whitespace,

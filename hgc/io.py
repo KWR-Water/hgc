@@ -14,17 +14,13 @@ import pandas as pd
 import molmass
 from pathlib import Path
 from hgc import constants # for reading the default csv files
+from hgc.constants.constants import mw, units_wth_as
 
 # %% hgc.io.defaults
 # @Tin: complete the following function so that we get the units from HGC.constants.
 def default_feature_units():
     """
     Generate a dictionary with the desired prefixes-units (values) for all feature defined in HGC (keys).
-
-    To do
-    -----
-    Function is not yet implemented !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    Only contains a short list for testing.
 
     Returns
     -------
@@ -53,10 +49,16 @@ def default_feature_units():
         'ec': 'μS/cm',
         'ec_field': 'μS/cm',
     }
+    # load default alias table
     df = pd.read_csv(Path(constants.__file__).parent / 'default_features_alias.csv', encoding='utf-8', header=0)
     mask = ~(df['DefaultUnits'].isnull())
+    # extract feature names and get units defined in HGC
+    feature = df['Feature']
+    DefaultUnits = [units_wth_as(key) for key in feature] 
+    # combine dictionaries for default units. If defined in HGC, use it. Otherwise use whatever defined in the alias table. 
     dct = {**dict(zip(df['Feature'][mask], df['DefaultUnits'][mask])),
-           'ph_field': '1', # give pH unit 1 to prevent error
+           **dict(zip(feature, DefaultUnits)), 
+           'ph_field': '1', # give pH unit 1 to prevent error --> check in the future release
            'ph_lab': '1',
            'ph': '1',
            }

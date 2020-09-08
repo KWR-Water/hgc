@@ -14,6 +14,7 @@ from hgc import ner
 from hgc import io
 import tests
 
+
 def test_ner():
     ''' to test whether the function ner can generate correctly mapped features and units '''
     # WD = os.path.join(os.path.dirname(os.path.realpath(__file__)))  # set work directory to current module
@@ -118,6 +119,21 @@ def test_Gilian_file():
     df2 = hgc.io.import_file(**dct3_arguments)[0]
     df2_hgc = hgc.io.stack_to_hgc(df2)
 
+def test_io_default_features():
+    dct_feature = io.default_feature_units()
+    assert dct_feature['Cl'] == 'mg/L'   
+    assert dct_feature['Fe'] == 'mg/L'      
+    assert dct_feature['Ca'] == 'mg/L'      
+    assert dct_feature['Na'] == 'mg/L'      
+    assert dct_feature['Mn'] == 'mg/L'      
+    assert dct_feature['NH4'] == 'mg/L'      
+    assert dct_feature['NO2'] == 'mg/L'      
+    assert dct_feature['NO3'] == 'mg/L'      
+    assert dct_feature['Al'] == 'µg/L'      
+    assert dct_feature['As'] == 'µg/L'      
+    assert dct_feature['ec'] == 'μS/cm'      
+    assert dct_feature['ec_field'] == 'μS/cm'         
+    assert dct_feature['ph'] == '1'    
 
 
 

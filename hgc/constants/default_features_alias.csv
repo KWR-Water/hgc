@@ -1,6 +1,6 @@
 Feature,CAS,REMARK,DefaultUnits,HGC,Category,IUPAC (Dutch),IUPAC (English),IUPAC (CAS),User defined (Dutch),User defined (English),User defined Category,SIKB_Code,SIKB_Omschrijving,SIKB_CASnummer,SIKB_Group
 CH4,74-82-8,,mg/L,CH4,ions,methaan,Methane,,,,ions,C1a,methaan,'74-82-8,ChemischeStof
-H2S,7783-06-4,,mg/L,H2S,ions,waterstofsulfide,Hydrogen       sulfide,,,,ions,H2S,waterstofsulfide,'7783-06-4,ChemischeStof
+H2S,6/4/7783,,mg/L,H2S,ions,waterstofsulfide,Hydrogen       sulfide,,,,ions,H2S,waterstofsulfide,'7783-06-4,ChemischeStof
 CO2,124-38-9,,mg/L,CO2,ions,kooldioxide,,,koolzuurgas,Carbon dioxide,ions,CO2,kooldioxide,'124-38-9,ChemischeStof
 CO3,3812-32-6,,mg/L,CO3,ions,carbonaat,,,koolstoftrioxide,Carbon trioxide; Carbonate,ions,CO3,carbonaat,'3812-32-6,ChemischeStof
 HCO3,71-52-3,,mg/L,HCO3,ions,waterstofcarbonaat,Hydroxidodioxidocarbonate(1?),,bicarbonaat; alkaliniteit,alkalinity; hydrogencarbonate,ions,HCO3,waterstofcarbonaat,'71-52-3,ChemischeStof
@@ -55,7 +55,7 @@ C,7440-44-0,,mg/L,C,atoms,koolstof,,,,Carbon,atoms,C,koolstof,'7440-44-0,Chemisc
 N,,,mg/L,N,atoms,stikstof,,,,Nitrogen,atoms,,,,
 O,,left out to prevent overlap with O2,mg/L,O,atoms,<<LEAVE OUT>>,<<LEAVE OUT>>,,,<<LEAVE OUT>>,atoms,,,,
 F,16984-48-8,,mg/L,F,atoms,fluoride,,,,Fluorine,atoms,F,fluoride,'16984-48-8,ChemischeStof
-Ne,7440-01-9,,mg/L,Ne,atoms,neon,,,,Neon,atoms,Ne,neon,'7440-01-9,ChemischeStof
+Ne,1/9/7440,,mg/L,Ne,atoms,neon,,,,Neon,atoms,Ne,neon,'7440-01-9,ChemischeStof
 Na,7440-23-5,,mg/L,Na,atoms,natrium,,,,Sodium,atoms,Na,natrium,'7440-23-5,ChemischeStof
 Mg,7439-95-4,,mg/L,Mg,atoms,magnesium,,,,Magnesium,atoms,Mg,magnesium,'7439-95-4,ChemischeStof
 Al,7429-90-5,,mg/L,Al,atoms,aluminium,,,,Aluminium,atoms,Al,aluminium,'7429-90-5,ChemischeStof
@@ -64,7 +64,7 @@ P,,,mg/L,P,atoms,fosfor,,,,Phosphorus,atoms,,,,
 S,18496-25-8,,mg/L,S,atoms,sulfide,,,Zwavel,Sulfur,atoms,S,sulfide,'18496-25-8,ChemischeStof
 Cl,16887-00-6,,mg/L,Cl,atoms,chloride,,,,Chloride,atoms,Cl,chloride,'16887-00-6,ChemischeStof
 Ar,7440-37-1,,mg/L,Ar,atoms,argon,,,,Argon,atoms,Ar,argon,'7440-37-1,ChemischeStof
-K,7440-09-7,,mg/L,K,atoms,kalium,,,,Potassium,atoms,K,kalium,'7440-09-7,ChemischeStof
+K,9/7/7440,,mg/L,K,atoms,kalium,,,,Potassium,atoms,K,kalium,'7440-09-7,ChemischeStof
 Ca,7440-70-2,,mg/L,Ca,atoms,calcium,,,,Calcium,atoms,Ca,calcium,'7440-70-2,ChemischeStof
 Sc,7440-20-2,,mg/L,Sc,atoms,scandium,,,,Scandium,atoms,Sc,scandium,'7440-20-2,ChemischeStof
 Ti,7440-32-6,,mg/L,Ti,atoms,titaan,,,,Titanium,atoms,Ti,titaan,'7440-32-6,ChemischeStof
@@ -86,12 +86,12 @@ Rb,7440-17-7,,mg/L,Rb,atoms,rubidium,,,,Rubidium,atoms,Rb,rubidium,'7440-17-7,Ch
 Sr,7440-24-6,,mg/L,Sr,atoms,strontium,,,,Strontium,atoms,Sr,strontium,'7440-24-6,ChemischeStof
 Y,7440-65-5,,mg/L,Y,atoms,yttrium,,,,Yttrium,atoms,Y,yttrium,'7440-65-5,ChemischeStof
 Zr,7440-67-7,,mg/L,Zr,atoms,zirkonium,,,,Zirconium,atoms,Zr,zirkonium,'7440-67-7,ChemischeStof
-Nb,7440-03-1,,mg/L,Nb,atoms,niobium,,,,Niobium,atoms,Nb,niobium,'7440-03-1,ChemischeStof
+Nb,3/1/7440,,mg/L,Nb,atoms,niobium,,,,Niobium,atoms,Nb,niobium,'7440-03-1,ChemischeStof
 Mo,7439-98-7,,mg/L,Mo,atoms,molybdeen,,,,Molybdenum,atoms,Mo,molybdeen,'7439-98-7,ChemischeStof
 Tc,7440-26-8,,mg/L,Tc,atoms,technetium,,,,Technetium,atoms,Tc,technetium,'7440-26-8,ChemischeStof
 Ru,7440-18-8,,mg/L,Ru,atoms,ruthenium,,,,Ruthenium,atoms,Ru,ruthenium,'7440-18-8,ChemischeStof
 Rh,7440-16-6,,mg/L,Rh,atoms,rhodium,,,,Rhodium,atoms,Rh,rhodium,'7440-16-6,ChemischeStof
-Pd,7440-05-3,,mg/L,Pd,atoms,palladium,,,,Palladium,atoms,Pd,palladium,'7440-05-3,ChemischeStof
+Pd,5/3/7440,,mg/L,Pd,atoms,palladium,,,,Palladium,atoms,Pd,palladium,'7440-05-3,ChemischeStof
 Ag,7440-22-4,,mg/L,Ag,atoms,zilver,,,,Silver,atoms,Ag,zilver,'7440-22-4,ChemischeStof
 Cd,7440-43-9,,mg/L,Cd,atoms,cadmium,,,,Cadmium,atoms,Cd,cadmium,'7440-43-9,ChemischeStof
 In,7440-74-6,,mg/L,In,atoms,indium,,,,Indium,atoms,In,indium,'7440-74-6,ChemischeStof
@@ -106,7 +106,7 @@ La,7439-91-0,,mg/L,La,atoms,lanthaan,,,,Lanthanum,atoms,La,lanthaan,'7439-91-0,C
 Ce,7440-45-1,,mg/L,Ce,atoms,cerium,,,,Cerium,atoms,Ce,cerium,'7440-45-1,ChemischeStof
 Pr,7440-10-0,,mg/L,Pr,atoms,praseodymium,,,,Praseodymium,atoms,Pr,praseodymium,'7440-10-0,ChemischeStof
 Nd,7440-00-8,,mg/L,Nd,atoms,neodymium,,,,Neodymium,atoms,Nd,neodymium,'7440-00-8,ChemischeStof
-Pm,7440-12-2,,mg/L,Pm,atoms,promethium,,,,Promethium,atoms,Pm,promethium,'7440-12-2,ChemischeStof
+Pm,12/2/7440,,mg/L,Pm,atoms,promethium,,,,Promethium,atoms,Pm,promethium,'7440-12-2,ChemischeStof
 Sm,7440-19-9,,mg/L,Sm,atoms,samarium,,,,Samarium,atoms,Sm,samarium,'7440-19-9,ChemischeStof
 Eu,7440-53-1,,mg/L,Eu,atoms,europium,,,,Europium,atoms,Eu,europium,'7440-53-1,ChemischeStof
 Gd,7440-54-2,,mg/L,Gd,atoms,gadolinium,,,,Gadolinium,atoms,Gd,gadolinium,'7440-54-2,ChemischeStof
@@ -121,15 +121,15 @@ Hf,7440-58-6,,mg/L,Hf,atoms,waterstoffluoride,,,,Hafnium,atoms,Hf,hafnium,'7440-
 Ta,7440-25-7,,mg/L,Ta,atoms,tantalium,,,,Tantalum,atoms,Ta,tantalium,'7440-25-7,ChemischeStof
 W,7440-33-7,,mg/L,W,atoms,wolfraam,,,,Tungsten,atoms,W,wolfraam,'7440-33-7,ChemischeStof
 Re,7440-15-5,,mg/L,Re,atoms,renium,,,,Rhenium,atoms,Re,renium,'7440-15-5,ChemischeStof
-Os,7440-04-2,,mg/L,Os,atoms,,,,,Osmium,atoms,Os,osmium,'7440-04-2,ChemischeStof
+Os,4/2/7440,,mg/L,Os,atoms,,,,,Osmium,atoms,Os,osmium,'7440-04-2,ChemischeStof
 Ir,7439-88-5,,mg/L,Ir,atoms,iridium,,,,Iridium,atoms,Ir,iridium,'7439-88-5,ChemischeStof
-Pt,7440-06-4,,mg/L,Pt,atoms,platina,,,,Platinum,atoms,Pt,platina,'7440-06-4,ChemischeStof
+Pt,6/4/7440,,mg/L,Pt,atoms,platina,,,,Platinum,atoms,Pt,platina,'7440-06-4,ChemischeStof
 Au,7440-57-5,,mg/L,Au,atoms,goud,,,,Gold,atoms,Au,goud,'7440-57-5,ChemischeStof
 Hg,7439-97-6,,mg/L,Hg,atoms,kwik,,,,Mercury,atoms,Hg,kwik,'7439-97-6,ChemischeStof
 Tl,7440-28-0,,mg/L,Tl,atoms,thallium,,,,Thallium,atoms,Tl,thallium,'7440-28-0,ChemischeStof
 Pb,7439-92-1,,mg/L,Pb,atoms,lood,,,,Lead,atoms,Pb,lood,'7439-92-1,ChemischeStof
 Bi,7440-69-9,,mg/L,Bi,atoms,bismut,,,,Bismuth,atoms,Bi,bismut,'7440-69-9,ChemischeStof
-Po,7440-08-6,,mg/L,Po,atoms,polonium,,,,Polonium,atoms,Po,polonium,'7440-08-6,ChemischeStof
+Po,8/6/7440,,mg/L,Po,atoms,polonium,,,,Polonium,atoms,Po,polonium,'7440-08-6,ChemischeStof
 At,7440-68-8,,mg/L,At,atoms,astatium,,,,Astatine,atoms,At,astatium,'7440-68-8,ChemischeStof
 Rn,10043-92-2,,mg/L,Rn,atoms,radon,,,,Radon,atoms,Rn,radon,'10043-92-2,ChemischeStof
 Fr,7440-73-5,,mg/L,Fr,atoms,francium,,,,Francium,atoms,Fr,francium,'7440-73-5,ChemischeStof
@@ -139,14 +139,14 @@ Th,7440-29-1,,mg/L,Th,atoms,thorium,,,,Thorium,atoms,Th,thorium,'7440-29-1,Chemi
 Pa,7440-13-3,,mg/L,Pa,atoms,protactinium,,,,Protactinium,atoms,Pa,protactinium,'7440-13-3,ChemischeStof
 U,7440-61-1,,mg/L,U,atoms,uranium,,,,Uranium,atoms,U,uranium,'7440-61-1,ChemischeStof
 Np,7439-99-8,,mg/L,Np,atoms,neptunium,,,,Neptunium,atoms,Np,neptunium,'7439-99-8,ChemischeStof
-Pu,7440-07-5,,mg/L,Pu,atoms,plutonium,,,,Plutonium,atoms,Pu,plutonium,'7440-07-5,ChemischeStof
+Pu,7/5/7440,,mg/L,Pu,atoms,plutonium,,,,Plutonium,atoms,Pu,plutonium,'7440-07-5,ChemischeStof
 Am,7440-35-9,,mg/L,Am,atoms,americium,,,,Americium,atoms,Am,americium,'7440-35-9,ChemischeStof
 Cm,7440-51-9,,mg/L,Cm,atoms,curium,,,,Curium,atoms,Cm,curium,'7440-51-9,ChemischeStof
 Bk,7440-40-6,,mg/L,Bk,atoms,berkelium,,,,Berkelium,atoms,Bk,berkelium,'7440-40-6,ChemischeStof
 Cf,7440-71-3,,mg/L,Cf,atoms,californium,,,,Californium,atoms,Cf,californium,'7440-71-3,ChemischeStof
 Es,7429-92-7,,mg/L,Es,atoms,einsteinium,,,,Einsteinium,atoms,Es,einsteinium,'7429-92-7,ChemischeStof
 Fm,7440-72-4,,mg/L,Fm,atoms,fermium,,,,Fermium,atoms,Fm,fermium,'7440-72-4,ChemischeStof
-Md,7440-11-1,,mg/L,Md,atoms,mendelevium,,,,Mendelevium,atoms,Md,mendelevium,'7440-11-1,ChemischeStof
+Md,11/1/7440,,mg/L,Md,atoms,mendelevium,,,,Mendelevium,atoms,Md,mendelevium,'7440-11-1,ChemischeStof
 No,10028-14-5,,mg/L,No,atoms,nobelium,,,,Nobelium,atoms,No,nobelium,'10028-14-5,ChemischeStof
 Lr,22537-19-5,,mg/L,Lr,atoms,lawrencium,,,,Lawrencium,atoms,Lr,lawrencium,'22537-19-5,ChemischeStof
 Rf,53850-36-5,,mg/L,Rf,atoms,rutherfordium,,,,Rutherfordium,atoms,Rf,rutherfordium,'53850-36-5,ChemischeStof
@@ -296,7 +296,7 @@ MCPP,93-65-2,,,,,,,,mecoprop MCPP,,,MCPP,mecoprop,'93-65-2,ChemischeStof
 12xyln,95-47-6,,,,,,,,,,,12xyln,"1,2-xyleen",'95-47-6,ChemischeStof
 133TC1yoidl,20200-86-6,,,,,,,,,,,133TC1yoidl,"1,3,3-trimethyloxindol",'20200-86-6,ChemischeStof
 134DClFy3C1y,3567-62-2,,,,,,,,,,,134DClFy3C1y,"1-(3,4-dichloorfenyl)-3-methylureum",'3567-62-2,ChemischeStof
-134DClFyurum,2327-02-8,,,,,,,,,,,134DClFyurum,"1-(3,4-dichloorfenyl)ureum",'2327-02-8,ChemischeStof
+134DClFyurum,2/8/2327,,,,,,,,,,,134DClFyurum,"1-(3,4-dichloorfenyl)ureum",'2327-02-8,ChemischeStof
 135TBr223DBr,36065-30-2,,,,,,,,,,,135TBr223DBr,"1,3,5-tribroom-2-(2,3-dibroom-2-methylpropoxy)benzeen",'36065-30-2,ChemischeStof
 135TC1yBen,108-67-8,,,,,,,,,,,135TC1yBen,"1,3,5-trimethylbenzeen",'108-67-8,ChemischeStof
 135TCl246TC1,5324-68-5,,,,,,,,,,,135TCl246TC1,"1,3,5-trichloor-2,4,6-trimethylbenzeen",'5324-68-5,ChemischeStof
@@ -396,7 +396,7 @@ MCPP,93-65-2,,,,,,,,mecoprop MCPP,,,MCPP,mecoprop,'93-65-2,ChemischeStof
 1Cl2NO2Ben,88-73-3,,,,,,,,,,,1Cl2NO2Ben,1-chloor-2-nitrobenzeen,'88-73-3,ChemischeStof
 1Cl3NO2Ben,121-73-3,,,,,,,,,,,1Cl3NO2Ben,1-chloor-3-nitrobenzeen,'121-73-3,ChemischeStof
 1Cl4NO2Ben,100-00-5,,,,,,,,,,,1Cl4NO2Ben,1-chloor-4-nitrobenzeen,'100-00-5,ChemischeStof
-1ClC16a,4860-03-1,,,,,,,,,,,1ClC16a,1-chloorhexadecaan,'4860-03-1,ChemischeStof
+1ClC16a,3/1/4860,,,,,,,,,,,1ClC16a,1-chloorhexadecaan,'4860-03-1,ChemischeStof
 1ClC3a,540-54-5,,,,,,,,,,,1ClC3a,1-chloorpropaan,'540-54-5,ChemischeStof
 1ClC4a,109-69-3,,,,,,,,,,,1ClC4a,1-chloorbutaan,'109-69-3,ChemischeStof
 1ClNaf,90-13-1,,,,,,,,,,,1ClNaf,1-chloornaftaleen,'90-13-1,ChemischeStof
@@ -544,7 +544,7 @@ MCPP,93-65-2,,,,,,,,mecoprop MCPP,,,MCPP,mecoprop,'93-65-2,ChemischeStof
 26DC1yqnlne,877-43-0,,,,,,,,,,,26DC1yqnlne,"2,6-dimethylquinoline",'877-43-0,ChemischeStof
 26DC2yAn,579-66-8,,,,,,,,,,,26DC2yAn,"2,6-diethylaniline",'579-66-8,ChemischeStof
 26DCl3C1yAn,64063-37-2,,,,,,,,,,,26DCl3C1yAn,"2,6-dichloor-3-methylaniline",'64063-37-2,ChemischeStof
-26DCl4C1yFol,2432-12-4,,,,,,,,,,,26DCl4C1yFol,"2,6-dichloor-4-methylfenol",'2432-12-4,ChemischeStof
+26DCl4C1yFol,12/4/2432,,,,,,,,,,,26DCl4C1yFol,"2,6-dichloor-4-methylfenol",'2432-12-4,ChemischeStof
 26DCl4NO2An,99-30-9,,,,,,,,,,,26DCl4NO2An,"2,6-dichloor-4-nitroaniline",'99-30-9,ChemischeStof
 26DClAn,608-31-1,,,,,,,,,,,26DClAn,"2,6-dichlooraniline",'608-31-1,ChemischeStof
 26DClBenAd,2008-58-4,,,,,,,,,,,26DClBenAd,"2,6-dichloorbenzamide",'2008-58-4,ChemischeStof
@@ -688,7 +688,7 @@ MCPP,93-65-2,,,,,,,,mecoprop MCPP,,,MCPP,mecoprop,'93-65-2,ChemischeStof
 2benztazetol,149-30-4,,,,,,,,,,,2benztazetol,2-benzothiazolethiol,'149-30-4,ChemischeStof
 2bztazsfAd,3741-80-8,,,,,,,,,,,2bztazsfAd,2-benzothiazolsulfonamide,'3741-80-8,ChemischeStof
 2ccC6yAotobz,95-33-0,,,,,,,,,,,2ccC6yAotobz,2-(cyclohexylaminothio)benzothiazool,'95-33-0,ChemischeStof
-2fenOx1C3ol,4169-04-4,,,,,,,,,,,2fenOx1C3ol,2-fenoxy-1-propanol,'4169-04-4,ChemischeStof
+2fenOx1C3ol,4/4/4169,,,,,,,,,,,2fenOx1C3ol,2-fenoxy-1-propanol,'4169-04-4,ChemischeStof
 2fenOxC2ol,122-99-6,,,,,,,,,,,2fenOxC2ol,2-fenoxyethanol,'122-99-6,ChemischeStof
 2furC1ol,98-00-0,,,,,,,,,,,2furC1ol,2-furaanmethanol,'98-00-0,ChemischeStof
 2iC3yFol,88-69-7,,,,,,,,,,,2iC3yFol,2-isopropylfenol,'88-69-7,ChemischeStof
@@ -713,7 +713,7 @@ MCPP,93-65-2,,,,,,,,mecoprop MCPP,,,MCPP,mecoprop,'93-65-2,ChemischeStof
 34C1yeDoxmaf,42542-10-9,,,,,,,,,,,34C1yeDoxmaf,"3,4-methyleendioxymethamfetamine",'42542-10-9,ChemischeStof
 34DC1yAn,95-64-7,,,,,,,,,,,34DC1yAn,"3,4-dimethylaniline",'95-64-7,ChemischeStof
 34DC1yFol,95-65-8,,,,,,,,,,,34DC1yFol,"3,4-dimethylfenol",'95-65-8,ChemischeStof
-34DC1yactfnn,3637-01-2,,,,,,,,,,,34DC1yactfnn,"3,4-dimethylacetofenon",'3637-01-2,ChemischeStof
+34DC1yactfnn,1/2/3637,,,,,,,,,,,34DC1yactfnn,"3,4-dimethylacetofenon",'3637-01-2,ChemischeStof
 34DC1yprdne,583-58-4,,,,,,,,,,,34DC1yprdne,"3,4-dimethylpyridine",'583-58-4,ChemischeStof
 34DC1yprzl,2820-37-3,,,,,,,,,,,34DC1yprzl,"3,4-dimethylpyrazol",'2820-37-3,ChemischeStof
 34DClAn,95-76-1,,,,,,,,,,,34DClAn,"3,4-dichlooraniline",'95-76-1,ChemischeStof
@@ -1035,7 +1035,7 @@ BRAKKRTR,NVT,,,,,,,,,,,BRAKKRTR,Brakkarakter,'NVT,Typering
 BREEDTE,NVT,,,,,,,,,,,BREEDTE,Breedte,'NVT,Grootheid
 BRYOZ_HYDROZ,NVT,,,,,,,,,,,BRYOZ_HYDROZ,Bryozoa en/of Hydrozoa,'NVT,Object
 BTCl,10294-34-5,,,,,,,,,,,BTCl,boortrichloride,'10294-34-5,ChemischeStof
-BTF,7637-07-2,,,,,,,,,,,BTF,boortrifluoride,'7637-07-2,ChemischeStof
+BTF,7/2/7637,,,,,,,,,,,BTF,boortrifluoride,'7637-07-2,ChemischeStof
 BZV/NKj,NVT,,,,,,,,,,,BZV/NKj,Verhouding BZV/stikstof Kjeldahl,'NVT,Grootheid
 BZV/Ptot,NVT,,,,,,,,,,,BZV/Ptot,Verhouding BZV/fosfor totaal,'NVT,Grootheid
 BZV1,NVT,,,,,,,,,,,BZV1,Biochemisch zuurstofverbruik over 1 dag,'NVT,ChemischeStof
@@ -1120,8 +1120,8 @@ C13azr,638-53-9,,,,,,,,,,,C13azr,tridecaanzuur,'638-53-9,ChemischeStof
 C14,14762-75-5,,,,,,,,,,,C14,koolstof 14,'14762-75-5,ChemischeStof
 C14C18C16C18,68155-39-5,,,,,,,,,,,C14C18C16C18,C14-C18 en C16-C18 onverzadigd alkylamine-ethoxylaat,'68155-39-5,ChemischeStof
 C14azr,544-63-8,,,,,,,,,,,C14azr,tetradecaanzuur,'544-63-8,ChemischeStof
-C14ylTC1ylNH,4574-04-3,,,,,,,,,,,C14ylTC1ylNH,tetradecyltrimethylammoniumchloride,'4574-04-3,ChemischeStof
-C15al,2765-11-9,,,,,,,,,,,C15al,pentadecanal,'2765-11-9,ChemischeStof
+C14ylTC1ylNH,4/3/4574,,,,,,,,,,,C14ylTC1ylNH,tetradecyltrimethylammoniumchloride,'4574-04-3,ChemischeStof
+C15al,11/9/2765,,,,,,,,,,,C15al,pentadecanal,'2765-11-9,ChemischeStof
 C15azr,1002-84-2,,,,,,,,,,,C15azr,pentadecaanzuur,'1002-84-2,ChemischeStof
 C16azr,57-10-3,,,,,,,,,,,C16azr,hexadecaanzuur,'57-10-3,ChemischeStof
 C16ylTC1ylNH,112-02-7,,,,,,,,,,,C16ylTC1ylNH,hexadecyltrimethylammoniumchloride,'112-02-7,ChemischeStof
@@ -1161,7 +1161,7 @@ C1yNNO2svnAe,4549-40-0,,,,,,,,,,,C1yNNO2svnAe,methyl-N-nitroso-vinylamine,'4549-
 C1yNOurm,684-93-5,,,,,,,,,,,C1yNOurm,methylnitrosoureum,'684-93-5,ChemischeStof
 C1yNaf,1321-94-4,,,,,,,,,,,C1yNaf,methylnaftaleen,'1321-94-4,ChemischeStof
 C1yOxdmtn,301-12-2,,,,,,,,,,,C1yOxdmtn,methyloxydemeton,'301-12-2,ChemischeStof
-C1yTcsn,4640-01-1,,,,,,,,,,,C1yTcsn,methyltriclosan,'4640-01-1,ChemischeStof
+C1yTcsn,1/1/4640,,,,,,,,,,,C1yTcsn,methyltriclosan,'4640-01-1,ChemischeStof
 C1yZZDc28Den,928-36-9,,,,,,,,,,,C1yZZDc28Den,"methyl (2Z,8Z)-deca-2,8-dieen-4,6-diynoaat",'928-36-9,ChemischeStof
 C1yaclntl,126-98-7,,,,,,,,,,,C1yaclntl,methyl-acrylonitril,'126-98-7,ChemischeStof
 C1yaclt,96-33-3,,,,,,,,,,,C1yaclt,methylacrylaat,'96-33-3,ChemischeStof
@@ -1281,7 +1281,7 @@ CHEMT,NVT,,,,,,,,,,,CHEMT,Chemische toestand,'NVT,Typering
 CHLFa,479-61-8,,,,,,,,,,,CHLFa,chlorofyl-a,'479-61-8,ChemischeStof
 CHLFa/FEOa,NVT,,,,,,,,,,,CHLFa/FEOa,Verhouding chlorofyl-a/feofytine a,'NVT,Grootheid
 CHLFb,519-62-0,,,,,,,,,,,CHLFb,chlorofyl-b,'519-62-0,ChemischeStof
-CMC,9000-11-7,,,,,,,,,,,CMC,carboxymethylcellulose (CMC),'9000-11-7,ChemischeStof
+CMC,11/7/9000,,,,,,,,,,,CMC,carboxymethylcellulose (CMC),'9000-11-7,ChemischeStof
 CMO,630-08-0,,,,,,,,,,,CMO,koolmonoxide,'630-08-0,ChemischeStof
 CN,57-12-5,,,,,,,,,,,CN,cyanide,'57-12-5,ChemischeStof
 CNazne,21725-46-2,,,,,,,,,,,CNazne,cyanazine,'21725-46-2,ChemischeStof
@@ -1323,7 +1323,7 @@ ClAeT,127-65-1,,,,,,,,,,,ClAeT,chlooramine-T,'127-65-1,ChemischeStof
 ClBen,108-90-7,,,,,,,,,,,ClBen,chloorbenzeen,'108-90-7,ChemischeStof
 ClC1a,74-87-3,,,,,,,,,,,ClC1a,chloormethaan,'74-87-3,ChemischeStof
 ClC2a,75-00-3,,,,,,,,,,,ClC2a,chloorethaan,'75-00-3,ChemischeStof
-ClC3yat,5836-10-2,,,,,,,,,,,ClC3yat,chloorpropylaat,'5836-10-2,ChemischeStof
+ClC3yat,10/2/5836,,,,,,,,,,,ClC3yat,chloorpropylaat,'5836-10-2,ChemischeStof
 ClDC1yEtr,107-30-2,,,,,,,,,,,ClDC1yEtr,chloordimethylether,'107-30-2,ChemischeStof
 ClDO,10049-04-4,,,,,,,,,,,ClDO,chloordioxide,'10049-04-4,ChemischeStof
 ClFAn,367-21-5,,,,,,,,,,,ClFAn,chloorfluoraniline,'367-21-5,ChemischeStof
@@ -1458,7 +1458,7 @@ DClbzdne,1331-47-1,,,,,,,,,,,DClbzdne,dichloorbenzidine,'1331-47-1,ChemischeStof
 DClfn,97-23-4,,,,,,,,,,,DClfn,dichloorfeen,'97-23-4,ChemischeStof
 DClppP,15165-67-0,,,,,,,,,,,DClppP,dichloorprop-P,'15165-67-0,ChemischeStof
 DClvs,62-73-7,,,,,,,,,,,DClvs,dichloorvos,'62-73-7,ChemischeStof
-DDBAB,7281-04-1,,,,,,,,,,,DDBAB,dodecyldimethylbenzylammoniumbromide,'7281-04-1,ChemischeStof
+DDBAB,4/1/7281,,,,,,,,,,,DDBAB,dodecyldimethylbenzylammoniumbromide,'7281-04-1,ChemischeStof
 DDBAC,139-07-1,,,,,,,,,,,DDBAC,dodecyldimethylbenzylammoniumchloride,'139-07-1,ChemischeStof
 DDMAB,2390-68-3,,,,,,,,,,,DDMAB,didecyldimethylammoniumbromide,'2390-68-3,ChemischeStof
 DDMAC,7173-51-5,,,,,,,,,,,DDMAC,didecyldimethylammoniumchloride,'7173-51-5,ChemischeStof
@@ -1587,16 +1587,16 @@ Dncp,39300-45-3,,,,,,,,,,,Dncp,dinocap,'39300-45-3,ChemischeStof
 Dnsactt,2813-95-8,,,,,,,,,,,Dnsactt,dinoseb-acetaat,'2813-95-8,ChemischeStof
 Dnsb,88-85-7,,,,,,,,,,,Dnsb,dinoseb,'88-85-7,ChemischeStof
 Dntb,1420-07-1,,,,,,,,,,,Dntb,dinoterb,'1420-07-1,ChemischeStof
-Dotolsfn,5097-12-1,,,,,,,,,,,Dotolsfn,di-o-tolylsulfon,'5097-12-1,ChemischeStof
+Dotolsfn,12/1/5097,,,,,,,,,,,Dotolsfn,di-o-tolylsulfon,'5097-12-1,ChemischeStof
 DpTolsfnC2ye,6315-52-2,,,,,,,,,,,DpTolsfnC2ye,di-p-tolueensulfonaat-ethyleenglycol,'6315-52-2,ChemischeStof
 DpicAe,131-73-7,,,,,,,,,,,DpicAe,dipicrylamine,'131-73-7,ChemischeStof
 Dpyrdml,58-32-2,,,,,,,,,,,Dpyrdml,dipyridamol,'58-32-2,ChemischeStof
 DqBr,85-00-7,,,,,,,,,,,DqBr,diquatdibromide,'85-00-7,ChemischeStof
 DqDBrH2O,6385-62-2,,,,,,,,,,,DqDBrH2O,diquatdibromide-monohydraat,'6385-62-2,ChemischeStof
 Dqt,2764-72-9,,,,,,,,,,,Dqt,diquat,'2764-72-9,ChemischeStof
-DsftSO,2497-07-6,,,,,,,,,,,DsftSO,disulfoton-sulfoxide,'2497-07-6,ChemischeStof
+DsftSO,7/6/2497,,,,,,,,,,,DsftSO,disulfoton-sulfoxide,'2497-07-6,ChemischeStof
 Dsftn,298-04-4,,,,,,,,,,,Dsftn,disulfoton,'298-04-4,ChemischeStof
-Dsftsfn,2497-06-5,,,,,,,,,,,Dsftsfn,disulfoton-sulfon,'2497-06-5,ChemischeStof
+Dsftsfn,6/5/2497,,,,,,,,,,,Dsftsfn,disulfoton-sulfon,'2497-06-5,ChemischeStof
 Dtann,3347-22-6,,,,,,,,,,,Dtann,dithianon,'3347-22-6,ChemischeStof
 Dtlfs,5131-24-8,,,,,,,,,,,Dtlfs,ditalimfos,'5131-24-8,ChemischeStof
 Dtoburt,541-53-7,,,,,,,,,,,Dtoburt,dithiobiuret,'541-53-7,ChemischeStof
@@ -1900,7 +1900,7 @@ Isfrn,185119-76-0,,,,,,,,,,,Isfrn,jodosulfuron,'185119-76-0,ChemischeStof
 IsfrnC1y,144550-06-1,,,,,,,,,,,IsfrnC1y,jodosulfuron-methyl,'144550-06-1,ChemischeStof
 IsfrnC1yNa,144550-36-7,,,,,,,,,,,IsfrnC1yNa,jodosulfuron-methyl-natrium,'144550-36-7,ChemischeStof
 K40,13966-00-2,,,,,,,,,,,K40,kalium 40,'13966-00-2,ChemischeStof
-KBrO3,7758-01-2,,,,,,,,,,,KBrO3,kaliumbromaat,'7758-01-2,ChemischeStof
+KBrO3,1/2/7758,,,,,,,,,,,KBrO3,kaliumbromaat,'7758-01-2,ChemischeStof
 KCl,7447-40-7,,,,,,,,,,,KCl,kaliumchloride,'7447-40-7,ChemischeStof
 KDC1yDtocbmt,128-03-0,,,,,,,,,,,KDC1yDtocbmt,kaliumdimethyldithiocarbamaat,'128-03-0,ChemischeStof
 KENMKHD,NVT,,,,,,,,,,,KENMKHD,Kenmerkendheid,'NVT,Typering
@@ -2124,7 +2124,7 @@ NaC12yBensfn,25155-30-0,,,,,,,,,,,NaC12yBensfn,natriumdodecylbenzeensulfonaat,'2
 NaC12yErSO4,68585-34-2,,,,,,,,,,,NaC12yErSO4,natriumlaurylethersulfaat,'68585-34-2,ChemischeStof
 NaCN,143-33-9,,,,,,,,,,,NaCN,natriumcyanide,'143-33-9,ChemischeStof
 NaCl,7647-14-5,,,,,,,,,,,NaCl,natriumchloride,'7647-14-5,ChemischeStof
-NaClO3,7775-09-9,,,,,,,,,,,NaClO3,natriumchloraat,'7775-09-9,ChemischeStof
+NaClO3,9/9/7775,,,,,,,,,,,NaClO3,natriumchloraat,'7775-09-9,ChemischeStof
 NaClO5H2O,10022-70-5,,,,,,,,,,,NaClO5H2O,natriumhypochloriet pentahydraat,'10022-70-5,ChemischeStof
 NaDC1yDtocbm,128-04-1,,,,,,,,,,,NaDC1yDtocbm,natriumdimethyldithiocarbamaat,'128-04-1,ChemischeStof
 NaDHPO4,7558-80-7,,,,,,,,,,,NaDHPO4,natriumdiwaterstoffosfaat,'7558-80-7,ChemischeStof
@@ -2602,7 +2602,7 @@ SLIBSGHTE,NVT,,,,,,,,,,,SLIBSGHTE,Slibspiegel hoogte,'NVT,Grootheid
 SLIBVLMIDX,NVT,,,,,,,,,,,SLIBVLMIDX,Slibvolume-index,'NVT,Grootheid
 SMAAK,NVT,,,,,,,,,,,SMAAK,Smaak,'NVT,Object
 SMAAKVDNFTR,NVT,,,,,,,,,,,SMAAKVDNFTR,Smaakverdunningsfactor,'NVT,Grootheid
-SO2,7446-09-5,,,,,,,,,,,SO2,zwaveldioxide,'7446-09-5,ChemischeStof
+SO2,9/5/7446,,,,,,,,,,,SO2,zwaveldioxide,'7446-09-5,ChemischeStof
 SO3,14265-45-3,,,,,,,,,,,SO3,sulfiet,'14265-45-3,ChemischeStof
 SOLPSETTE,NVT,,,,,,,,,,,SOLPSETTE,Solid Phase Extractie,'NVT,OngedefinieerdLab
 SOORT,NVT,,,,,,,,,,,SOORT,Soort,'NVT,Grootheid
@@ -3087,7 +3087,7 @@ benzdne,92-87-5,,,,,,,,,,,benzdne,benzidine,'92-87-5,ChemischeStof
 benzezr,65-85-0,,,,,,,,,,,benzezr,benzoezuur,'65-85-0,ChemischeStof
 benzfnn,119-61-9,,,,,,,,,,,benzfnn,benzofenon,'119-61-9,ChemischeStof
 benziC5yEtr,122-73-6,,,,,,,,,,,benziC5yEtr,benzylisopentylether,'122-73-6,ChemischeStof
-benzln,3813-05-6,,,,,,,,,,,benzln,benazolin,'3813-05-6,ChemischeStof
+benzln,5/6/3813,,,,,,,,,,,benzln,benazolin,'3813-05-6,ChemischeStof
 benzlnC2y,25059-80-7,,,,,,,,,,,benzlnC2y,benazolin-ethyl,'25059-80-7,ChemischeStof
 benzntl,100-47-0,,,,,,,,,,,benzntl,benzonitril,'100-47-0,ChemischeStof
 benztazl,95-16-9,,,,,,,,,,,benztazl,benzothiazool,'95-16-9,ChemischeStof
@@ -3113,7 +3113,7 @@ bis2C1oxC2yE,111-96-6,,,,,,,,,,,bis2C1oxC2yE,bis(2-methoxyethyl)ether,'111-96-6,
 bis2ClC2oxC1,111-91-1,,,,,,,,,,,bis2ClC2oxC1,bis(2-chloorethoxy)methaan,'111-91-1,ChemischeStof
 bisC4yeT4HfA,126-15-8,,,,,,,,,,,bisC4yeT4HfA,bis(butyleen)tetrahydrofuraldehyde,'126-15-8,ChemischeStof
 bisFolA,80-05-7,,,,,,,,,,,bisFolA,bisfenol-A,'80-05-7,ChemischeStof
-bisFolF,2467-02-9,,,,,,,,,,,bisFolF,bisfenol-F,'2467-02-9,ChemischeStof
+bisFolF,2/9/2467,,,,,,,,,,,bisFolF,bisfenol-F,'2467-02-9,ChemischeStof
 bisPFC10yPO4,678-41-1,,,,,,,,,,,bisPFC10yPO4,bisperfluordecyl fosfaat,'678-41-1,ChemischeStof
 bisTClC1ysfn,3064-70-8,,,,,,,,,,,bisTClC1ysfn,bis(trichloormethyl)sulfon,'3064-70-8,ChemischeStof
 bispll,66722-44-9,,,,,,,,,,,bispll,bisoprolol,'66722-44-9,ChemischeStof
@@ -3176,10 +3176,10 @@ campn,79-92-5,,,,,,,,,,,campn,campheen,'79-92-5,ChemischeStof
 campsfzr,3144-16-9,,,,,,,,,,,campsfzr,camphorsulfonzuur,'3144-16-9,ChemischeStof
 candstn,139481-59-7,,,,,,,,,,,candstn,candesartan,'139481-59-7,ChemischeStof
 captabne,154361-50-9,,,,,,,,,,,captabne,capectiabine,'154361-50-9,ChemischeStof
-captfl,2425-06-1,,,,,,,,,,,captfl,captafol,'2425-06-1,ChemischeStof
+captfl,6/1/2425,,,,,,,,,,,captfl,captafol,'2425-06-1,ChemischeStof
 captn,133-06-2,,,,,,,,,,,captn,captan,'133-06-2,ChemischeStof
 carbOxn,5234-68-4,,,,,,,,,,,carbOxn,carboxin,'5234-68-4,ChemischeStof
-carbdx,6804-07-5,,,,,,,,,,,carbdx,carbadox,'6804-07-5,ChemischeStof
+carbdx,7/5/6804,,,,,,,,,,,carbdx,carbadox,'6804-07-5,ChemischeStof
 carbdzm,10605-21-7,,,,,,,,,,,carbdzm,carbendazim,'10605-21-7,ChemischeStof
 carbfnton,786-19-6,,,,,,,,,,,carbfnton,carbofenothion,'786-19-6,ChemischeStof
 carbfrn,1563-66-2,,,,,,,,,,,carbfrn,carbofuran,'1563-66-2,ChemischeStof
@@ -3338,7 +3338,7 @@ demtSC1y,919-86-8,,,,,,,,,,,demtSC1y,demeton-S-methyl,'919-86-8,ChemischeStof
 demtSC1ysfn,17040-19-6,,,,,,,,,,,demtSC1ysfn,demeton-S-methylsulfon,'17040-19-6,ChemischeStof
 demtnO,298-03-3,,,,,,,,,,,demtnO,demeton-O,'298-03-3,ChemischeStof
 demtnS,126-75-0,,,,,,,,,,,demtnS,demeton-S,'126-75-0,ChemischeStof
-dennole,8002-09-3,,,,,,,,,,,dennole,dennenolie,'8002-09-3,ChemischeStof
+dennole,9/3/8002,,,,,,,,,,,dennole,dennenolie,'8002-09-3,ChemischeStof
 desC1yDazpm,1088-11-5,,,,,,,,,,,desC1yDazpm,desmethyldiazepam,'1088-11-5,ChemischeStof
 desC2yatzne,6190-65-4,,,,,,,,,,,desC2yatzne,desethylatrazine,'6190-65-4,ChemischeStof
 desC2ysC4yat,37019-18-4,,,,,,,,,,,desC2ysC4yat,desethylsebutylazine,'37019-18-4,ChemischeStof
@@ -3362,14 +3362,14 @@ dmtn,52918-63-5,,,,,,,,,,,dmtn,deltamethrin,'52918-63-5,ChemischeStof
 doctxl,114977-28-5,,,,,,,,,,,doctxl,docetaxel,'114977-28-5,ChemischeStof
 dodcBen,123-01-3,,,,,,,,,,,dodcBen,dodecylbenzeen,'123-01-3,ChemischeStof
 dodmf,1593-77-7,,,,,,,,,,,dodmf,dodemorf,'1593-77-7,ChemischeStof
-dodne,2439-10-3,,,,,,,,,,,dodne,dodine,'2439-10-3,ChemischeStof
+dodne,10/3/2439,,,,,,,,,,,dodne,dodine,'2439-10-3,ChemischeStof
 dormtne,117704-25-3,,,,,,,,,,,dormtne,doramectine,'117704-25-3,ChemischeStof
 doxccne,564-25-0,,,,,,,,,,,doxccne,doxycycline,'564-25-0,ChemischeStof
 doxccnhct,24390-14-5,,,,,,,,,,,doxccnhct,doxycycline hyclaat,'24390-14-5,ChemischeStof
 doxrbcne,23214-92-8,,,,,,,,,,,doxrbcne,doxorubicine,'23214-92-8,ChemischeStof
 dtalltn,28057-48-9,,,,,,,,,,,dtalltn,d-trans-allethrin,'28057-48-9,ChemischeStof
 dulxtne,116539-59-4,,,,,,,,,,,dulxtne,duloxetine,'116539-59-4,ChemischeStof
-eHCH,6108-10-7,,,,,,,,,,,eHCH,epsilon-hexachloorcyclohexaan,'6108-10-7,ChemischeStof
+eHCH,10/7/6108,,,,,,,,,,,eHCH,epsilon-hexachloorcyclohexaan,'6108-10-7,ChemischeStof
 eTDazl,2593-15-9,,,,,,,,,,,eTDazl,etridiazol,'2593-15-9,ChemischeStof
 ecapltm,105-60-2,,,,,,,,,,,ecapltm,epsilon-caprolactam,'105-60-2,ChemischeStof
 edffs,17109-49-8,,,,,,,,,,,edffs,edifenfos,'17109-49-8,ChemischeStof
@@ -3459,7 +3459,7 @@ fenprxmt,134098-61-6,,,,,,,,,,,fenprxmt,fenpyroximaat,'134098-61-6,ChemischeStof
 fenrn,101-42-8,,,,,,,,,,,fenrn,fenuron,'101-42-8,ChemischeStof
 fensfton,115-90-2,,,,,,,,,,,fensfton,fensulfothion,'115-90-2,ChemischeStof
 fentactt,900-95-8,,,,,,,,,,,fentactt,fentinacetaat,'900-95-8,ChemischeStof
-fentat,2597-03-7,,,,,,,,,,,fentat,fenthoaat,'2597-03-7,ChemischeStof
+fentat,3/7/2597,,,,,,,,,,,fentat,fenthoaat,'2597-03-7,ChemischeStof
 fentn,26002-80-2,,,,,,,,,,,fentn,fenothrin,'26002-80-2,ChemischeStof
 fentnl,437-38-7,,,,,,,,,,,fentnl,fentanyl,'437-38-7,ChemischeStof
 fentoSO,3761-41-9,,,,,,,,,,,fentoSO,fenthion-sulfoxide,'3761-41-9,ChemischeStof
@@ -3521,7 +3521,7 @@ flurOxpr,69377-81-7,,,,,,,,,,,flurOxpr,fluroxypyr,'69377-81-7,ChemischeStof
 flurcl,51-21-8,,,,,,,,,,,flurcl,fluracil,'51-21-8,ChemischeStof
 flurcrdn,61213-25-0,,,,,,,,,,,flurcrdn,flurochloridon,'61213-25-0,ChemischeStof
 flurdn,59756-60-4,,,,,,,,,,,flurdn,fluridon,'59756-60-4,ChemischeStof
-flurnC4y,2314-09-2,,,,,,,,,,,flurnC4y,flurenol-butyl,'2314-09-2,ChemischeStof
+flurnC4y,9/2/2314,,,,,,,,,,,flurnC4y,flurenol-butyl,'2314-09-2,ChemischeStof
 flurnl,467-69-6,,,,,,,,,,,flurnl,flurenol,'467-69-6,ChemischeStof
 flurpmdl,77125-41-8,,,,,,,,,,,flurpmdl,flurprimidol,'77125-41-8,ChemischeStof
 flurslm,145701-23-1,,,,,,,,,,,flurslm,florasulam,'145701-23-1,ChemischeStof
@@ -3533,13 +3533,13 @@ fluxprxd,907204-31-3,,,,,,,,,,,fluxprxd,fluxapyroxad,'907204-31-3,ChemischeStof
 folpt,133-07-3,,,,,,,,,,,folpt,folpet,'133-07-3,ChemischeStof
 fomsfn,72178-02-0,,,,,,,,,,,fomsfn,fomesafen,'72178-02-0,ChemischeStof
 fonfs,944-22-9,,,,,,,,,,,fonfs,fonofos,'944-22-9,ChemischeStof
-forSO,2588-05-8,,,,,,,,,,,forSO,foraat-sulfoxide,'2588-05-8,ChemischeStof
+forSO,5/8/2588,,,,,,,,,,,forSO,foraat-sulfoxide,'2588-05-8,ChemischeStof
 forasfrn,173159-57-4,,,,,,,,,,,forasfrn,foramsulfuron,'173159-57-4,ChemischeStof
 formAd,75-12-7,,,,,,,,,,,formAd,formamide,'75-12-7,ChemischeStof
 formtnHCl,23422-53-9,,,,,,,,,,,formtnHCl,formetanaat-hydrochloride,'23422-53-9,ChemischeStof
 formtnt,22259-30-9,,,,,,,,,,,formtnt,formetanaat,'22259-30-9,ChemischeStof
 formton,2540-82-1,,,,,,,,,,,formton,formothion,'2540-82-1,ChemischeStof
-forsfn,2588-04-7,,,,,,,,,,,forsfn,foraat-sulfon,'2588-04-7,ChemischeStof
+forsfn,4/7/2588,,,,,,,,,,,forsfn,foraat-sulfon,'2588-04-7,ChemischeStof
 fort,298-02-2,,,,,,,,,,,fort,foraat,'298-02-2,ChemischeStof
 fosC2yAl,39148-24-8,,,,,,,,,,,fosC2yAl,fosetyl-aluminium,'39148-24-8,ChemischeStof
 fosfmdn,13171-21-6,,,,,,,,,,,fosfmdn,fosfamidon,'13171-21-6,ChemischeStof
@@ -3593,7 +3593,7 @@ glyfst,1071-83-6,,,,,,,,,,,glyfst,glyfosaat,'1071-83-6,ChemischeStof
 glyoxl,107-22-2,,,,,,,,,,,glyoxl,glyoxaal,'107-22-2,ChemischeStof
 guanurum,141-83-3,,,,,,,,,,,guanurum,guanylureum,'141-83-3,ChemischeStof
 guaztne,108173-90-6,,,,,,,,,,,guaztne,guazatine,'108173-90-6,ChemischeStof
-hHCH,6108-12-9,,,,,,,,,,,hHCH,eta-hexachloorcyclohexaan,'6108-12-9,ChemischeStof
+hHCH,12/9/6108,,,,,,,,,,,hHCH,eta-hexachloorcyclohexaan,'6108-12-9,ChemischeStof
 halOxfC1y,69806-40-2,,,,,,,,,,,halOxfC1y,haloxyfop-methyl,'69806-40-2,ChemischeStof
 halOxfC2oxC2,87237-48-7,,,,,,,,,,,halOxfC2oxC2,haloxyfop-ethoxyethyl,'87237-48-7,ChemischeStof
 halOxfPC1y,72619-32-0,,,,,,,,,,,halOxfPC1y,haloxyfop-P-methyl,'72619-32-0,ChemischeStof
@@ -3640,7 +3640,7 @@ iffOon,31120-85-1,,,,,,,,,,,iffOon,isofenfos-oxon,'31120-85-1,ChemischeStof
 iffs,25311-71-1,,,,,,,,,,,iffs,isofenfos,'25311-71-1,ChemischeStof
 ifrDiCN,4098-71-9,,,,,,,,,,,ifrDiCN,isoforon diisocyanaat,'4098-71-9,ChemischeStof
 ifrn,78-59-1,,,,,,,,,,,ifrn,isoforon,'78-59-1,ChemischeStof
-ifrntl,7027-11-4,,,,,,,,,,,ifrntl,isoforon-nitril,'7027-11-4,ChemischeStof
+ifrntl,11/4/7027,,,,,,,,,,,ifrntl,isoforon-nitril,'7027-11-4,ChemischeStof
 imdcpd,138261-41-3,,,,,,,,,,,imdcpd,imidacloprid,'138261-41-3,ChemischeStof
 imzll,35554-44-0,,,,,,,,,,,imzll,imazalil,'35554-44-0,ChemischeStof
 imzmtbzC1y,81405-85-8,,,,,,,,,,,imzmtbzC1y,imazamethabenz-methyl,'81405-85-8,ChemischeStof
@@ -3698,7 +3698,7 @@ lamnrn,9008-22-4,,,,,,,,,,,lamnrn,laminaran,'9008-22-4,ChemischeStof
 lamtgne,84057-84-1,,,,,,,,,,,lamtgne,lamotrigine,'84057-84-1,ChemischeStof
 landn,12407-86-2,,,,,,,,,,,landn,landrin,'12407-86-2,ChemischeStof
 lcyhltn,91465-08-6,,,,,,,,,,,lcyhltn,lambda-cyhalothrin,'91465-08-6,ChemischeStof
-lencl,2164-08-1,,,,,,,,,,,lencl,lenacil,'2164-08-1,ChemischeStof
+lencl,8/1/2164,,,,,,,,,,,lencl,lenacil,'2164-08-1,ChemischeStof
 leptfs,21609-90-5,,,,,,,,,,,leptfs,leptofos,'21609-90-5,ChemischeStof
 levfxcne,100986-85-4,,,,,,,,,,,levfxcne,levofloxacine,'100986-85-4,ChemischeStof
 levmsl,14769-73-4,,,,,,,,,,,levmsl,levamisol,'14769-73-4,ChemischeStof
@@ -3723,7 +3723,7 @@ malnntl,109-77-3,,,,,,,,,,,malnntl,malononitril,'109-77-3,ChemischeStof
 maltdtne,9050-36-6,,,,,,,,,,,maltdtne,maltodextrine,'9050-36-6,ChemischeStof
 malton,121-75-5,,,,,,,,,,,malton,malathion,'121-75-5,ChemischeStof
 manb,12427-38-2,,,,,,,,,,,manb,maneb,'12427-38-2,ChemischeStof
-manczb,8018-01-7,,,,,,,,,,,manczb,mancozeb,'8018-01-7,ChemischeStof
+manczb,1/7/8018,,,,,,,,,,,manczb,mancozeb,'8018-01-7,ChemischeStof
 mandppAd,374726-62-2,,,,,,,,,,,mandppAd,mandipropamide,'374726-62-2,ChemischeStof
 mandsbn,173662-97-0,,,,,,,,,,,mandsbn,mandestrobin,'173662-97-0,ChemischeStof
 manm,15339-36-3,,,,,,,,,,,manm,manam,'15339-36-3,ChemischeStof
@@ -3737,7 +3737,7 @@ mecbm,2595-54-2,,,,,,,,,,,mecbm,mecarbam,'2595-54-2,ChemischeStof
 mecccne,2013-58-3,,,,,,,,,,,mecccne,meclocycline,'2013-58-3,ChemischeStof
 mecppP,16484-77-8,,,,,,,,,,,mecppP,mecoprop-P,'16484-77-8,ChemischeStof
 meczne,569-65-3,,,,,,,,,,,meczne,meclozine,'569-65-3,ChemischeStof
-medntactt,2487-01-6,,,,,,,,,,,medntactt,medinoterbacetaat,'2487-01-6,ChemischeStof
+medntactt,1/6/2487,,,,,,,,,,,medntactt,medinoterbacetaat,'2487-01-6,ChemischeStof
 medtmdneHCl,86347-15-1,,,,,,,,,,,medtmdneHCl,medetomidine hydrochloride,'86347-15-1,ChemischeStof
 meffln,950-10-7,,,,,,,,,,,meffln,mefosfolan,'950-10-7,ChemischeStof
 mefidde,53780-34-0,,,,,,,,,,,mefidde,mefluidide,'53780-34-0,ChemischeStof
@@ -3776,7 +3776,7 @@ metlClOoHac,152019-73-3,,,,,,,,,,,metlClOoHac,metolachlor oxo azijnzuur,'152019-
 metml,16752-77-5,,,,,,,,,,,metml,methomyl,'16752-77-5,ChemischeStof
 metndzl,443-48-1,,,,,,,,,,,metndzl,metronidazol,'443-48-1,ChemischeStof
 metocb,2032-65-7,,,,,,,,,,,metocb,methiocarb,'2032-65-7,ChemischeStof
-metocbSO,2635-10-1,,,,,,,,,,,metocbSO,methiocarbsulfoxide,'2635-10-1,ChemischeStof
+metocbSO,10/1/2635,,,,,,,,,,,metocbSO,methiocarbsulfoxide,'2635-10-1,ChemischeStof
 metocbsfn,2179-25-1,,,,,,,,,,,metocbsfn,methiocarbsulfon,'2179-25-1,ChemischeStof
 metpll,37350-58-6,,,,,,,,,,,metpll,metoprolol,'37350-58-6,ChemischeStof
 metpn,40596-69-8,,,,,,,,,,,metpn,methopreen,'40596-69-8,ChemischeStof
@@ -3903,7 +3903,7 @@ permtn,52645-53-1,,,,,,,,,,,permtn,permethrin,'52645-53-1,ChemischeStof
 pertn,72-56-0,,,,,,,,,,,pertn,perthaan,'72-56-0,ChemischeStof
 petoamd,106700-29-2,,,,,,,,,,,petoamd,pethoxamid,'106700-29-2,ChemischeStof
 piclnfn,137641-05-5,,,,,,,,,,,piclnfn,picolinafen,'137641-05-5,ChemischeStof
-picrm,1918-02-1,,,,,,,,,,,picrm,picloram,'1918-02-1,ChemischeStof
+picrm,2/1/1918,,,,,,,,,,,picrm,picloram,'1918-02-1,ChemischeStof
 picxsbn,117428-22-5,,,,,,,,,,,picxsbn,picoxystrobin,'117428-22-5,ChemischeStof
 pinadn,243973-20-8,,,,,,,,,,,pinadn,pinoxaden,'243973-20-8,ChemischeStof
 pindll,13523-86-9,,,,,,,,,,,pindll,pindolol,'13523-86-9,ChemischeStof
@@ -3919,14 +3919,14 @@ piztfn,15574-96-6,,,,,,,,,,,piztfn,pizotifen,'15574-96-6,ChemischeStof
 plC2yeplC3ye,9038-95-3,,,,,,,,,,,plC2yeplC3ye,polyethyleen polypropyleenglycol,'9038-95-3,ChemischeStof
 plifnt,21757-82-4,,,,,,,,,,,plifnt,plifenaat,'21757-82-4,ChemischeStof
 polC4e,9003-28-5,,,,,,,,,,,polC4e,polybuteen,'9003-28-5,ChemischeStof
-polaclt,9003-01-4,,,,,,,,,,,polaclt,polyacrylaat,'9003-01-4,ChemischeStof
+polaclt,1/4/9003,,,,,,,,,,,polaclt,polyacrylaat,'9003-01-4,ChemischeStof
 polmlinzr,26099-09-2,,,,,,,,,,,polmlinzr,polymaleïnezuur,'26099-09-2,ChemischeStof
 polstyrn,9003-53-6,,,,,,,,,,,polstyrn,polystyreen,'9003-53-6,ChemischeStof
 polvnachl,9002-89-5,,,,,,,,,,,polvnachl,polyvinylalcohol,'9002-89-5,ChemischeStof
 polvnactt,9003-20-7,,,,,,,,,,,polvnactt,polyvinylacetaat,'9003-20-7,ChemischeStof
 polvnppont,25035-84-1,,,,,,,,,,,polvnppont,polyvinylpropionaat,'25035-84-1,ChemischeStof
 polxtnuCl,31512-74-0,,,,,,,,,,,polxtnuCl,polixetoniumchloride,'31512-74-0,ChemischeStof
-poxflne,6493-05-6,,,,,,,,,,,poxflne,pentoxifylline,'6493-05-6,ChemischeStof
+poxflne,5/6/6493,,,,,,,,,,,poxflne,pentoxifylline,'6493-05-6,ChemischeStof
 pqtDCl,1910-42-5,,,,,,,,,,,pqtDCl,paraquat-dichloride,'1910-42-5,ChemischeStof
 pralltn,23031-36-9,,,,,,,,,,,pralltn,prallethrin,'23031-36-9,ChemischeStof
 pravstne,81093-37-0,,,,,,,,,,,pravstne,pravastatine,'81093-37-0,ChemischeStof
@@ -4006,7 +4006,7 @@ quincmn,2797-51-5,,,,,,,,,,,quincmn,quinoclamin,'2797-51-5,ChemischeStof
 quinfs,13593-03-8,,,,,,,,,,,quinfs,quinalfos,'13593-03-8,ChemischeStof
 quinlne,91-22-5,,,,,,,,,,,quinlne,quinoline,'91-22-5,ChemischeStof
 quinmrc,90717-03-6,,,,,,,,,,,quinmrc,quinmerac,'90717-03-6,ChemischeStof
-quinmtont,2439-01-2,,,,,,,,,,,quinmtont,quinomethionaat,'2439-01-2,ChemischeStof
+quinmtont,1/2/2439,,,,,,,,,,,quinmtont,quinomethionaat,'2439-01-2,ChemischeStof
 quinne,106-51-4,,,,,,,,,,,quinne,chinon,'106-51-4,ChemischeStof
 quinoxfn,124495-18-7,,,,,,,,,,,quinoxfn,quinoxyfen,'124495-18-7,ChemischeStof
 quizlfC2y,76578-14-8,,,,,,,,,,,quizlfC2y,quizalofop-ethyl,'76578-14-8,ChemischeStof
@@ -4355,7 +4355,7 @@ terbfsfn,56070-16-7,,,,,,,,,,,terbfsfn,terbufos-sulfon,'56070-16-7,ChemischeStof
 terbmtn,33693-04-8,,,,,,,,,,,terbmtn,terbumeton,'33693-04-8,ChemischeStof
 terbtlne,23031-25-6,,,,,,,,,,,terbtlne,terbutaline,'23031-25-6,ChemischeStof
 terbtn,886-50-0,,,,,,,,,,,terbtn,terbutrin,'886-50-0,ChemischeStof
-terpihdt,2451-01-6,,,,,,,,,,,terpihdt,terpinhydraat,'2451-01-6,ChemischeStof
+terpihdt,1/6/2451,,,,,,,,,,,terpihdt,terpinhydraat,'2451-01-6,ChemischeStof
 terptne,64742-82-1,,,,,,,,,,,terptne,terpentine,'64742-82-1,ChemischeStof
 tetl,479-45-8,,,,,,,,,,,tetl,tetryl (CE),'479-45-8,ChemischeStof
 texanl,25265-77-4,,,,,,,,,,,texanl,texanol,'25265-77-4,ChemischeStof

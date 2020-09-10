@@ -138,16 +138,70 @@ def test_io_default_features():
 
 def test_ner_units():
     ''' testing whether ner returns right units and features '''
-
     print(hgc.ner.generate_unit_map(entity_orig=['mg/l NH4'])[0])
     print(hgc.ner.generate_unit_map(entity_orig=['    mg/l NH4', 'mg/L NO3   '])[0]) # remove whitespace before unit
 
+def test_ner_entire_feature_alias_table():
+    ''' check the loadings from "default_features_alias.csv" '''
+    df_check = ner.entire_feature_alias_table()
+    df_check.head(4)
+    #   Feature        CAS REMARK  ... SIKB_Omschrijving SIKB_CASnummer     SIKB_Group
+    # 0     CH4    74-82-8    NaN  ...           methaan       '74-82-8  ChemischeStof
+    # 1     H2S   6/4/7783    NaN  ...  waterstofsulfide     '7783-06-4  ChemischeStof
+    # 2     CO2   124-38-9    NaN  ...       kooldioxide      '124-38-9  ChemischeStof
+    # 3     CO3  3812-32-6    NaN  ...         carbonaat     '3812-32-6  ChemischeStof
+    # df_check.columns
+    # Index(['Feature', 'CAS', 'REMARK', 'DefaultUnits', 'HGC', 'Category',
+    #     'IUPAC (Dutch)', 'IUPAC (English)', 'IUPAC (CAS)',
+    #     'User defined (Dutch)', 'User defined (English)',
+    #     'User defined Category', 'SIKB_Code', 'SIKB_Omschrijving',
+    #     'SIKB_CASnummer', 'SIKB_Group'],
+    #     dtype='object')
+    pass
+
+def test_ner_entire_unit_alias_table():
+    ''' check the loadings from "entire_unit_alias_table.csv" '''
+    df_check = ner.entire_unit_alias_table()
+    df_check.head(10)
+    #     Unit Alias (English) Alias (Dutch) Unnamed: 3
+    # 0    1             NaN           NaN        NaN
+    # 1    1              na           nvt        NaN
+    # 2    %      percentage           NaN        NaN
+    # 3  min          Minute        minuut        NaN
+    # 4    h            hour           uur        NaN
+    pass
+
+def test_ner_default_feature_alias_dutch_english():
+    ''' check the feature alias '''
+    df_check = ner.default_feature_alias_dutch_english()
+    df_check.head(15)
+
+def test_default_unit_alias():
+    ''' check the unit alias '''
+    df_check = ner.default_unit_alias()
+    df_check.head(15)
+
+def test_ner_generate_entity_alias():
+    ''' check the function used for generating unit/feature'''
+    df_check = ner.generate_entity_alias(
+        df=ner.entire_unit_alias_table(),
+        entity_col='Unit',
+        alias_cols=['Unit'])
+
+    df_check = ner.generate_entity_alias(
+        df=ner.entire_unit_alias_table(),
+        entity_col='Unit',
+        alias_cols=['Alias (English)'])
 
 
 
 
+    pass
 
 
+def test_generate_feature2remove():
+    check_lst = ner.generate_feature2remove()
+    print(check_lst[:10])
 
 
 

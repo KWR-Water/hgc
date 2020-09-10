@@ -60,7 +60,7 @@ def generate_entity_alias(df=None, entity_col='', alias_cols=''):
         list of columns containing synonyms (ALIAS) of the desired features or units
         Each cell contains one or more alias (e.g. iron; FeII).
         These aliases must be separated by a semicolumn ";".
-        Repeat the <entity_col> here if you want to add the entity to the list of
+        Repeat the <entity_col> here if you want to add the ntity to the list of
         alias.
 
     Return
@@ -74,7 +74,8 @@ def generate_entity_alias(df=None, entity_col='', alias_cols=''):
     The dataframe must NOT contain a column "entity_temp"
 
     """
-    # Deep copy here
+    # @Tin, MartinK: following line is needed to prevent error with reloading? why? 
+    # Somehow the df is changed when calling it again.
     df1 = copy.deepcopy(df)
     
     # rename entity column (because melt() gives error if "entity_col" overlaps with "alias_col")
@@ -97,7 +98,7 @@ def generate_entity_alias(df=None, entity_col='', alias_cols=''):
     df2['Alias'] = df2['Alias'].str.strip()
     df2.dropna(inplace=True)
 
-    # drop empty Alias values
+    # drop duplicate Alias values
     df2 = df2.loc[~(df2['Alias'] == '')]
 
     # To do:
@@ -172,11 +173,11 @@ def strings2remove_from_features():
 
 
 # generate a list of default features (only ions, atoms and other)
-def generate_feature2remove(default_table = entire_feature_alias_table(), default_list = ['atoms', 'ions', 'other']):
+def generate_feature2remove(default_table = entire_feature_alias_table, default_list = ['atoms', 'ions', 'other']):
     '''generate a list of features to remove. Use the default table/list if no input is given by users.'''
 
-    mask = default_table['Category'].isin(default_list)
-    features2remove = list(set(list(default_table['Feature'][mask]))) # NH4
+    mask = entire_feature_alias_table()['Category'].isin(default_list)
+    features2remove = list(set(list(entire_feature_alias_table()['Feature'][mask]))) # NH4
     return features2remove
 
 

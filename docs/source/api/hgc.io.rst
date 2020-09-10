@@ -27,6 +27,14 @@ For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually and adjust i
 3. Read the original file and and convert the data with “hgc.io.import_file()”
 4. Convert the imported data to a dataframe in HGC wide format with “hgc.io.to_hgc()”
 
+Note
+----------------
+The following packages are needed in running this module. Please install them if you have not yet:
+pip intall fuzzywuzzy
+pip intall molmass
+
+
+
 Example: import stacked data
 ------------
 Let’s try using an excel file with stacked data as a simple example.

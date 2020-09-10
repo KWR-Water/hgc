@@ -30,10 +30,10 @@ For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually and adjust i
 Note
 ----------------
 The following packages are needed in running this module. Please install them if you have not yet:
-pip intall fuzzywuzzy
-pip intall molmass
 
-
+.. ipython:: python
+    pip intall fuzzywuzzy
+    pip intall molmass
 
 Example: import stacked data
 ------------

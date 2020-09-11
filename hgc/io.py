@@ -208,7 +208,7 @@ def read_file(file_path='', sheet_name=0, na_values=[], encoding='', delimiter=N
 def _get_slice(df, arrays):
     """Get row values by slicing."""
     if df.empty:
-        raise ValueError('df cannot be empty')
+        raise ValueError('df cannot be empty. Please make sure the file is placed in the same folder of this code. Or use a direct path, e.g. file_path = "C:\yourFolder\yourFile.xlsx" ')
 
     if isinstance(arrays[0], list):  # check if the array is nested
         series = pd.Series([], dtype='object')

@@ -29,7 +29,7 @@ For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually and adjust i
 
 Note
 ----------------
-The following packages are needed in running this module. Please install them if you have not yet:
+The following packages are needed in running this module. Please install them from terminal if you have not done it yet:
 
 .. ipython:: python
     pip intall fuzzywuzzy

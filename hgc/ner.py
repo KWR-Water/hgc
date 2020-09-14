@@ -150,7 +150,6 @@ def default_unit_minscore():
         1: 100, # exactly matching
         3: 100, # exactly matching
         4: 75, # at most one mismatching
-        5: 80, # at most one mismatching
         6: 66, # at most two mismatching
         8: 75, # at most two mismatching
         10: 70 # at most three mismatching
@@ -173,7 +172,10 @@ def strings2remove_from_features():
 
 # generate a list of default features (only ions, atoms and other)
 def generate_feature2remove(default_table = entire_feature_alias_table(), default_list = ['atoms', 'ions', 'other']):
-    '''generate a list of features to remove. Use the default table/list if no input is given by users.'''
+    '''
+    generate a list of features to remove. 
+    Use the default table/list ('atoms', 'ions', 'other') if no input is given by users.
+    '''
 
     mask = default_table['Category'].isin(default_list)
     features2remove = list(set(list(default_table['Feature'][mask]))) # NH4
@@ -202,7 +204,8 @@ def strings2remove_from_units(features2remove = generate_feature2remove(entire_f
     # retain N, P, S and Si (for mg-N/L, mg-P/L, etc.)
     lst = list(set(features2remove) - set(['N', 'P', 'S', 'Si']))
 
-    # add a white space before feature and make lower case
+    # remove leading space if there is any and then add a white space before feature and make lower case
+    lst = [string.lstrip() for string in lst]
     lst = [' ' + x.lower() for x in lst]
 
     lst = list(set(lst + other_strings2remove))
@@ -224,7 +227,7 @@ def _strings_filtered():
 # %% main function
 def _interp1d_fill_value(x=[], y=[]):
     """
-    Generate a linear interpolatation function with fixed fill value outside x-range.
+    Generate a linear point-2-point interpolatation function with fixed fill value outside x-range.
 
     Use the y(xmin) to extrapolate for x < xmin.
     y(xmax) to extrapolate for x > xmax.
@@ -250,7 +253,7 @@ def _cleanup_alias(df=None, col='', col2='', string2whitespace=[], string2replac
     Replace selected symbols/ strings by other symbols
     Force to lower case
     Remove duplicates
-    Remove all but letters and numbers
+    Remove all rather than ascii letters and numbers
     Remove unwanted strings (e.g. icpms)
     Trim whitespace
 
@@ -260,7 +263,7 @@ def _cleanup_alias(df=None, col='', col2='', string2whitespace=[], string2replac
     col : string
         name of column containing the alias of entities
     col2 : string
-        name of new column to generate containing the alais after cleanup.
+        name of new column to generate containing the alias after cleanup.
     string2whitespace : list
         symbols that should be replaced by a whitespace
     string2replace : dictionary
@@ -283,7 +286,7 @@ def _cleanup_alias(df=None, col='', col2='', string2whitespace=[], string2replac
         for key, value in string2replace.items():
             df[col2] = df[col2].str.replace(key, value)
                 
-    # fuzzywuzzy uses only numbers and ascii letters (a-z; A-Z) and replaces all other symbols by whitespace
+    # fuzzywuzzy only uses numbers and ascii letters (a-z; A-Z) and replaces all other symbols by whitespace
     # this may lead to a large number of tokens (words) that are easy to match
     # therefore, the script removes these other symbols to prevent an excess amount of whitespaces
 
@@ -321,7 +324,7 @@ def generate_entity_map(entity_orig=[],
     Called by generate_feature_map and generate_unit_map
 
     The funtion uses Named Entity Recognition (NER) techniques to match original entities to the entities used by HGC.
-    It is based on the fuzzywuzzy module. And uses Levenshtein Distance to calculate the differences between
+    It is based on the fuzzywuzzy module. And it uses Levenshtein Distance to calculate the differences between
     original entities and HGC-compatible entities. Original entities are matched to the HGC-entity to which they
     have the least distance. A match is only succesful if the score based on the Levenshtein Distance remains above
     a certain threshold.
@@ -377,10 +380,10 @@ def generate_entity_map(entity_orig=[],
         dataframe with entire mapping and scores.
 
     """
-    # generate the dataframe with the desired features/ units
-    df_entity_alias = _cleanup_alias(df=df_entity_alias,
+    # generate the dataframe with the desired features/units
+    df_entity_alias = _cleanup_alias(df=df_entity_alias, # get default alias w.r.t. features or units
                                      col='Alias',
-                                     col2='Alias2',
+                                     col2='Alias2', # new column/name
                                      string2replace=string2replace,
                                      string2whitespace=string2whitespace,
                                      string2remove=string2remove,
@@ -399,36 +402,42 @@ def generate_entity_map(entity_orig=[],
     if 'Filtered' not in df_entity_orig.columns:
         df_entity_orig['Filtered']=np.nan
 
-    # Find to which new features/ units each old feature/ unit best corresponds
+    # Find to which new features/ units each old feature/ unit best corresponds in 3 steps
     n = len(df_entity_orig)
     
     # Step 1: Exact match entities 
+    # merge df with alias 1 (without ascii)
     df1 = df_entity_orig.merge(df_entity_alias, how='left',
-                               left_on=entity_col + '_orig', right_on='Alias')
-    df1["Score"] = 102
-    
+                               left_on=entity_col + '_orig', right_on='Alias') # combine intersection of two df's
+    # use df_entity_orig1 to store features without alias while use df1 to store those with alias
     df_entity_orig1 = df1.loc[df1['Alias'].isnull()][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
     df1 = df1.loc[~df1['Alias'].isnull()].reset_index(drop=True).drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)   
+    # mark 102 for those exactly matching 
+    df1["Score"] = 102
     print('number of entities matched exactly: ', len(df1), ' of ', n)
 
     # Step 2: match after ascii cleanup of entities
     if match_method in ['levenshtein', 'ascii']:
+        # continue merging the rest of df1 with alias2 (with ascii)
         df2 = df_entity_orig1.merge(df_entity_alias, how='left',
                                    left_on=entity_col + '_orig2', right_on='Alias2')
-        df2["Score"] = 101
+        # still use df_entity_orig2 to store features without alias while use df2 to store those with alias
         df_entity_orig2 = df2.loc[df2['Alias'].isnull()][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
-        df2 = df2.loc[~df2['Alias'].isnull()].reset_index(drop=True).drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)   
+        df2 = df2.loc[~df2['Alias'].isnull()].reset_index(drop=True).drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)  
+        # mark 101 for those matching ascii cleanups
+        df2["Score"] = 101 
         print('number of entities matched exactly after ascii cleanup: ', len(df2), ' of ', n)
     else:
-        df2 = df_entity_orig1
+        df_entity_orig2 = df_entity_orig1 # if not method specified, skip step2 and keep using orig 1 
+        df2 = pd.DataFrame([], columns=df1.columns) # and make df2 empty then 
 
-    # Step 3: match entities using least Levenshtein distance
+    # Step 3-1: match entities using least Levenshtein distance
     if match_method in ['levenshtein']:
         choices = df_entity_alias['Alias2']
         feature_orig2alias = []
         i = len(df1) + len(df2)
         for query in df_entity_orig2[entity_col + '_orig2']:
-            feature_orig2alias.append(process.extractOne(query, choices, scorer=fuzz.token_sort_ratio))
+            feature_orig2alias.append(process.extractOne(query, choices, scorer=fuzz.token_sort_ratio)) # note: if input is series, return index too
             i += 1
             print('mapping entity', i, 'of', n)
         df3 = pd.concat(
@@ -436,10 +445,10 @@ def generate_entity_map(entity_orig=[],
             axis=1).drop('Index_orig', axis=1)
         df3 = df3.merge(df_entity_alias, on='Alias2').drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)
     else:
-        try:
-            df_entity_orig2
-        except:
-            df3 = pd.DataFrame([])
+        df_entity_orig3 = df_entity_orig2 # if not method specified, skip step 3 and keep using orig 2 
+        df3 = pd.DataFrame([], columns=df1.columns) # and make df3 empty then 
+
+    # step 3-2 
 
     df_entity_map = pd.concat([df1, df2, df3], axis=0, ignore_index=True)
 
@@ -449,15 +458,14 @@ def generate_entity_map(entity_orig=[],
 
     df_entity_map['Alias2_length'] = df_entity_map['Alias2'].astype(str).map(len)
     df_entity_map['MinScore'] = f_minscore(df_entity_map['Alias2_length'])
-
-    df_entity_map['Succes'] = np.where(df_entity_map['Score'] >= df_entity_map['MinScore'], True, False)
+    df_entity_map['Success'] = np.where(df_entity_map['Score'] >= df_entity_map['MinScore'], True, False)
 
     # sometimes, an Alias2 can be matched to multiple Alias --> show only first option
     df_entity_map.drop_duplicates(subset=[entity_col + '_orig'], inplace=True)
     df_entity_map.reset_index(inplace=True, drop=True)
 
-    # generate a dictionary/ list with the succesfull and unsuccesfull matched entities
-    mask = df_entity_map['Succes'] == True
+    # generate a dictionary/ list with the succesful and unsuccesful matched entities
+    mask = df_entity_map['Success'] == True
     entity_map = dict(zip(df_entity_map[entity_col + '_orig'][mask], df_entity_map[entity_col][mask]))
     entity_unmapped = list(df_entity_map[entity_col + '_orig'][~mask])
 

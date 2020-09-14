@@ -5,6 +5,7 @@ Created on Sun Jul 26 21:55:57 2020
 @author: Xin Tian 
 """
 import pytest
+import numpy as np
 import pandas as pd
 from pathlib import Path
 import pickle as pckl
@@ -60,7 +61,7 @@ def test_io_wide():
     df1_hgc = hgc.io.stack_to_hgc(df1)
     assert df1_hgc.iloc[0]['PO4'] == '<1.0'
     assert min(df1_hgc.min()) > 0.999
-    assert max(df1_hgc.min()) < 1.001
+    assert max(df1_hgc.min()) < 1001
     # NOTE: "As" 2nd column not yet correctly read !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 def test_io_stacked():
@@ -171,10 +172,11 @@ def test_ner_entire_unit_alias_table():
     # 4    h            hour           uur        NaN
     pass
 
+#%% individual tests for ner
 def test_ner_default_feature_alias_dutch_english():
     ''' check the feature alias '''
     df_check = ner.default_feature_alias_dutch_english()
-    df_check.head(15)
+    df_check.head(15) # check combined dictionaries
 
 def test_default_unit_alias():
     ''' check the unit alias '''
@@ -192,19 +194,77 @@ def test_ner_generate_entity_alias():
         df=ner.entire_unit_alias_table(),
         entity_col='Unit',
         alias_cols=['Alias (English)'])
-
-
-
-
     pass
 
 
 def test_generate_feature2remove():
-    check_lst = ner.generate_feature2remove()
-    print(check_lst[:10])
+    lst_check = ner.generate_feature2remove()
+    print(lst_check[:10]) # find atoms, ions, and others
 
 
+def test_strings2remove_from_units():
+    lst_check = ner.strings2remove_from_units()
+    print(lst_check[:10]) # given feature names ['N', 'P', 'S', 'Si'] removed.
 
+def test_strings_filtered():
+    lst_check = ner._strings_filtered()
+    print(lst_check[:10])
+
+def test_interp1d_fill_value():
+    dct = {
+        1: 100, # exactly matching
+        3: 100, # exactly matching
+        4: 75, # at most one mismatching
+        5: 80, # at most one mismatching
+        6: 66, # at most two mismatching
+        8: 75  # at most two mismatching
+    }
+    df_test = pd.DataFrame({'x': list(dct.keys()), 'y': list(dct.values())})
+    func = ner._interp1d_fill_value(df_test.x, df_test.y)
+    assert func(1) == 100.
+    assert func(2) == 100.
+    assert func(5) == 80
+    assert func(7) == np.mean([66, 75])
+    assert func(100) == 75.
+
+def test_cleanup_alias():
+    df = pd.DataFrame({'feature':['SO4', 'SO4', '\t'], 'Unit':['Mg/L', 'mg/L', '\n']})
+    df_check = ner._cleanup_alias(df, col='feature')
+    pass
+
+def test_generate_feature_map():
+    WD = Path(tests.__file__).parent
+    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx')
+    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
+    assert feature_map['Acidity'] == 'ph'
+    assert feature_map['Electrical Conductivity'] == 'ec'
+
+def test_generate_unit_map():
+    WD = Path(tests.__file__).parent
+    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx')
+    unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
+    assert unit_map['mS/m'] == 'mS/m'
+    assert unit_map['μmol N/l'] == 'μmol/L N'
+    assert unit_map['mg-N/l'] == 'mg/L N'
+
+def test_entity_map():
+    WD = Path(tests.__file__).parent
+    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx')
+    feature_test = list(df_temp.iloc[2, slice(5, 20, 3)].dropna()) + ['SO3', 'no3', 'random_feature', 'ragfidfsf rd']
+    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=feature_test)
+    # feature_test = ['NO3']
+    entity_map, entity_unmapped, df_entity_map = ner.generate_entity_map(entity_orig=feature_test,
+                        df_entity_alias=ner.default_feature_alias_dutch_english(),
+                        entity_col='Feature',
+                        string2whitespace=[],
+                        string2replace={'Ä': 'a', 'ä': 'a', 'Ë': 'e', 'ë': 'e',
+                                         'Ö': 'o', 'ö': 'o', 'ï': 'i', 'Ï': 'i',
+                                         'μ': 'u', 'µ': 'u', '%': 'percentage'},
+                        string2remove=ner.strings2remove_from_features(),
+                        strings_filtered_gem=ner._strings_filtered(),
+                        entity_minscore=ner.default_feature_minscore(),
+                        match_method='levenshtein')
+    entity_map, entity_unmapped, df_entity_map
 
 
 

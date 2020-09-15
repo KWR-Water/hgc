@@ -14,13 +14,13 @@ import os
 from hgc import ner 
 from hgc import io
 import tests
+# from googletrans import Translator
 
 
 def test_ner():
     ''' to test whether the function ner can generate correctly mapped features and units '''
     # WD = os.path.join(os.path.dirname(os.path.realpath(__file__)))  # set work directory to current module
     WD = Path(tests.__file__).parent
-    # os.chdir(WD) @ Martin K: why do we have to change dir here?
     # @Xin/ MartinK: Test if all HGC features are included in hgc_io.default_features()
     df_temp = pd.read_excel(WD / 'testfile1_io.xlsx')
     feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
@@ -250,9 +250,10 @@ def test_generate_unit_map():
 def test_entity_map():
     WD = Path(tests.__file__).parent
     df_temp = pd.read_excel(WD / 'testfile1_io.xlsx')
-    feature_test = list(df_temp.iloc[2, slice(5, 20, 3)].dropna()) + ['SO3', 'no3', 'random_feature', 'ragfidfsf rd']
+    feature_test = list(df_temp.iloc[2, slice(5, 20, 3)].dropna()) + ['SO3', 'no3', 'random_feature', 'strange_name', '1,2,3-trimethylbenzeen', '1,2,3,4-tetramethylbenzeen']
     feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=feature_test)
     # feature_test = ['NO3']
+
     entity_map, entity_unmapped, df_entity_map = ner.generate_entity_map(entity_orig=feature_test,
                         df_entity_alias=ner.default_feature_alias_dutch_english(),
                         entity_col='Feature',
@@ -403,3 +404,31 @@ def test_entity_map():
 #         df.to_excel('test_example2.xlsx')
     
 #     return df
+
+def test_bas():
+    '''test stacked shape'''
+    WD = Path(tests.__file__).parent /'example2.xlsx'
+    lst_features = list(pd.read_excel(WD, sheet_name='stacked')['Feature'])
+    feature_map, feature_unmapped, df_feature_map = ner.generate_feature_map(entity_orig=lst_features)
+    lst_units = list(pd.read_excel(WD, sheet_name='stacked')['Unit'])
+    unit_map, unit_unmapped, df_unit_map = ner.generate_unit_map(entity_orig=lst_units)
+    slice_header = [0, slice(0, 5)]  # row 0
+    slice_data = [slice(1, None), slice(0, 5)]
+    dct2_arguments = {
+        'file_path': str(WD),
+        'sheet_name': 'stacked',
+        'shape': 'stacked',
+        'slice_header': slice_header,
+        'slice_data': slice_data,
+        'map_header': {
+            **hgc.io.default_map_header(), 'loc.': 'LocationID', 'date': 'Datetime', 'sample': 'SampleID'
+        },
+        'map_features': feature_map,
+        'map_units': unit_map,
+    }
+    df2 = hgc.io.import_file(**dct2_arguments)[0]
+    df2_hgc = hgc.io.stack_to_hgc(df2)
+
+
+
+

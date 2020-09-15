@@ -34,7 +34,8 @@ The following packages are needed in running this module. Please install them fr
 .. ipython:: python
     pip intall fuzzywuzzy
     pip intall molmass
-
+    pip install pydeepl
+    
 Example: import stacked data
 ------------
 Let’s try using an excel file with stacked data as a simple example.

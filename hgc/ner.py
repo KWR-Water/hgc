@@ -12,6 +12,9 @@ from pathlib import Path
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from hgc import constants
+from googletrans import Translator
+import pubchempy as pcp
+
 
 # %% Defaults
 def entire_feature_alias_table():
@@ -448,8 +451,9 @@ def generate_entity_map(entity_orig=[],
         df_entity_orig3 = df_entity_orig2 # if not method specified, skip step 3 and keep using orig 2 
         df3 = pd.DataFrame([], columns=df1.columns) # and make df3 empty then 
 
-    # step 3-2 
+    # step 4 is implemented later for those whose scores are below the threshold
 
+    # now combine all three dataframes
     df_entity_map = pd.concat([df1, df2, df3], axis=0, ignore_index=True)
 
     # determine which features have been succesfully matched by comparing score with
@@ -463,6 +467,26 @@ def generate_entity_map(entity_orig=[],
     # sometimes, an Alias2 can be matched to multiple Alias --> show only first option
     df_entity_map.drop_duplicates(subset=[entity_col + '_orig'], inplace=True)
     df_entity_map.reset_index(inplace=True, drop=True)
+
+    # get true part and false part for sucessful matching
+    df_entity_orig4_t = df_entity_map[df_entity_map.Success == True][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
+    df_entity_orig4_f = df_entity_map[df_entity_map.Success == False][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
+    # translate the false part by google translate
+
+    # name2trans = list(df_entity_orig4_f.Feature_orig2)
+    # name_transed = Translator().translate(name2trans, src='nl', dest='en')
+
+    # name_transed =[pcp.get_compounds(component[0].text, 'name') for component in name_transed]
+
+
+# _   idx = pcp.get_compounds(name_transed[0].text, 'name') # recognize this component by pubchempy
+#     c = pcp.Compound.from_cid(idx[0].cid) # get cid and formularized compounds 
+#     c.molecular_formula
+#     c.molecular_weight
+#     c.iupac_name
+#     c.synonyms
+
+    
 
     # generate a dictionary/ list with the succesful and unsuccesful matched entities
     mask = df_entity_map['Success'] == True

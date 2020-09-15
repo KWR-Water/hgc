@@ -179,8 +179,7 @@ def read_file(file_path='', sheet_name=0, na_values=[], encoding='', delimiter=N
                                header=None,
                                index_col=None,
                                na_values=na_values,
-                               keep_default_na=False,
-                               encoding=encoding)
+                               keep_default_na=False)
             # logger.info('file read: ' + file_path)
         except:
             df = pd.DataFrame()
@@ -253,10 +252,12 @@ def get_headers_stacked(df, slice_header='', **kwargs):
 
 def slice_rows_with_data(df, slice_data=None, **kwargs):
     """Get data based on pre-defined slicing blocks."""
-    if isinstance(slice_data[0], list):  # check if the array is nested
-        df2 = pd.DataFrame([])
+    df2 = pd.DataFrame([])
+    if isinstance(slice_data[0], list):  # check if the array is nested        
         for array in slice_data:
             df2 = pd.concat([df2, df.iloc[array[0]]], axis=0)
+    elif len(slice_data) == 2:
+        df2 = df.iloc[slice_data[0], slice_data[1]]
     elif len(slice_data) == 1:  # only row specified
         df2 = df.iloc[slice_data[0]]
     return df2
@@ -623,7 +624,8 @@ def import_file(dataframe=None, file_path='', sheet_name=0, shape='stacked',
                 unit_conversion_factor=default_unit_conversion_factor(),
                 feature_units=default_feature_units(),
                 column_dtype=default_column_dtype(),
-                na_values=default_na_values(), encoding='ISO-8859-1',
+                na_values=default_na_values(), 
+                encoding='ISO-8859-1',
                 dayfirst=True, **kwargs):
     """
     Import water quality data and transform it to HGC format.

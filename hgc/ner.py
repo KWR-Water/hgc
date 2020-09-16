@@ -518,10 +518,12 @@ def generate_entity_map(entity_orig=[],
 
     # step 4 is implemented here, for those whose scores are below the threshold
     # get true part and false part for sucessful matching
-    df_entity_orig4_t = df_entity_map[df_entity_map.Success == True] # saved for mergeing
-    df_entity_orig4_f = df_entity_map[df_entity_map.Success == False][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
-
-    df4 = _translate_matching(df_entity_orig4_f, entity_col, trans_from = 'nl', trans_to = 'en')
+    if entity_col == 'Feature':
+        df_entity_orig4_t = df_entity_map[df_entity_map.Success == True] # saved for mergeing
+        df_entity_orig4_f = df_entity_map[df_entity_map.Success == False][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
+        df4 = _translate_matching(df_entity_orig4_f, entity_col, trans_from = 'nl', trans_to = 'en')
+    else:
+        df4 = pd.DataFrame
 
     if not df4.empty:
         df4['Alias2_length'] = df4['Alias'].astype(str).map(len)

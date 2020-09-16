@@ -34,7 +34,8 @@ The following packages are needed in running this module. Please install them fr
 .. ipython:: python
     pip intall fuzzywuzzy
     pip intall molmass
-    pip install pydeepl
+    pip install pubchempy
+    pip install googletrans
     
 Example: import stacked data
 ------------

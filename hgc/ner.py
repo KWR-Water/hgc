@@ -512,10 +512,6 @@ def generate_entity_map(entity_orig=[],
     df_entity_map['MinScore'] = f_minscore(df_entity_map['Alias2_length'])
     df_entity_map['Success'] = np.where(df_entity_map['Score'] >= df_entity_map['MinScore'], True, False)
     
-    # sometimes, an Alias2 can be matched to multiple Alias --> show only first option
-    df_entity_map.drop_duplicates(subset=[entity_col + '_orig'], inplace=True)
-    df_entity_map.reset_index(inplace=True, drop=True)
-
     # step 4 is implemented here, for those whose scores are below the threshold
     # get true part and false part for sucessful matching
     if entity_col == 'Feature':
@@ -530,6 +526,10 @@ def generate_entity_map(entity_orig=[],
         df4['MinScore'] = f_minscore(df4['Alias2_length'])
         df4['Success'] = np.where(df4['Score'] >= df4['MinScore'], True, False)
         df_entity_map = pd.concat([df_entity_orig4_t, df4]).reset_index(drop=True)
+    
+    # sometimes, an Alias2 can be matched to multiple Alias --> show only first option
+    df_entity_map.drop_duplicates(subset=[entity_col + '_orig'], inplace=True)
+    df_entity_map.reset_index(inplace=True, drop=True)
 
     # generate a dictionary/ list with the succesful and unsuccesful matched entities
     mask = df_entity_map['Success'] == True

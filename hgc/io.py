@@ -406,8 +406,8 @@ def unit_conversion_ratio(df, unit_conversion_factor={}, feature_units={}, **kwa
     df2 = pd.DataFrame()
 
     # split units into inidivual symbols (incl. prefix) and fill NaN
-    df2[['orig1', 'orig2', 'orig3']] = df['Unit_orig0'].fillna('').str.split(r"/| ", expand=True, n=2).reindex(columns=range(3))
-    df2[['new1', 'new2', 'new3']] = df['Unit'].fillna('').str.split(r"/| ", expand=True, n=2).reindex(columns=range(3))
+    df2[['orig1', 'orig2', 'orig3']] = df['Unit_orig0'].fillna('').str.split(r"/| ", expand=True, n=2).reindex(columns=range(3)).copy()
+    df2[['new1', 'new2', 'new3']] = df['Unit'].fillna('').str.split(r"/| ", expand=True, n=2).reindex(columns=range(3)).copy()
     df2.loc[:,'unit_conversion_correct'] = True
 
     for orig, new in {'orig1': 'new1', 'orig2': 'new2'}.items():
@@ -443,8 +443,8 @@ def unit_conversion_ratio(df, unit_conversion_factor={}, feature_units={}, **kwa
         # replace mol by gram (to prevent error in next step) and remove N, P, S
         df2[orig] = df2[orig].str.replace('mol', 'g')
         df2[new] = df2[new].str.replace('mol', 'g')
-        df2['orig3'][maska] = ''
-        df2['new3'][maskb] = ''
+        df2.loc[maska, 'orig3'] = ''
+        df2.loc[maskb, 'new3'] = ''
 
         # compute unit conversion ratio
         df2[orig + 'ratio'] = df2[orig + 'ratio'] * df2[orig].map(unit_conversion_factor)

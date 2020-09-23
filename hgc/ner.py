@@ -305,7 +305,7 @@ def _translate_matching(df_entity_orig4_f, entity_col, trans_from = 'nl', trans_
         df4 = df_entity_orig4_f.merge(default_trans_feature, how='left',
                                left_on='Feature_orig', right_on='Alias') # combine intersection of two df's
         df4['Score'] = None
-        df4.loc[[not not element for element in list(map(len, df_trans['iupac']))], 'Score'] = 99
+        df4.loc[[not not element for element in list(map(len, df4.Feature))], 'Score'] = 99
 
     return df4
 
@@ -593,3 +593,4 @@ def generate_unit_map(entity_orig=[],
                             match_method=match_method)
 
     return unit_map, unit_unmapped, df_unit_map
+

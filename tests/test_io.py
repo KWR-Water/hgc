@@ -432,7 +432,28 @@ def test_bas():
     df2 = hgc.io.import_file(**dct2_arguments)[0]
     df2_hgc = hgc.io.stack_to_hgc(df2)
 
-
-
+def test_bas_2():
+    '''test stacked shape'''
+    WD = Path(tests.__file__).parent /'Chem_Data_bas.xlsx'
+    lst_features = list(pd.read_excel(WD, sheet_name='Raai 2019-2020')['Parameter'])
+    feature_map, feature_unmapped, df_feature_map = ner.generate_feature_map(entity_orig=lst_features)
+    lst_units = list(pd.read_excel(WD, sheet_name='Raai 2019-2020')['Unit'])
+    unit_map, unit_unmapped, df_unit_map = ner.generate_unit_map(entity_orig=lst_units)
+    slice_header = [0, slice(0, 8)]  # row 0
+    slice_data = [slice(1, None), slice(0, 8)]
+    dct2_arguments = {
+        'file_path': str(WD),
+        'sheet_name': 'Raai 2019-2020',
+        'shape': 'stacked',
+        'slice_header': slice_header,
+        'slice_data': slice_data,
+        'map_header': {
+            **hgc.io.default_map_header(), 'Date': 'Datetime', 'Sample': 'SampleID', 'Parameter':'Feature',
+        },
+        'map_features': feature_map,
+        'map_units': unit_map,
+    }
+    df2 = hgc.io.import_file(**dct2_arguments)[0]
+    df2_hgc = hgc.io.stack_to_hgc(df2)
 
 

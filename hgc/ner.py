@@ -551,6 +551,8 @@ def generate_feature_map(entity_orig=[],
                          entity_minscore=default_feature_minscore(),
                          match_method='levenshtein'):
     """Convenience function based on "generate_entity_map" but with recommended defaults for mapping features."""
+    print('Recognizing feature names now...it may take up to a few minutes based on the size of the file.')
+
     feature_map, feature_unmapped, df_feature_map =\
         generate_entity_map(entity_orig=entity_orig,
                             df_entity_alias=df_entity_alias,
@@ -561,6 +563,8 @@ def generate_feature_map(entity_orig=[],
                             strings_filtered_gem=strings_filtered_gfm,
                             entity_minscore=default_feature_minscore(),
                             match_method=match_method)
+
+    print('Feature recognition is done.')
 
     return feature_map, feature_unmapped, df_feature_map
 
@@ -577,7 +581,8 @@ def generate_unit_map(entity_orig=[],
                       entity_minscore=default_unit_minscore(),
                       match_method='levenshtein'):                      
     """Convenience function based on "generate_entity_map" but with recommended defaults for mapping units."""
-    
+    print('Recognizing units now...it may take up to a few minutes based on the size of the file.')
+
     # removing leading white spaces in the string
     entity_orig_lstrip = [string.lstrip() for string in entity_orig]
 
@@ -591,6 +596,7 @@ def generate_unit_map(entity_orig=[],
                             strings_filtered_gem=strings_filtered_gum,
                             entity_minscore=entity_minscore,
                             match_method=match_method)
+    print('Unit recognition is done.')
 
     return unit_map, unit_unmapped, df_unit_map
 

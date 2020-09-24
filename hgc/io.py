@@ -609,7 +609,7 @@ def join_detectionlimit_to_value(df, **kwargs):
 
 def delete_duplicate_rows(df):
     """Drop rows that have identical Feature and SampleID."""
-    df_keep = df.drop_duplicates(subset=['Feature', 'SampleID','Datetime','Value'], keep='first')
+    df_keep = df.drop_duplicates(subset=['Feature', 'SampleID','Datetime'], keep='first')
     df_dropduplicate = df[~df.index.isin(df_keep.index)]
     # logger.info('Dropped duplicate rows that have the same feature name and sampleid')
     return df_keep, df_dropduplicate

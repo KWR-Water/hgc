@@ -7,12 +7,13 @@ Created on Tue Jul 28 14:29:55 2020
 
 
 
-import os
+from pathlib import Path
+from hgc import constants
 import pandas as pd
 import pubchempy as pcp
 
-WD = os.path.join(os.path.dirname(os.path.realpath(__file__)))  # set work directory to current module
-os.chdir(WD)
+# WD = os.path.join(os.path.dirname(os.path.realpath(__file__)))  # set work directory to current module
+# os.chdir(WD)
 
 # %%
 # Put hyphen before CAS number before reading it in Excel 
@@ -30,11 +31,11 @@ os.chdir(WD)
 # # If Excel is saved directly from CSV, then some symbols (e.g. latin symbols) are
 # # saved incorretly as "?"
 
+file_path = r'D:\DBOX\Dropbox\008KWR\0081Projects\HGC\Git\hgc-2\hgc\constants'
 
-df = pd.read_excel(WD + r'\default_features_alias.xlsx', 'HGCinput',
-                   encoding='ISO-8859-1', skiprows=4)
-df.to_csv(WD + r'\default_features_alias.csv', encoding='utf-8', index=False)
+df = pd.read_excel(file_path + r'/default_features_alias.xlsx', 'HGCinput', skiprows=4)
+                #    encoding='ISO-8859-1')
+df.to_csv(file_path + r'/default_features_alias.csv', encoding='utf-8', index=False)
 
-
-df = pd.read_excel(WD + r'\default_units_alias.xlsx', encoding='ISO-8859-1')
-df.to_csv(WD + r'\default_units_alias.csv', encoding='utf-8', index=False)
+df = pd.read_excel(file_path + r'/default_units_alias.xlsx') #, encoding='ISO-8859-1')
+df.to_csv(file_path + r'/default_units_alias.csv', encoding='utf-8', index=False)

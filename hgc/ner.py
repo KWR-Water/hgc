@@ -304,11 +304,14 @@ def _translate_matching(df_entity_orig4_f, entity_col, trans_from = 'nl', trans_
 
         df4 = df_entity_orig4_f.merge(default_trans_feature, how='left',
                                left_on='Feature_orig', right_on='Alias') # combine intersection of two df's
+        df4.drop_duplicates(subset=['Feature_orig', 'Feature_orig2', 'Filtered', 'Alias'], inplace=True)         
         df4['Score'] = None
         df4.loc[[not not element for element in list(map(len, df4.Feature))], 'Score'] = 99
 
     return df4
 
+
+    # return df5
 
 # %% main function
 def _interp1d_fill_value(x=[], y=[]):
@@ -327,7 +330,6 @@ def _interp1d_fill_value(x=[], y=[]):
     y_above = df.iloc[-1, :]['Y']  # fill value below xmin
 
     f = scipy.interpolate.interp1d(df['X'], df['Y'], bounds_error=False, fill_value=(y_below, y_above))
-
     return f
 
 
@@ -527,6 +529,22 @@ def generate_entity_map(entity_orig=[],
         df4['Success'] = np.where(df4['Score'] >= df4['MinScore'], True, False)
         df_entity_map = pd.concat([df_entity_orig4_t, df4]).reset_index(drop=True)
     
+    # step 5 is implemented here to deal with those cannot be dealt with by step 4 due to brackets
+    # anything before the brackets will be retrieved and recognize again, keep the score 98 too
+    if entity_col == 'Feature':
+        df_entity_orig5_t = df_entity_map[df_entity_map.Success == True] # saved for mergeing
+        df_entity_orig5_f = df_entity_map[df_entity_map.Success == False][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
+        df_entity_orig5_f.loc[:,'Feature_orig'] = df_entity_orig5_f.loc[:,'Feature_orig'].str.replace(r'\(.*\)', '').str.rstrip()
+        df5 = _translate_matching(df_entity_orig5_f, entity_col, trans_from = 'nl', trans_to = 'en')
+    else:
+        df5 = pd.DataFrame
+
+    if not df5.empty:
+        df5['Alias2_length'] = df5['Alias'].astype(str).map(len)
+        df5['MinScore'] = f_minscore(df5['Alias2_length'])
+        df5['Success'] = np.where(df5['Score'] >= df5['MinScore'], True, False)
+        df_entity_map = pd.concat([df_entity_orig5_t, df5]).reset_index(drop=True)
+
     # sometimes, an Alias2 can be matched to multiple Alias --> show only first option
     df_entity_map.drop_duplicates(subset=[entity_col + '_orig'], inplace=True)
     df_entity_map.reset_index(inplace=True, drop=True)

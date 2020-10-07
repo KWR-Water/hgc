@@ -2,6 +2,7 @@
 """
 Reading data for WB, PRO, 
 for kennisimpulse project
+to read data from province, water companies, and any other sources
 Created on Sun Jul 26 21:55:57 2020
 
 @author: Xin Tian 
@@ -65,9 +66,8 @@ def test_province():
 
 def test_wml():
     # WD = Path(tests.__file__).parent / 'provincie_data_long_preprocessed.csv'
-    WD = r'D:/DBOX/Dropbox/008KWR/0081Projects/kennisimpulse/Opkomende stoffen KIWK Zuid_preprocessed.xlsx'
-    df_temp = pd.read_excel(WD, header=None)
-
+    WD = r'D:/DBOX/Dropbox/008KWR/0081Projects/kennisimpulse/Opkomende stoffen KIWK Zuid_preprocessed.csv'
+    df_temp = pd.read_csv(WD, header=None, encoding='ISO-8859-1')
     # define the nrow here 
     n_row = None    
     feature_map, feature_unmapped, df_feature_map = ner.generate_feature_map(entity_orig=list(df_temp.iloc[slice(2, n_row), 20].dropna()))

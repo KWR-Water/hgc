@@ -141,7 +141,7 @@ convert it.
                         map_header=map_header,
                         map_features=feature_map2,
                         map_units=unit_map)[1]
-    df_1.head(3) # duplication
+    df_1.head(3) # nan values   
     df_2 = io.import_file(file_path=str(Path(__file__).cwd()/'tests/example1.xlsx'),
                         sheet_name='stacked',
                         shape='stacked',
@@ -150,7 +150,7 @@ convert it.
                         map_header=map_header,
                         map_features=feature_map2,
                         map_units=unit_map)[2]                        
-    df_2.head(3) # nan values   
+    df_2.head(3) # duplication
   
 Note that we put a '[0]' behind the function, the [1] and [2] are the data
 that was dropped because duplicate or nan_value

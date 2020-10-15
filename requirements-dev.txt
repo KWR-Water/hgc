@@ -1,0 +1,6 @@
+-r docs/requirements.txt
+numpydoc
+sphinx_rtd_theme
+pytest
+jupyter-sphinx
+matplotlib

@@ -1,3 +1,4 @@
 -r ../requirements.txt
+sphinx_rtd_theme
 matplotlib
 ipykernel

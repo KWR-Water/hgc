@@ -21,7 +21,7 @@ negative concentrations or text placeholders.
 
 .. ipython:: python
 
-    testdata = {'alkalinity', 'Al': [2600], 'Ba': [44.0],
+    testdata = {'alkalinity': [0.0], 'Al': [2600], 'Ba': [44.0],
                 'Br': [0.0], 'Ca': [2.0], 'Cl': [19.0],
                 'Co': [1.2], 'Cu': [4.0], 'doc': [4.4],
                 'F': [0.08], 'Fe': [0.29], 'K': [1.1],

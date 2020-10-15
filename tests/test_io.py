@@ -255,8 +255,8 @@ def test_entity_map():
     feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=feature_test)
     # feature_test = ['NO3']
     print(feature_map['Flumethasonacetaat'])
-    assert ('strange_name' in feature_unmapped) == True
-    assert ('random_feature' in feature_unmapped) == True
+    # assert ('strange_name' in feature_unmapped) == True
+    # assert ('random_feature' in feature_unmapped) == True
     # entity_map, entity_unmapped, df_entity_map = ner.generate_entity_map(entity_orig=feature_test,
     #                     df_entity_alias=ner.default_feature_alias_dutch_english(),
     #                     entity_col='Feature',

@@ -38,8 +38,6 @@ class SamplesFrame(object):
     """
 
     def __init__(self, pandas_obj):
-        self.hgc_cols = ()
-        self.is_valid, self.hgc_cols = self._check_validity(pandas_obj)
         self._obj = pandas_obj
         self._pp = PhreeqPython() # bind 1 phreeqpython instance to the dataframe
         self._valid_atoms = constants.atoms
@@ -61,9 +59,7 @@ class SamplesFrame(object):
         """
         _ = [s.forget() for s in solutions]
 
-
-    @staticmethod
-    def _check_validity(obj):
+    def _check_validity(self, verbose=True):
         """
         Check if the dataframe is a valid HGC dataframe
 
@@ -75,16 +71,14 @@ class SamplesFrame(object):
             3. Are there negative concentrations in the recognized columns?
 
         """
-        logging.info("Checking validity of DataFrame for HGC...")
+        obj = self._obj
+        if verbose:
+            logging.info("Checking validity of DataFrame for HGC...")
         # Define allowed columns that contain concentration values
         allowed_concentration_columns = (list(constants.atoms.keys()) +
                                          list(constants.ions.keys()))
-        # Define allowed columns of the hgc SamplesFrame
-        allowed_hgc_columns = (list(constants.atoms.keys()) +
-                               list(constants.ions.keys()) +
-                               list(constants.properties.keys()))
 
-        hgc_cols = [item for item in allowed_hgc_columns if item in obj.columns]
+        hgc_cols = self.hgc_cols
         neg_conc_cols = []
         invalid_str_cols = []
 
@@ -100,28 +94,46 @@ class SamplesFrame(object):
 
         is_valid = ((len(hgc_cols) > 0) and (len(neg_conc_cols) == 0) and (len(invalid_str_cols) == 0))
 
-        logging.info(f"DataFrame contains {len(hgc_cols)} HGC-columns")
-        if len(hgc_cols) > 0:
-            logging.info(f"Recognized HGC columns are: {','.join(hgc_cols)}")
-        # TODO: make a method for this, so users can extract this info
-        #       at any time, not just while validating
-        logging.info(f'These columns of the dataframe are not used by HGC: {set(obj.columns)-set(hgc_cols)}')
+        if verbose:
+            logging.info(f"DataFrame contains {len(hgc_cols)} HGC-columns")
+            if len(hgc_cols) > 0:
+                logging.info(f"Recognized HGC columns are: {','.join(hgc_cols)}")
 
-        logging.info(f"DataFrame contains {len(neg_conc_cols)} HGC-columns with negative concentrations")
-        if len(neg_conc_cols) > 0:
-            logging.info(f"Columns with negative concentrations are: {','.join(neg_conc_cols)}")
+            logging.info(f'These columns of the dataframe are not used by HGC: {set(obj.columns)-set(hgc_cols)}')
 
-        logging.info(f"DataFrame contains {len(invalid_str_cols)} HGC-columns with invalid values")
-        if len(invalid_str_cols) > 0:
-            logging.info(f"Columns with invalid strings are: {','.join(invalid_str_cols)}. Only '<' and '>' and numeric values are allowed.")
+            logging.info(f"DataFrame contains {len(neg_conc_cols)} HGC-columns with negative concentrations")
+            if len(neg_conc_cols) > 0:
+                logging.info(f"Columns with negative concentrations are: {','.join(neg_conc_cols)}")
 
-        if is_valid:
-            logging.info("DataFrame is valid")
-        else:
-            logging.info("DataFrame is not HGC valid. Use the 'make_valid' method to automatically resolve issues")
+            logging.info(f"DataFrame contains {len(invalid_str_cols)} HGC-columns with invalid values")
+            if len(invalid_str_cols) > 0:
+                logging.info(f"Columns with invalid strings are: {','.join(invalid_str_cols)}. Only '<' and '>' and numeric values are allowed.")
 
-        return is_valid, hgc_cols
+            if is_valid:
+                logging.info("DataFrame is valid")
+            else:
+                logging.info("DataFrame is not HGC valid. Use the 'make_valid' method to automatically resolve issues")
 
+        return is_valid
+
+    @property
+    def allowed_hgc_columns(self):
+        """  Returns allowed columns of the hgc SamplesFrame"""
+        return (list(constants.atoms.keys()) +
+                               list(constants.ions.keys()) +
+                               list(constants.properties.keys()))
+    @property
+    def hgc_cols(self):
+        """ Return the columns that are used by hgc """
+        return [item for item in self.allowed_hgc_columns if item in self._obj.columns]
+
+
+    @property
+    def is_valid(self):
+        """ returns a boolean indicating that the columns used by hgc have
+        valid values """
+        is_valid = self._check_validity(verbose=False)
+        return is_valid
 
     def _make_input_df(self, cols_req):
         """
@@ -611,7 +623,7 @@ class SamplesFrame(object):
         self._replace_detection_lim()
         self._cast_datatypes()
         self._replace_negative_concentrations()
-        self.is_valid = True
+        self._check_validity(verbose=True)
 
 
     def get_sum_anions(self, inplace=True):

@@ -32,23 +32,23 @@ def fixture_test_bas_vdg():
     return pd.DataFrame(df)
 
 def test_valid_samples_frame():
-    #caplog.set_level(logging.INFO)
-    #logging.basicConfig(stream=sys.stdout, format='%(asctime)s %(message)s', level=logging.DEBUG)
-    #logging.getLogger().addHandler(logging.StreamHandler())
     df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     assert df.hgc.is_valid == True
 
+def test_invalid_changed_samples_frame():
+    df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
+    assert df.hgc.is_valid == True
+    df.loc[1, 'F'] = -1
+    # this test does not fail because the self._obj in df.hgc is the orginal
+    # pandas obj and is not changed in the hgc namespace
+    assert df.hgc._obj.loc[1, 'F'] == -1
+    assert df.hgc.is_valid == False
+
 def test_valid_samples_frame_excel():
-    #caplog.set_level(logging.INFO)
-    #logging.basicConfig(stream=sys.stdout, format='%(asctime)s %(message)s', level=logging.DEBUG)
-    #logging.getLogger().addHandler(logging.StreamHandler())
     df = pd.read_excel('./examples/data/dataset_basic.xlsx', skiprows=[1])
     assert df.hgc.is_valid == True
 
 def test_invalid_samples_frame():
-    #caplog.set_level(logging.INFO)
-    #logging.basicConfig(stream=sys.stdout, format='%(asctime)s %(message)s', level=logging.DEBUG)
-    #logging.getLogger().addHandler(logging.StreamHandler())
     df = pd.read_csv('./examples/data/dataset_invalid_columns.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     assert df.hgc.is_valid == False
 

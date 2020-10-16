@@ -200,7 +200,8 @@ class SamplesFrame(object):
 
 
     def consolidate(self, use_ph='field', use_ec='lab', use_so4='ic', use_o2='field',
-                    use_temp='field', merge_on_na=False, inplace=True):
+                    use_temp='field', use_alkalinity='alkalinity',
+                    merge_on_na=False, inplace=True):
         """
         Consolidate parameters measured with different methods to one single parameter.
 
@@ -224,6 +225,8 @@ class SamplesFrame(object):
             Which SO4 to use?
         use_o2 : {'lab', 'field', None}, default 'field'
             Which O2 to use?
+        use_alkalinity: str, default 'alkalinity'
+            name of the column to use for alkalinity
         merge_on_na : bool, default False
             Fill NaN's from one measurement method with measurements from other method.
         inplace : bool, default True
@@ -247,8 +250,17 @@ class SamplesFrame(object):
             'ec': use_ec,
             'SO4': use_so4,
             'O2': use_o2,
-            'temp': use_temp
+            'temp': use_temp,
         }
+        if not (use_alkalinity in ['alkalinity', None]):
+            try:
+                self._obj['alkalinity'] = self._obj[use_alkalinity]
+                self._obj.drop(columns=[use_alkalinity], inplace=True)
+            except KeyError:
+                raise ValueError(f"Invalid value for argument 'use_alkalinity': " +
+                                f"{use_alkalinity}. It is not a column name of " +
+                                f"the dataframe")
+
 
         for param, method in param_mapping.items():
             if not method:
@@ -256,7 +268,7 @@ class SamplesFrame(object):
                 continue
 
             if not isinstance(method, str):
-                ValueError(f"Invalid method {method} for parameter {param}. Arg should be a string.")
+                raise ValueError(f"Invalid method {method} for parameter {param}. Arg should be a string.")
 
             if param in self._obj.columns:
                 logging.info(f"Parameter {param} already present in DataFrame, ignoring. Remove column manually to enable consolidation.")
@@ -278,7 +290,7 @@ class SamplesFrame(object):
                 # Drop source columns
                 suffixes = ('_field', '_lab', '_ic')
                 cols = [param + suffix for suffix in suffixes]
-                self._obj.drop(columns=cols, errors='ignore')
+                self._obj.drop(columns=cols, inplace=True, errors='ignore')
 
             else:
                 raise ValueError(f"Column {source} not present in DataFrame. Use " +

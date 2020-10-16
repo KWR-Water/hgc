@@ -111,6 +111,29 @@ def test_consolidate_w_not_all_cols():
     df.hgc.consolidate(use_ph='field', use_ec='lab', use_temp=None,
                        use_so4=None, use_o2=None)
 
+def test_consolidate_alkalinity():
+    ''' test that consolidate works when not all
+        (default) columns are present '''
+    testdata = {
+        'alkalinity': [4.3, 6.3, 5.4], 'hco3': [4.4, 6.1, 5.7],
+        'ph_lab': [4.3, 6.3, 5.4], 'ph_field': [4.4, 6.1, 5.7],
+        'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],
+    }
+    df = pd.DataFrame.from_dict(testdata)
+    df.hgc.make_valid()
+
+    alk = df.alkalinity
+    hco3 = df.hco3
+    df.hgc.consolidate(use_ph='field', use_ec='lab',use_alkalinity='alkalinity',
+    use_so4=None, use_o2=None, use_temp=None)
+    pd.testing.assert_series_equal(df.alkalinity, alk)
+    df.hgc.consolidate(use_alkalinity='hco3', use_so4=None, use_o2=None,
+    use_temp=None)
+    assert all(df.alkalinity.values == hco3.values)
+    assert 'hco3' not in df.columns
+
+
+
 def test_get_sum_anions_1():
     """ This testcase is based on row 11, sheet 4 of original Excel-based HGC """
     df = pd.DataFrame([[56., 16., 1.5, 0.027, 0.0, 0.0, 3.4, 0.04, 7., 4.5]], columns=('Br', 'Cl', 'doc', 'F', 'alkalinity', 'NO2', 'NO3', 'PO4', 'SO4', 'ph'))

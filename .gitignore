@@ -110,3 +110,4 @@ hgc.code-workspace
 # files that are created on the fly
 hgc/constants/constants.pickle
 docs/source/_build
+hgc/constants/default_features_alias99.xlsx

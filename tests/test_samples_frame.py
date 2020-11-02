@@ -32,23 +32,23 @@ def fixture_test_bas_vdg():
     return pd.DataFrame(df)
 
 def test_valid_samples_frame():
-    #caplog.set_level(logging.INFO)
-    #logging.basicConfig(stream=sys.stdout, format='%(asctime)s %(message)s', level=logging.DEBUG)
-    #logging.getLogger().addHandler(logging.StreamHandler())
     df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     assert df.hgc.is_valid == True
 
+def test_invalid_changed_samples_frame():
+    df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
+    assert df.hgc.is_valid == True
+    df.loc[1, 'F'] = -1
+    # this test does not fail because the self._obj in df.hgc is the orginal
+    # pandas obj and is not changed in the hgc namespace
+    assert df.hgc._obj.loc[1, 'F'] == -1
+    assert df.hgc.is_valid == False
+
 def test_valid_samples_frame_excel():
-    #caplog.set_level(logging.INFO)
-    #logging.basicConfig(stream=sys.stdout, format='%(asctime)s %(message)s', level=logging.DEBUG)
-    #logging.getLogger().addHandler(logging.StreamHandler())
     df = pd.read_excel('./examples/data/dataset_basic.xlsx', skiprows=[1])
     assert df.hgc.is_valid == True
 
 def test_invalid_samples_frame():
-    #caplog.set_level(logging.INFO)
-    #logging.basicConfig(stream=sys.stdout, format='%(asctime)s %(message)s', level=logging.DEBUG)
-    #logging.getLogger().addHandler(logging.StreamHandler())
     df = pd.read_csv('./examples/data/dataset_invalid_columns.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     assert df.hgc.is_valid == False
 
@@ -110,6 +110,29 @@ def test_consolidate_w_not_all_cols():
 
     df.hgc.consolidate(use_ph='field', use_ec='lab', use_temp=None,
                        use_so4=None, use_o2=None)
+
+def test_consolidate_alkalinity():
+    ''' test that consolidate works when not all
+        (default) columns are present '''
+    testdata = {
+        'alkalinity': [4.3, 6.3, 5.4], 'hco3': [4.4, 6.1, 5.7],
+        'ph_lab': [4.3, 6.3, 5.4], 'ph_field': [4.4, 6.1, 5.7],
+        'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],
+    }
+    df = pd.DataFrame.from_dict(testdata)
+    df.hgc.make_valid()
+
+    alk = df.alkalinity
+    hco3 = df.hco3
+    df.hgc.consolidate(use_ph='field', use_ec='lab',use_alkalinity='alkalinity',
+    use_so4=None, use_o2=None, use_temp=None)
+    pd.testing.assert_series_equal(df.alkalinity, alk)
+    df.hgc.consolidate(use_alkalinity='hco3', use_so4=None, use_o2=None,
+    use_temp=None)
+    assert all(df.alkalinity.values == hco3.values)
+    assert 'hco3' not in df.columns
+
+
 
 def test_get_sum_anions_1():
     """ This testcase is based on row 11, sheet 4 of original Excel-based HGC """

@@ -6,6 +6,10 @@ xlrd>=1.0.0
 phreeqpython>=1.3.2
 pytest
 scipy
+fuzzywuzzy 
+googletrans
+pubchempy 
+molmass
 
 # developers:
 # numpydoc

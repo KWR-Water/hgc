@@ -34,5 +34,14 @@ def units(item):
                                + ' ions or properties tables.'
                                + f' valid keys are {valid_keys}')
 
-
-
+def units_wt_as(item):
+    try:
+        return atoms[item].unit
+    except KeyError:
+        try:
+            return ions[item].unit
+        except KeyError:
+            try:
+                return properties[item].unit
+            except KeyError:
+                return None # return a None unit if the feature is excluded in HGC

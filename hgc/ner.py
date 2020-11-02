@@ -272,15 +272,34 @@ def _fuzzy_match(df_entity_orig2, df_entity_alias, entity_col, match_method, df1
 
     return df3
 
-def _translate_matching(df_entity_orig4_f, entity_col, trans_from = 'nl', trans_to = 'en'):
+def _translate_matching(df_entity_orig4_f, entity_col, trans_from = 'NL', trans_to = 'EN'):
     ''' use google translate to convert Dutch (default) alias to English, then call exact_matching for generating a score'''
     # saved for testing
     # df_entity_orig4_f.Feature_orig[0] = '1,2,3-trimethylbenzeen'
     # df_entity_orig4_f.Feature_orig[1] = '1,2,3,4-tetramethylbenzeen'
 
     name2trans = list(df_entity_orig4_f.Feature_orig)
-    name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
-    idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
+    
+    # Next, call google translator two times in case it fails for the first time due to API issues. 
+    try:
+        name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
+        print('Calling google translator API was successful for the 1st time.')
+        flag = 'y'
+    except:
+        try: 
+            name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
+            print('Calling google translator API was successful for the 2nd time.')
+            flag = 'y'
+        except:
+            print('Calling google translator API failed.')
+            flag = 'n'
+
+    # name_transed_cls = [Translator().translate(item, src=trans_from, dest=trans_to) for item in name2trans]
+    if flag == 'y':
+        idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
+    elif flag == 'n':
+        idx = [pcp.get_compounds(component, 'name') for component in name2trans] 
+
     empty_check = all([not elem for elem in idx])
     if empty_check:
         df4 = pd.DataFrame()
@@ -530,7 +549,7 @@ def generate_entity_map(entity_orig=[],
         df_entity_map = pd.concat([df_entity_orig4_t, df4]).reset_index(drop=True)
     
     # step 5 is implemented here to deal with those cannot be dealt with by step 4 due to brackets
-    # anything before the brackets will be retrieved and recognize again, keep the score 98 too
+    # anything before the brackets will be retrieved and recognized again, keep the score 98 too
     if entity_col == 'Feature':
         df_entity_orig5_t = df_entity_map[df_entity_map.Success == True] # saved for mergeing
         df_entity_orig5_f = df_entity_map[df_entity_map.Success == False][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)

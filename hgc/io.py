@@ -15,6 +15,7 @@ import molmass
 from pathlib import Path
 from hgc import constants # for reading the default csv files
 from hgc.constants.constants import mw, units_wt_as
+from hgc.constants.read_write import load_pickle_as_namedtuples
 
 # %% hgc.io.defaults
 def default_feature_units():
@@ -40,10 +41,14 @@ def default_feature_units():
     # df_atoms = pd.read_csv(Path(constants.__file__).parent / 'atoms.csv', encoding='utf-8', header=0)
     # df_other = pd.read_csv(Path(constants.__file__).parent / 'other_than_concentrations.csv', encoding='utf-8', header=0)
     # df_hgc = pd.concat([df_ions, df_atoms, df_other])
-    feature = df['Feature']
-    DefaultUnits = [units_wt_as(key) for key in feature] # OR use command: list(map(units_wt_as, feature))
+    # feature = df_hgc['feature']
+    # DefaultUnits = [units_wt_as(key) for key in feature] # OR use command: list(map(units_wt_as, feature))
+    # dct_hgc = {k: v for k, v in dict(zip(feature, DefaultUnits)).items() if v is not None}
+    atoms, ions, properties = load_pickle_as_namedtuples()
+    feature = [{**atoms, **ions, **properties}[item].feature for item in {**atoms, **ions, **properties}]
+    DefaultUnits = [{**atoms, **ions, **properties}[item].unit for item in {**atoms, **ions, **properties}]
     dct_hgc = {k: v for k, v in dict(zip(feature, DefaultUnits)).items() if v is not None}
-    
+
     # combine dictionaries for default units. If defined in HGC, use it. Otherwise use whatever defined in the alias table. 
     dct = {**dct_alias,
            **dct_hgc, 
@@ -83,13 +88,6 @@ def default_unit_conversion_factor():
     dct = {**dct, '%': .01} # for correction percentage
 
     return dct
-
-# @Tin, MartinK:
-# The following defaults need to be called (and adjusted) by the user.
-# For example: header_format = {**default_header_format(), locationID: 'integer'}}.
-# Is it necessary to define them as functions e.g. default_na_values()?
-# or can they be constants e.g. DEFAULT_NA_VALUES?
-
 
 def default_column_dtype():
     """

@@ -34,7 +34,11 @@ def default_feature_units():
     df = pd.read_csv(Path(constants.__file__).parent / 'default_features_alias.csv', encoding='utf-8', header=0)
     mask = ~(df['DefaultUnits'].isnull())
     dct_alias = dict(zip(df['Feature'][mask], df['DefaultUnits'][mask]))
-    # extract feature names and get units defined in HGC
+    # extract feature names and get units defined in HGC, including ions, atoms and others
+    # df_ions = pd.read_csv(Path(constants.__file__).parent / 'ions.csv', encoding='utf-8', header=0)
+    # df_atoms = pd.read_csv(Path(constants.__file__).parent / 'atoms.csv', encoding='utf-8', header=0)
+    # df_other = pd.read_csv(Path(constants.__file__).parent / 'other_than_concentrations.csv', encoding='utf-8', header=0)
+    # df_hgc = pd.concat([df_ions, df_atoms, df_other])
     feature = df['Feature']
     DefaultUnits = [units_wt_as(key) for key in feature] # OR use command: list(map(units_wt_as, feature))
     dct_hgc = {k: v for k, v in dict(zip(feature, DefaultUnits)).items() if v is not None}

@@ -173,9 +173,9 @@ def test_ner_entire_unit_alias_table():
     pass
 
 #%% individual tests for ner
-def test_ner_default_feature_alias_dutch_english():
+def test_ner_generate_feature_alias():
     ''' check the feature alias '''
-    df_check = ner.default_feature_alias_dutch_english()
+    df_check = ner.generate_feature_alias()
     df_check.head(15) # check combined dictionaries
 
 def test_default_unit_alias():
@@ -186,14 +186,18 @@ def test_default_unit_alias():
 def test_ner_generate_entity_alias():
     ''' check the function used for generating unit/feature'''
     df_check = ner.generate_entity_alias(
-        df=ner.entire_unit_alias_table(),
-        entity_col='Unit',
-        alias_cols=['Unit'])
+        df=ner.entire_feature_alias_table(),
+        entity_col='Feature',
+        alias_cols=['Feature', 'IUPAC',
+                    'UserDefined_Dutch', 'UserDefined_English',
+                    'SIKBcode', 'SIKBomschrijving'])
+    df_check.head(15)
 
     df_check = ner.generate_entity_alias(
         df=ner.entire_unit_alias_table(),
         entity_col='Unit',
         alias_cols=['Alias (English)'])
+    df_check.head(15)
     pass
 
 

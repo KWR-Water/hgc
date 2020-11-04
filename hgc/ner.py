@@ -15,7 +15,6 @@ from hgc import constants
 from googletrans import Translator
 import pubchempy as pcp
 
-
 # %% Defaults
 def entire_feature_alias_table():
     """Dataframe with HGC features and various columns with alias (synonyms) for these features.
@@ -95,7 +94,7 @@ def generate_entity_alias(df=None, entity_col='', alias_cols=''):
     df2 = df2[~df2['Alias'].isnull()]
 
     # Split rows with multiple Alias to multiple rows.
-    df2['Alias'] = df2['Alias'].str.split(';')  # split cell to list
+    df2['Alias'] = df2['Alias'].str.split('|')  # split cell to list
     df2 = df2.explode('Alias')
     df2['Alias'] = df2['Alias'].str.strip()
     df2.dropna(inplace=True)
@@ -114,14 +113,15 @@ def generate_entity_alias(df=None, entity_col='', alias_cols=''):
     return df2
 
 
-def default_feature_alias_dutch_english():
-    """Table with default HGC features and aliases."""
+def generate_feature_alias():
+    """Table with default HGC features and aliases. Previously called: default_feature_alias_dutch_english"""
+    
     df0 = generate_entity_alias(
             df=entire_feature_alias_table(),
             entity_col='Feature',
-            alias_cols=['Feature', 'IUPAC (Dutch)', 'IUPAC (English)',
-                        'User defined (Dutch)', 'User defined (English)',
-                        'SIKB_Code', 'SIKB_Omschrijving'])
+            alias_cols=['Feature', 'IUPAC',
+                        'UserDefined_Dutch', 'UserDefined_English',
+                        'SIKBcode', 'SIKBomschrijving'])
     return df0
 
 
@@ -577,7 +577,7 @@ def generate_entity_map(entity_orig=[],
     
     
 def generate_feature_map(entity_orig=[],
-                         df_entity_alias=default_feature_alias_dutch_english(),
+                         df_entity_alias=generate_feature_alias(),
                          entity_col='Feature',
                          string2whitespace=[],
                          string2replace={'Ä': 'a', 'ä': 'a', 'Ë': 'e', 'ë': 'e',

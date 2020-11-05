@@ -327,12 +327,18 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
             if attemp == 10:
                 print('Calling google translate API failed after %i attemp(s). Try it again later.' % (attemp))
                 flag = 'n'
-
+    
         # get compound from the translated/original names
         if flag == 'y':
             idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
         elif flag == 'n':
-            idx = [pcp.get_compounds(component, 'name') if ~np.isnan(component) else [] for component in name2trans] 
+            idx = []
+            for component in name2trans:
+                try:
+                    idx.append(pcp.get_compounds(component, 'name'))
+                except:
+                    idx.append([])
+            # idx = [pcp.get_compounds(component, 'name') for component in name2trans] 
 
         empty_check = all([not elem for elem in idx])
         if empty_check:
@@ -450,7 +456,6 @@ def _cleanup_alias(df=None, col='', col2='', string2whitespace=[], string2replac
     df[col2] = df[col2].str.lstrip(' ').str.rstrip(' ').str.replace('\s+', ' ', regex=True)
 
     return df
-
 
 def generate_entity_map(entity_orig=[],
                         df_entity_alias=None,

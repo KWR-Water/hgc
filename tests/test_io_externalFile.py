@@ -1,14 +1,76 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sep 3
-Testing a simple example
-@author: Xin Tian 
-"""
-
 import pandas as pd
+import hgc
 from hgc import ner 
 from hgc import io
 from pathlib import Path
+
+def test_hwl():
+    """
+    Created on Wed Sep 23 15:14:48 2020
+
+    @author: griftba
+    """
+    #pip install -U git+https://github.com/KWR-Water/hgc.git@HGC.io
+
+    #    df_temp = pd.read_excel(r'./Chem_Data_bas.xlsx', sheet_name='Raai 2019-2020', header=None) # ignore headers!
+
+    # step 1: generate feature map
+    file_name = r'D:\DBOX\Dropbox\008KWR\0081Projects\QSAR_NER\testing_bas\Chem_Data_bas.xlsx'
+    lst_features = list(pd.read_excel(file_name, sheet_name='Raai 2019-2020')['Parameter'])
+    feature_map, feature_unmapped, df_feature_map = ner.generate_feature_map(entity_orig=lst_features)
+    lst_units = list(pd.read_excel(file_name, sheet_name='Raai 2019-2020')['Unit'])
+    unit_map, unit_unmapped, df_unit_map = ner.generate_unit_map(entity_orig=lst_units)
+    slice_header = [0, slice(0, 8)]  # row 0
+    slice_data = [slice(1, None), slice(0, 8)]
+    dct2_arguments = {
+        'file_path': file_name,
+        'sheet_name': 'Raai 2019-2020',
+        'shape': 'stacked',
+        'slice_header': slice_header,
+        'slice_data': slice_data,
+        'map_header': {
+            **io.default_map_header(), 'Date': 'Datetime', 'Sample': 'SampleID', 'Parameter':'Feature',
+        },
+        'map_features': feature_map,
+        'map_units': unit_map,
+    }
+    df2 = io.import_file(**dct2_arguments)[0]
+
+
+    dct2_arguments = {
+        'file_path': file_name,
+        'sheet_name': 'Raai 2019-2020',
+        'shape': 'stacked',
+        'slice_header': slice_header,
+        'slice_data': slice_data,
+        'map_header': {
+            **io.default_map_header(), 'Date': 'Datetime', 'Sample': 'SampleID', 'Parameter':'Feature',
+        },
+        'map_features': feature_map,
+        'map_units': unit_map,
+    }
+    df2_2 = io.import_file(**dct2_arguments)[2] 
+
+    df2_DLV = hgc.io.stack_to_hgc(df2)
+
+    # df2_DLV.to_csv('DLV_raai2019_2020.csv')
+
+
+    df2_DLV.hgc.make_valid()
+    is_valid = df2_DLV.hgc.is_valid
+    is_valid
+
+    # Recognized HGC columns
+    hgc_cols = df2_DLV.hgc.hgc_cols
+    print(hgc_cols)
+
+    sum_anions = df2_DLV.hgc.get_sum_anions()
+
+    water_types = df2_DLV.hgc.get_stuyfzand_water_type()
+    print(water_types)
+    bex = df2_DLV.hgc.get_bex()
+    bex
 
 def test_exm_stacked():
     """
@@ -50,7 +112,6 @@ def test_exm_stacked():
     """
     lst_units = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Unit'])
     unit_map, unit_unmapped, df_unit_map = ner.generate_unit_map(entity_orig=lst_units)
-    assert(unit_map == {'mg-N/L': 'mg/L N', 'mg/L': 'mg/L', 'ug/L': 'μg/L', 'μS/cm': 'μS/cm'})
 
     """
     ----------------------
@@ -80,7 +141,7 @@ def test_exm_stacked():
     # For instance, we can inspect the default units for Cl, NO3 and ec_field
     assert(io.default_feature_units()['Cl'] == 'mg/L')
     assert(io.default_feature_units()['NO3'] == 'mg/L')
-    assert(io.default_feature_units()['ec_field'] == 'mS/m')
+    assert(io.default_feature_units()['ec_field'] == 'μS/cm') # as default in hgc
 
     # column_dtype --> desired dtypefor columns
     # we will use the default dtype
@@ -183,7 +244,7 @@ def test_mapping_features():
     """
 
     # Print first lines of default database for mapping features.
-    print(ner.default_feature_alias_dutch_english.head())
+    print(ner.generate_feature_alias().head())
 
     """
     By default, all columns are used except for 'CAS'.
@@ -191,17 +252,16 @@ def test_mapping_features():
     In the next example, we will attempt mapping using the CAS number.
     """
 
-    # example with mapping with CAS number
+    # example with mapping with IUPAC
     df_feature_alias = ner.generate_entity_alias(
-        df=ner.entire_feature_alias_table,
+        df=ner.entire_feature_alias_table(),
         entity_col='Feature',
-        alias_cols=['CAS'])
+        alias_cols=['IUPAC'])
 
     df_temp = pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='wide', header=None) # ignore headers!
-    feature_map3, feature_unmapped3, df_feature_map3 =\
-        ner.generate_feature_map(entity_orig=list(df_temp.iloc[1, 5:]),
+    feature_map3, feature_unmapped3, df_feature_map3 = ner.generate_feature_map(entity_orig=list(df_temp.iloc[1, 5:]),
                                     df_entity_alias=df_feature_alias,
-                                    match_method='exact')
+                                    match_method='languageTrans')
 
     # check if features are correctly mapped
     print(feature_map3)
@@ -227,7 +287,7 @@ def test_mapping_features():
 
     """
     # Print first lines of default database for mapping units.
-    print(ner.default_unit_alias.head())
+    print(ner.default_unit_alias().head(2))
 
     """
     WARNING: 

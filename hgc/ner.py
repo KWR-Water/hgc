@@ -240,7 +240,7 @@ def _exact_match(df_entity_orig, df_entity_alias, entity_col):
 
 def _ascii_match(df_entity_orig1, df_entity_alias, entity_col, match_method, df1):
     ''' check matching after ascii processing''' 
-    if match_method in ['levenshtein', 'ascii']:
+    if match_method in ['levenshtein', 'ascii', 'languageTrans']:
             # continue merging the rest of df1 with alias2 (with ascii)
         df2 = df_entity_orig1.merge(df_entity_alias, how='left',
                                 left_on=entity_col + '_orig2', right_on='Alias2')
@@ -255,82 +255,118 @@ def _ascii_match(df_entity_orig1, df_entity_alias, entity_col, match_method, df1
     
     return df2, df_entity_orig2
 
-def _fuzzy_match(df_entity_orig2, df_entity_alias, entity_col, match_method, df1, df2):
+def _fuzzy_match(df_entity_orig3, df_entity_alias, entity_col, match_method, df1, df2, df3, f_minscore):
     ''' use fuzzywuzzy for matching alias'''
-    if match_method in ['levenshtein']:
+    if match_method in ['levenshtein', 'languageTrans']:
         choices = df_entity_alias['Alias2']
         feature_orig2alias = []
-        i = len(df1) + len(df2)
-        for query in df_entity_orig2[entity_col + '_orig2']:
+        i = len(df1) + len(df2) + len(df3)
+        for query in df_entity_orig3[entity_col + '_orig2']:
             feature_orig2alias.append(process.extractOne(query, choices, scorer=fuzz.token_sort_ratio)) # note: if input is series, return index too
-        df3 = pd.concat(
-            [df_entity_orig2, pd.DataFrame(feature_orig2alias, columns=['Alias2', 'Score', 'Index_orig'])],
+        df4t = pd.concat(
+            [df_entity_orig3, pd.DataFrame(feature_orig2alias, columns=['Alias2', 'Score', 'Index_orig'])],
             axis=1).drop('Index_orig', axis=1)
-        df3 = df3.merge(df_entity_alias, on='Alias2').drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)        
+        df4t = df4t.merge(df_entity_alias, on='Alias2').drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)
+        if not df4t.empty:
+            df4t['Alias2_length'] = df4t['Alias'].astype(str).map(len)
+            df4t['MinScore'] = f_minscore(df4t['Alias2_length'])
+            df4t['Success'] = np.where(df4t['Score'] >= df4t['MinScore'], True, False)
+        else: 
+            df4t['Alias2_length'] = None
+            df4t['MinScore'] = None
+            df4t['Success'] = None 
+
+        mask = df4t['Success'] == True
+        df4 = df4t[mask].drop(['Alias2_length', 'MinScore', 'Success'], axis=1)
+        if not all(mask):
+            if entity_col == 'Feature':       
+                df_entity_orig4 = df4t[np.logical_not(mask)][['Feature_orig', 'Feature_orig2', 'Filtered']]
+            elif entity_col == 'Unit':
+                df_entity_orig4 = df4t[np.logical_not(mask)][['Unit_orig', 'Unit_orig2', 'Filtered']]
+        else:
+            if entity_col == 'Feature':       
+                df_entity_orig4 = pd.DataFrame([], columns=['Feature_orig', 'Feature_orig2', 'Filtered'])
+            elif entity_col == 'Unit':
+                df_entity_orig4 =  pd.DataFrame([], columns=['Unit_orig', 'Unit_orig2', 'Filtered'])
     else:
-        df3 = pd.DataFrame([], columns=df1.columns) # and make df3 empty then 
+        df4 = pd.DataFrame([], columns=df1.columns) # and make df3 empty then 
+        df_entity_orig4 = df_entity_orig3       
+        df4t =  pd.DataFrame()
 
-    return df3
+    return df4, df_entity_orig4, df4t
 
-def _translate_matching(df_entity_orig4_f, entity_col, trans_from = 'NL', trans_to = 'EN'):
-    ''' use google translate to convert Dutch (default) alias to English, then call exact_matching for generating a score'''
+def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 'NL', trans_to = 'EN',  bracket = 'with'):
+    ''' 
+    Use google translate to convert Dutch (default) alias to English, then call exact_matching for generating a score
+    Language default: to translate Dutch to English. Other languages are also supported. Check Google for language codes.
+    '''
     # saved for testing
-    # df_entity_orig4_f.Feature_orig[0] = '1,2,3-trimethylbenzeen'
-    # df_entity_orig4_f.Feature_orig[1] = '1,2,3,4-tetramethylbenzeen'
+    # df_entity_orig2.Feature_orig[0] = '1,2,3-trimethylbenzeen'
+    # df_entity_orig2.Feature_orig[1] = '1,2,3,4-tetramethylbenzeen'
+    # df_entity_orig2.loc[2,'Feature_orig'] = 'nothing'
+    if match_method in ['levenshtein', 'ascii', 'languageTrans'] and entity_col == 'Feature': # Note only implemented on feature 
+        if bracket == 'with':
+            pass
+        elif bracket == 'without':
+            df_entity_orig2.loc[:,'Feature_orig'] = df_entity_orig2.loc[:,'Feature_orig'].str.replace(r'\(.*\)', '').str.rstrip()
+        else:
+            print('Keyword for "bracket" is unknow. It can be either "with" or "without" only. We use default "with" here.')
 
-    name2trans = list(df_entity_orig4_f.Feature_orig)
-    
-    # Next, call google translator two times in case it fails for the first time due to API issues. 
-    try:
-        name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
-        print('Calling google translator API was successful for the 1st time.')
-        flag = 'y'
-    except:
-        try: 
-            name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
-            print('Calling google translator API was successful for the 2nd time.')
-            flag = 'y'
-        except:
-            print('Calling google translator API failed.')
-            flag = 'n'
+        name2trans = list(df_entity_orig2.Feature_orig)
+        
+        # Next, call google translator two times in case it fails for the first time due to API issues. 
+        attemp = 1
+        while attemp <= 10:
+            try:
+                name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
+                print('Calling google translate API was successful after %i attemp(s).' % (attemp))
+                flag = 'y'
+                break
+            except:
+                attemp += 1
+            if attemp == 10:
+                print('Calling google translate API failed after %i attemp(s). Try it again later.' % (attemp))
+                flag = 'n'
 
-    # name_transed_cls = [Translator().translate(item, src=trans_from, dest=trans_to) for item in name2trans]
-    if flag == 'y':
-        idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
-    elif flag == 'n':
-        idx = [pcp.get_compounds(component, 'name') for component in name2trans] 
+        # get compound from the translated/original names
+        if flag == 'y':
+            idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
+        elif flag == 'n':
+            idx = [pcp.get_compounds(component, 'name') if ~np.isnan(component) else [] for component in name2trans] 
 
-    empty_check = all([not elem for elem in idx])
-    if empty_check:
-        df4 = pd.DataFrame()
-    else:        
-        compounds = [pcp.Compound.from_cid(idx0[0].cid) if idx0 != [] else [] for idx0 in idx ]
-        formulae = [compound.molecular_formula if compound != [] else [] for compound in compounds]
-        iupac_name = [compound.iupac_name if compound != [] else [] for compound in compounds]
-        synonyms = [compound.synonyms if compound != [] else [] for compound in compounds]
-        # dct_trans = {df_entity_orig4_f.Feature_orig2:name2trans}
-        df_trans = pd.DataFrame()
-        df_trans['Feature'] = formulae
-        df_trans['iupac'] = iupac_name
-        df_trans['before_trans'] = name2trans
-        df_trans['synonyms'] = None
-        for i in range(len(df_trans['iupac'])):
-            df_trans['synonyms'][i] = '; '.join([elem for elem in synonyms[i]])
+        empty_check = all([not elem for elem in idx])
+        if empty_check:
+            df3 = pd.DataFrame()
+            df_entity_orig3 = copy.deepcopy(df_entity_orig2)
+        else:        
+            compounds = [pcp.Compound.from_cid(idx0[0].cid) if idx0 != [] else [] for idx0 in idx ]
+            iupac_name = [compound.iupac_name if compound != [] else [] for compound in compounds]
+            # reconstruct df_trans as the df1 and df2
+            df_trans = copy.deepcopy(df_entity_orig2)
+            df_trans['Feature'] = iupac_name
+            df_trans['Alias'] = iupac_name
+            df_trans['Alias2'] = iupac_name
+            df_trans['Index_orig'] = None # not needed as df_entity_alias is not called here
 
-        default_trans_feature = generate_entity_alias(df=df_trans,entity_col='iupac',alias_cols=['iupac', 'before_trans','synonyms']).reset_index(drop=True)
+            # for i in range(len(df_trans['iupac'])):
+            #     df_trans['synonyms'][i] = '; '.join([elem for elem in synonyms[i]])
+            # default_trans_feature = generate_entity_alias(df=df_trans,entity_col='iupac',alias_cols=['iupac', 'before_trans','synonyms']).reset_index(drop=True)
+            # default_trans_feature.rename(columns={'iupac':'Feature'}, inplace = True)
+            # df4 = df_entity_orig2.merge(default_trans_feature, how='left',
+            #                        left_on='Feature_orig', right_on='Alias') # combine intersection of two df's
 
-        default_trans_feature.rename(columns={'iupac':'Feature'}, inplace = True)
+            mask = [not not item for item in df_trans['Feature']]
+            df3 = df_trans[mask]
+            if bracket == 'with':
+                df3['Score'] = 103    
+            elif bracket == 'without':  
+                df3['Score'] = 105            
+            df_entity_orig3 = df_trans[np.logical_not(mask)][['Feature_orig', 'Feature_orig2', 'Filtered']]
+    else:
+        df_entity_orig3 = df_entity_orig2 # if not method specified, skip step2 and keep using orig 1 
+        df3 = pd.DataFrame()
 
-        df4 = df_entity_orig4_f.merge(default_trans_feature, how='left',
-                               left_on='Feature_orig', right_on='Alias') # combine intersection of two df's
-        df4.drop_duplicates(subset=['Feature_orig', 'Feature_orig2', 'Filtered', 'Alias'], inplace=True)         
-        df4['Score'] = None
-        df4.loc[[not not element for element in list(map(len, df4.Feature))], 'Score'] = 99
-
-    return df4
-
-
-    # return df5
+    return df3, df_entity_orig3
 
 # %% main function
 def _interp1d_fill_value(x=[], y=[]):
@@ -350,7 +386,6 @@ def _interp1d_fill_value(x=[], y=[]):
 
     f = scipy.interpolate.interp1d(df['X'], df['Y'], bounds_error=False, fill_value=(y_below, y_above))
     return f
-
 
 def _cleanup_alias(df=None, col='', col2='', string2whitespace=[], string2replace={}, string2remove=[], strings_filtered=[]):
     """
@@ -425,6 +460,7 @@ def generate_entity_map(entity_orig=[],
                         string2remove=[],
                         strings_filtered_gem=[],
                         entity_minscore={},
+                        language_from_to=['NL', 'EN'],
                         match_method='levenshtein'):
     """
     Generate a map to convert a list of original entities (features/ units) to HGC compatible features.
@@ -470,7 +506,7 @@ def generate_entity_map(entity_orig=[],
         The minimum score is generally higher for shorter features.
         keys = length of feature or unit (number of symbols; integer)
         values = minimum score required for a positive recognition (0-100 scale; integer or float)
-    match_method: string {'exact', 'ascii', 'levenshtein'}
+    match_method: string {'exact', 'ascii', 'levenshtein', 'languageTrans'}
         'exact' : match original entity and Alias only when the strings are exactly the same.
         This is the recommended method for matching CAS number.
         'ascii' : match after removing non ascii symbols from original entities and aliases.
@@ -512,64 +548,35 @@ def generate_entity_map(entity_orig=[],
     # Find to which new features/ units each old feature/ unit best corresponds in 3 steps
     # n = len(df_entity_orig)
     
-    # Step 1: Exact match entities 
-    # merge df with alias 1 (without ascii)
+    # define score threshold
+    f_minscore = _interp1d_fill_value(x=entity_minscore.keys(), y=entity_minscore.values())
+
+    # Step 1: Exact match entities merge df with alias 1 (without ascii)
     df1, df_entity_orig1 = _exact_match(df_entity_orig, df_entity_alias, entity_col)
 
     # Step 2: match after ascii cleanup of entities
     df2, df_entity_orig2 = _ascii_match(df_entity_orig1, df_entity_alias, entity_col, match_method, df1)
 
-    # Step 3: match entities using least Levenshtein distance
-    df3 = _fuzzy_match(df_entity_orig2, df_entity_alias, entity_col, match_method, df1, df2)
+    # Step 3: Use google translate to convert Dutch/other names to English names
+    # NOTE: the threshold score is implemented INSIDE step 3, unsuccessful matching will not count and will be stored in df_entity_orig3
+    df3, df_entity_orig3 = _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = language_from_to[0], trans_to = language_from_to[1], bracket = 'with')
 
-    # now combine all three dataframes
-    df_entity_map = pd.concat([df1, df2, df3], axis=0, ignore_index=True)
+    # Step 4: match entities using least Levenshtein distance
+    df4, df_entity_orig4, df4_check_score = _fuzzy_match(df_entity_orig3, df_entity_alias, entity_col, match_method, df1, df2, df3, f_minscore)
 
-    # determine which features have been succesfully matched by comparing score with
-    # minimum required score based on word length.
-    f_minscore = _interp1d_fill_value(x=entity_minscore.keys(), y=entity_minscore.values())
+    # step 5: deal with those cannot be dealt with by step 3&4 due to brackets
+    df5, df_entity_orig5 = _translate_matching(df_entity_orig4, match_method, entity_col, trans_from = language_from_to[0], trans_to = language_from_to[1], bracket = 'without')
 
-    df_entity_map['Alias2_length'] = df_entity_map['Alias2'].astype(str).map(len)
-    df_entity_map['MinScore'] = f_minscore(df_entity_map['Alias2_length'])
-    df_entity_map['Success'] = np.where(df_entity_map['Score'] >= df_entity_map['MinScore'], True, False)
-    
-    # step 4 is implemented here, for those whose scores are below the threshold
-    # get true part and false part for sucessful matching
-    if entity_col == 'Feature':
-        df_entity_orig4_t = df_entity_map[df_entity_map.Success == True] # saved for mergeing
-        df_entity_orig4_f = df_entity_map[df_entity_map.Success == False][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
-        df4 = _translate_matching(df_entity_orig4_f, entity_col, trans_from = 'nl', trans_to = 'en')
-    else:
-        df4 = pd.DataFrame
-
-    if not df4.empty:
-        df4['Alias2_length'] = df4['Alias'].astype(str).map(len)
-        df4['MinScore'] = f_minscore(df4['Alias2_length'])
-        df4['Success'] = np.where(df4['Score'] >= df4['MinScore'], True, False)
-        df_entity_map = pd.concat([df_entity_orig4_t, df4]).reset_index(drop=True)
-    
-    # step 5 is implemented here to deal with those cannot be dealt with by step 4 due to brackets
-    # anything before the brackets will be retrieved and recognized again, keep the score 98 too
-    if entity_col == 'Feature':
-        df_entity_orig5_t = df_entity_map[df_entity_map.Success == True] # saved for mergeing
-        df_entity_orig5_f = df_entity_map[df_entity_map.Success == False][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
-        df_entity_orig5_f.loc[:,'Feature_orig'] = df_entity_orig5_f.loc[:,'Feature_orig'].str.replace(r'\(.*\)', '').str.rstrip()
-        df5 = _translate_matching(df_entity_orig5_f, entity_col, trans_from = 'nl', trans_to = 'en')
-    else:
-        df5 = pd.DataFrame
-
-    if not df5.empty:
-        df5['Alias2_length'] = df5['Alias'].astype(str).map(len)
-        df5['MinScore'] = f_minscore(df5['Alias2_length'])
-        df5['Success'] = np.where(df5['Score'] >= df5['MinScore'], True, False)
-        df_entity_map = pd.concat([df_entity_orig5_t, df5]).reset_index(drop=True)
+    # now combine all three dataframes and (optionally?) add minimum score
+    df_entity_map = pd.concat([df1, df2, df3, df4, df5, df_entity_orig5], axis=0, ignore_index=True)
+    # df_entity_map['MinScore'] = f_minscore(df_entity_map['Alias'].astype(str).map(len))
 
     # sometimes, an Alias2 can be matched to multiple Alias --> show only first option
     df_entity_map.drop_duplicates(subset=[entity_col + '_orig'], inplace=True)
     df_entity_map.reset_index(inplace=True, drop=True)
 
     # generate a dictionary/ list with the succesful and unsuccesful matched entities
-    mask = df_entity_map['Success'] == True
+    mask = ~np.isnan(df_entity_map['Score']) # If there is a score, it means the matching is acceptable. No score means no good matching. 
     entity_map = dict(zip(df_entity_map[entity_col + '_orig'][mask], df_entity_map[entity_col][mask]))
     entity_unmapped = list(df_entity_map[entity_col + '_orig'][~mask])
 

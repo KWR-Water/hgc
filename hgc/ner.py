@@ -282,8 +282,6 @@ def _exact_match(df_entity_orig, df_entity_alias, entity_col):
     # mark 101 for those exactly matching, also indicating this is step 1
     if len(df1) != 0:
         df1.loc[:, "Score"] = 101 
-    else:
-        df1.loc[:, "Score"] = []
 
     return df1, df_entity_orig1
 
@@ -329,8 +327,6 @@ def _ascii_match(df_entity_orig1, df_entity_alias, entity_col, match_method, df1
         # mark 102 for those matching ascii cleanups, indicating the 2nd step
         if len(df2) != 0:
             df2.loc[:, "Score"] = 102
-        else:
-            df2.loc[:, "Score"] = []
 
     else:
         df_entity_orig2 = df_entity_orig1 # if not method specified, skip step2 and keep using orig 1 
@@ -519,8 +515,6 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
                     df3.loc[:,'Score'] = 103 # indicating step 3
                 elif bracket == 'without': 
                     df3.loc[:,'Score'] = 105 # indicating step 5  
-            else:
-                df3.loc[:, "Score"] = []
 
             df_entity_orig3 = df_trans[np.logical_not(mask)][['Feature_orig', 'Feature_orig2', 'Filtered']]
 

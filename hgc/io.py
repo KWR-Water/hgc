@@ -36,13 +36,13 @@ def default_feature_units():
     dct_alias = dict(zip(df['Feature'][mask], df['DefaultUnits'][mask]))
 
     # extract feature names and get units defined in HGC, including ions, atoms and others
-    # df_ions = pd.read_csv(Path(constants.__file__).parent / 'ions.csv', encoding='utf-8', header=0)
-    # df_atoms = pd.read_csv(Path(constants.__file__).parent / 'atoms.csv', encoding='utf-8', header=0)
-    # df_other = pd.read_csv(Path(constants.__file__).parent / 'other_than_concentrations.csv', encoding='utf-8', header=0)
-    # df_hgc = pd.concat([df_ions, df_atoms, df_other])
-    # feature = df_hgc['feature']
-    # DefaultUnits = [units_wt_as(key) for key in feature] # OR use command: list(map(units_wt_as, feature))
-    # dct_hgc = {k: v for k, v in dict(zip(feature, DefaultUnits)).items() if v is not None}
+        # df_ions = pd.read_csv(Path(constants.__file__).parent / 'ions.csv', encoding='utf-8', header=0)
+        # df_atoms = pd.read_csv(Path(constants.__file__).parent / 'atoms.csv', encoding='utf-8', header=0)
+        # df_other = pd.read_csv(Path(constants.__file__).parent / 'other_than_concentrations.csv', encoding='utf-8', header=0)
+        # df_hgc = pd.concat([df_ions, df_atoms, df_other])
+        # feature = df_hgc['feature']
+        # DefaultUnits = [units_wt_as(key) for key in feature] # OR use command: list(map(units_wt_as, feature))
+        # dct_hgc = {k: v for k, v in dict(zip(feature, DefaultUnits)).items() if v is not None}
     atoms, ions, properties = load_pickle_as_namedtuples()
     feature = [{**atoms, **ions, **properties}[item].feature for item in {**atoms, **ions, **properties}]
     DefaultUnits = [{**atoms, **ions, **properties}[item].unit for item in {**atoms, **ions, **properties}]
@@ -98,15 +98,8 @@ def default_column_dtype():
         Header or column name (keys) and dtype (values)
 
     Default
+        as below
     -------
-    {
-    'LocationID': 'str',
-    'Datetime': 'datetime',
-    'SampleID': 'str',
-    'Feature': 'str',
-    'Unit': 'str',
-    'Value': 'float64',
-    }
 
     """
     dct = {
@@ -171,7 +164,6 @@ def default_na_values():
 
 # %% HGC.IO utils
 
-
 def read_file(file_path='', sheet_name=0, na_values=[], encoding='', delimiter=None, **kwargs):
     """Read excel of csv file."""
     file_extension = file_path.split('.')[-1]
@@ -226,7 +218,7 @@ def _get_slice(df, arrays):
 def get_headers_wide(df, slice_header='', slice_feature='', slice_unit='', **kwargs):
     """Get column headers for a wide-format dataframe."""
     # create series with headers
-    header_sample = _get_slice(df, slice_header).astype(str)  # !!!!!!!!!!!!!!! SERIES STRING
+    header_sample = _get_slice(df, slice_header).astype(str)  
     header_feature = _get_slice(df, slice_feature).astype(str)
     header_unit = _get_slice(df, slice_unit).astype(str)
     # get headers at 2 levels
@@ -333,13 +325,6 @@ def melt_wide_to_stacked(df, map_header={}, **kwargs):
 
 def mapping_headers(df, map_header={}, **kwargs):
     """Map headers according to pre-defined dictionary."""
-    # to do:
-    # add to previous step generate sampleid if not defined based on location +
-    # datetime (stacked) or rownr (wide)
-
-    # to do:
-    # make a list of headers that overlap after mapping
-    # e.g. identical keys, or keys that map existing unmapped headers
 
     # make a list of headers that are mapped and not mapped
     mapped_headers_before = list(set(map_header.keys()) & set(df.columns))
@@ -347,12 +332,6 @@ def mapping_headers(df, map_header={}, **kwargs):
     unmapped_headers = list(set(df.columns) - set(mapped_headers_before))
     # rename columns in df
     df.rename(columns=map_header, inplace=True)
-    # write log
-    # logger.info('Mapping headers now...')
-    # logger.info('The following headers have been mapped from {0} to {1}'.\
-    #             format(mapped_headers_before, mapped_headers_after))
-    # logger.info('The following headers have been kept as they are {0}'.format(unmapped_headers))
-    # check if the file contains the esstial columns
     for col in ['SampleID', 'Feature', 'Value']:
         try:
             df[col]
@@ -363,6 +342,7 @@ def mapping_headers(df, map_header={}, **kwargs):
 
 def mapping_features(df, map_features={}, **kwargs):
     """Map feature names according to pre-defined dictionary."""
+
     # make a list of features that are mapped
     features_before = list(set(map_features.keys()) & set(df['Feature']))
     features_after = list(map(map_features.get, features_before))
@@ -371,11 +351,6 @@ def mapping_features(df, map_features={}, **kwargs):
     df['Feature_orig'] = df['Feature']
     df['Feature'] = df['Feature'].replace(map_features)
 
-    # write log
-    # logger.info('Mapping features now...')
-    # logger.info('The following features have been mapped from {0} to {1}'.\
-    #             format(features_before, features_after))
-    # logger.info('The following features have been kept as they are {0}'.format(unmapped_features))
     return df
 
 
@@ -388,18 +363,14 @@ def mapping_original_units(df, map_units={}, **kwargs):
     # rename original units to units recognized by hgc
     df['Unit_orig'] = df['Unit']
     df['Unit_orig0'] = df['Unit_orig'].map(map_units).fillna(df['Unit_orig'])
-    # write log
-    # logger.info('Mapping units now...')
-    # ## logger.info('The following units have been mapped from {0} to {1}'.\
-    # ##             format(units_before, units_after))
-    # logger.info('The following headers have been kept as they are {0}'.format(unmapped_units))
+
     return df
 
 
 def mapping_new_units(df, feature_units={}, **kwargs):
     """Map new units (used by hgc) according to a pre-defined dictionary."""
     df['Unit'] = df['Feature'].map(feature_units).fillna(df['Unit'])
-    # to do: add logging which features were not mapped to new units !!!!!!!!!!!!!!!!!!!!!!
+
     return df
 
 
@@ -496,16 +467,6 @@ def unit_conversion_ratio(df, unit_conversion_factor={}, feature_units={}, **kwa
 
     return df
 
-
-# # for testing
-# import numpy as np
-# import pandas as pd
-# df = pd.DataFrame({'Feature': ['NO3', 'NO3', 'NO3', 'NO3', 'NO3', 'NO3', 'NO3', np.nan],
-#                   'Unit_orig0': ['mg/L', 'ng/L', 'ng/L N', 'ng/L N', 'mg/L', 'mol/L', 'x', np.nan],
-#                   'Unit': ['mg/L', 'mg/L', 'mg/L', 'mg/L N', 'ng/L N',  'ng/L N','' , np.nan],
-#                     'Value': [45, '45', '<34', '<<34', -34, '--35', '', np.nan]})
-
-
 def split_detectionlimit_from_value(df):
     """
     Split strings ("<", ">") from values. Split ("-") only if Unit is a concentration.
@@ -566,13 +527,6 @@ def adjust_dtype(df, column_dtype={}, dayfirst=None, **kwargs):
         Use dayfirst when converting dates (see pd.datetime documentation)
 
     """
-    # # check if the compulsary formats are correctly defined
-    # if column_dtype['Feature'] == 'str':
-    #     print('ERROR dtype "Feature" incorretly defined')
-    # if column_dtype['Unit'] == 'str':
-    #     print('ERROR dtype "Unit" incorretly defined')
-    # if column_dtype['Value'] not in ['float64', 'float']:
-    #     print('ERROR dtype "Value" incorretly defined')
 
     # assign dtype for column "Value" to "Value_num".
     column_dtype = {**column_dtype, 'Value_num': column_dtype['Value']}
@@ -583,8 +537,6 @@ def adjust_dtype(df, column_dtype={}, dayfirst=None, **kwargs):
         if col in column_dtype.keys():
             df[col] = _convert_dtype(df[col], dtype=column_dtype[col], dayfirst=dayfirst)
 
-    # write log
-    # logger.info('Formats have been adjusted')
     return df
 
 
@@ -600,7 +552,6 @@ def drop_nan_value_rows(df):
     mask = df['Value_num'].isnull()  # also drop if no unit ??
     df_dropna = df[mask]
     df = df[~mask]
-    # logger.info('Dropped rows that has nan as values')
     return df, df_dropna
 
 
@@ -614,7 +565,6 @@ def delete_duplicate_rows(df):
     """Drop rows that have identical Feature and SampleID."""
     df_keep = df.drop_duplicates(subset=['Feature', 'SampleID','Datetime'], keep='first')
     df_dropduplicate = df[~df.index.isin(df_keep.index)]
-    # logger.info('Dropped duplicate rows that have the same feature name and sampleid')
     return df_keep, df_dropduplicate
 
 
@@ -737,9 +687,7 @@ def import_file(dataframe=None, file_path='', sheet_name=0, shape='stacked',
 
     """
     # list of columns generated by the function
-    # @Tin: Generate warning if these columns already exist in dataframe ?????????????????
     newcols = ['Feature_orig', 'Unit_orig', 'Unit_orig0', 'Value_orig', 'Value_num', 'Value_sign', 'Ratio']
-    # generate a warning if the columns already exist
 
     # generate a dictionary with all arguments passed in the function
     arguments = copy.deepcopy(locals())

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Routine for recognizing features and units using NER.
-Xin Tian, Martin van der Schans
-KWR, April-July 2020
+Xin Tian, Martin van der Schans, Martin Korevaar
+KWR, 
+Last edit: Nov 6, 2020
 """
 import copy
 import numpy as np

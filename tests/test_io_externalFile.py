@@ -287,7 +287,7 @@ def test_mapping_features():
 
     """
     # Print first lines of default database for mapping units.
-    print(ner.default_unit_alias().head(2))
+    print(ner.generate_unit_alias().head(2))
 
     """
     WARNING: 

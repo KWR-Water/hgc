@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 Routine to read water quality data of different formats and transform to HGC format
-Xin Tian, Martin van der Schans
-KWR, April-July 2020
-Edit history: 24-08-2020: by Xin, check unit conversion, 
+Xin Tian, Martin van der Schans, Martin Korevaar
+KWR, 2020
+Last edit: Nov 6, 2020
 """
 
 import copy
 import logging
 import numpy as np
 import pandas as pd
-# from unit_converter.converter import convert, converts
 import molmass
 from pathlib import Path
 from hgc import constants # for reading the default csv files

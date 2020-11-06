@@ -174,7 +174,7 @@ def test_ner_generate_feature_alias():
 
 def test_default_unit_alias():
     ''' check the unit alias '''
-    df_check = ner.default_unit_alias()
+    df_check = ner.generate_unit_alias()
     df_check.head(15)
 
 def test_ner_generate_entity_alias():

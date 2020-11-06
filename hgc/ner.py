@@ -15,9 +15,11 @@ from hgc import constants
 from googletrans import Translator
 import pubchempy as pcp
 
+
+# maintenance_flag = 'n'
 # %% Defaults
 def entire_feature_alias_table():
-    """Dataframe with HGC features and various columns with alias (synonyms) for these features.
+    """Get a dataframe with HGC features and various columns with alias (synonyms) for these features.
 
     Return
     ------
@@ -25,27 +27,28 @@ def entire_feature_alias_table():
         The dataframe has a "Feature" column. And various other columns with Alias
         for these features including CAS, SIKB, Dutch Alias, English Alias.
         Each cell contains one or more alias (e.g. iron; FeII).
-        These aliases must be separated by a semicolumn ";".
-
+        These aliases must be separated by "|".
     """
     file_path = Path(constants.__file__).parent / 'default_features_alias.csv'
     df = pd.read_csv(file_path, encoding='utf-8', header=0) 
     return df
 
+
 def entire_unit_alias_table():
-    """Dataframe with units recognized by HGC and various columns with alias (synonyms) for these features.
+    """ Get a dataframe with units recognized by HGC and various columns with alias (synonyms) for these units.
 
     Return
     ------
     Dataframe :
         The dataframe has a "Unit" column. And various other columns with Alias.
         Each cell contains one or more alias (e.g. "mg-N/L"; "mgN/ L").
-        These aliases must be separated by a semicolumn ";".
+        These aliases must be separated by "|". 
 
     """
     file_path = Path(constants.__file__).parent / 'default_units_alias.csv'
     df = pd.read_csv(file_path, encoding='utf-8', header=0)
     return df
+
 
 def generate_entity_alias(df=None, entity_col='', alias_cols=''):
     """Melt a dataframe with multiple "Alias" columns to one "Features"/ "Units" column and one "Alias" column.
@@ -94,16 +97,13 @@ def generate_entity_alias(df=None, entity_col='', alias_cols=''):
     df2 = df2[~df2['Alias'].isnull()]
 
     # Split rows with multiple Alias to multiple rows.
-    df2['Alias'] = df2['Alias'].str.split('|')  # split cell to list
+    df2['Alias'] = df2['Alias'].str.split('|')  # split cell to list. Note "|" is used as a seperator!!
     df2 = df2.explode('Alias')
     df2['Alias'] = df2['Alias'].str.strip()
     df2.dropna(inplace=True)
 
     # drop empty Alias values
     df2 = df2.loc[~(df2['Alias'] == '')]
-
-    # To do:
-    # log non-unique "Alias" values if there are different corresponding Features/ Units.
 
     # if entity_col in alias_cols:
     #     df.drop('Entity_temp', axis=1, inplace=True)
@@ -114,28 +114,37 @@ def generate_entity_alias(df=None, entity_col='', alias_cols=''):
 
 
 def generate_feature_alias():
-    """Table with default HGC features and aliases. Previously called: default_feature_alias_dutch_english"""
+    """
+    Get a df with default HGC features and their aliases. 
+    Previously called: default_feature_alias_dutch_english
+    """
     
     df0 = generate_entity_alias(
             df=entire_feature_alias_table(),
             entity_col='Feature',
             alias_cols=['Feature', 'IUPAC',
                         'UserDefined_Dutch', 'UserDefined_English',
-                        'SIKBcode', 'SIKBomschrijving'])
+                        'SIKBcode', 'SIKBomschrijving']) # those alias cols should be corresponding the headers of the default csv file. 
     return df0
 
 
-def default_unit_alias():
-    """Table with default HGC units and aliases."""
+def generate_unit_alias():
+    """
+    Get a df with default HGC units and aliases.
+    Previously called: default_unit_alias
+    """
     df0 = generate_entity_alias(
             df=entire_unit_alias_table(),
-            entity_col='Unit',
-            alias_cols=['Unit', 'Alias (Dutch)', 'Alias (English)'])
+            entity_col='Unit', 
+            alias_cols=['Unit', 'Alias (Dutch)', 'Alias (English)']) # those alias cols should be corresponding the headers of the default csv file.
     return df0
 
 
 def default_feature_minscore():
-    """Relation between word length (keys) and minimum score for named entity recognition of features (values)."""
+    """
+    Threshold score for accepting a matched feature name.
+    Relation between word length (keys) and minimum score for named entity recognition of features (values).
+    """
     dct = {
         1: 100, # exactly matching
         3: 100, # exactly matching
@@ -148,7 +157,10 @@ def default_feature_minscore():
 
 
 def default_unit_minscore():
-    """Relation between word length (keys) and minimum score for named entity recognition of units (values)."""
+    """
+    Threshold score for accepting a matched unit.
+    Relation between word length (keys) and minimum score for named entity recognition of units (values).
+    """
     dct = {
         1: 100, # exactly matching
         3: 100, # exactly matching
@@ -161,7 +173,11 @@ def default_unit_minscore():
 
 
 def strings2remove_from_features():
-    """Generate a list of unwanted strings that are sometimes used with the features."""
+    """
+    Generate a list of unwanted strings that are sometimes used with the features.
+    This list is specifically made after examining a couple of files from Dutch water companies.
+    It may need to expanded for a broader use in the future. #To be improved#
+    """
     # in list order: first use longer string, then shorter version. 
     lst = [' icpms', ' icpaes', ' gf aas', ' icp', ' koude damp aas', ' koude damp',  # whitespace, string
            ' berekend', 'opdrachtgever', ' gehalte',
@@ -173,12 +189,12 @@ def strings2remove_from_features():
     return lst
 
 
-# generate a list of default features (only ions, atoms and other)
+# generate a list of default features (only for ions, atoms and others)
 def generate_feature2remove(default_table = entire_feature_alias_table(), default_list = ['atoms', 'ions', 'other']):
-    '''
-    generate a list of features to remove. 
+    """
+    Generate a list of features to remove. 
     Use the default table/list ('atoms', 'ions', 'other') if no input is given by users.
-    '''
+    """
 
     mask = default_table['Category'].isin(default_list)
     features2remove = list(set(list(default_table['Feature'][mask]))) # NH4
@@ -187,10 +203,13 @@ def generate_feature2remove(default_table = entire_feature_alias_table(), defaul
 
 def strings2remove_from_units(features2remove = generate_feature2remove(entire_feature_alias_table()),
                               other_strings2remove = ['eenh', 'nvt']):
-    """Generate a list of unwantes strings that are sometimes combined with the units.
+    """
+    Generate a list of unwantes strings that are sometimes combined with the units.
 
     The function generates a list of strings that needs to be removed from the original units
-    before performing named entity recogntion. The list is based on the default_units and other strings
+    before performing named entity recogntion. 
+    The list is based on the default_units and other strings
+    Note this list is also specifically made after examining a couple of files from Dutch water companies. #To be improved#
 
     Parameters
     ----------
@@ -204,7 +223,7 @@ def strings2remove_from_units(features2remove = generate_feature2remove(entire_f
     list of unwanted strings.
 
     """
-    # retain N, P, S and Si (for mg-N/L, mg-P/L, etc.)
+    # retain N, P, S and Si (e.g., from mg-N/L, mg-P/L, etc.)
     lst = list(set(features2remove) - set(['N', 'P', 'S', 'Si']))
 
     # remove leading space if there is any and then add a white space before feature and make lower case
@@ -220,44 +239,139 @@ def strings2remove_from_units(features2remove = generate_feature2remove(entire_f
 
 
 def _strings_filtered():
-    """Generate a list of strings that can be used to recognize if a sample is filtered.
-
-    Note: put whitespace before string, lowercase, only letters and symbols."""
+    """
+    Generate a list of strings that can be used to recognize if a sample is filtered.
+    Note: put whitespace before string, lowercase, only letters and symbols.
+    """
     lst = [' gefiltreerd', ' na filtratie', ' filtered', ' filtration', ' gef', ' filtratie']
     return lst
 
 def _exact_match(df_entity_orig, df_entity_alias, entity_col):
-    ''' check exact matching''' 
+    """
+    Check whether a feature/unit name exactly matched a pre-defined alias/synonym. 
+    If so, save the matched items in df1 and raise a score of 101. 
+    Otherwise, pass the unrecognizable items to df_entity_orig1
+
+    Note: whatever matching method is selected, this step is a compulsory step to be implemented. 
+
+    Parameters
+    ----------
+    df_entity_orig : dataframe
+        orginal df with feature/unit names.
+
+    df_entity_alias : dataframe
+        alias to be matched with.
+    
+    entity_col : string
+        'feature' or 'Unit
+
+    Returns
+    -------
+    df1 : dataframe with items that can be matched.    
+    df_entity_orig1: dataframe with items that can be matched at this step.    
+    """ 
+
+    # combine intersection of orginals and alias
     df1 = df_entity_orig.merge(df_entity_alias, how='left',
-                               left_on=entity_col + '_orig', right_on='Alias') # combine intersection of two df's
+                               left_on=entity_col + '_orig', right_on='Alias') 
+
     # use df_entity_orig1 to store features without alias while use df1 to store those with alias
     df_entity_orig1 = df1.loc[df1['Alias'].isnull()][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
     df1 = df1.loc[~df1['Alias'].isnull()].reset_index(drop=True).drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)   
-    # mark 102 for those exactly matching 
-    df1["Score"] = 102
+    
+    # mark 101 for those exactly matching, also indicating this is step 1
+    if len(df1) != 0:
+        df1.loc[:, "Score"] = 101 
+    else:
+        df1.loc[:, "Score"] = []
 
     return df1, df_entity_orig1
 
 def _ascii_match(df_entity_orig1, df_entity_alias, entity_col, match_method, df1):
-    ''' check matching after ascii processing''' 
+    """
+    Check whether a feature/unit name can 'ascii-ly' (column _orig2) match a pre-defined alias/synonym. 
+    If so, save the matched items in df2 and raise a score of 102. 
+    Otherwise, pass the unrecognizable items to df_entity_orig2
+
+    Parameters
+    ----------
+    df_entity_orig1 : dataframe
+        orginal df with feature/unit names.
+
+    df_entity_alias : dataframe
+        alias to be matched with.
+    
+    entity_col : string
+        'feature' or 'Unit
+
+    match_method : method for matching
+        if method is in ['levenshtein', 'ascii', 'languageTrans'], this step will be implemented
+    
+    df1 : dataframe
+        what has been processed from the previous step
+
+    Returns
+    -------
+    df2 : dataframe with items that can be matched.    
+    df_entity_orig2: dataframe with items that can be matched at this step.    
+    """ 
+
     if match_method in ['levenshtein', 'ascii', 'languageTrans']:
-            # continue merging the rest of df1 with alias2 (with ascii)
+
+        # continue merging the rest of df1 with alias2 (with ascii)
         df2 = df_entity_orig1.merge(df_entity_alias, how='left',
                                 left_on=entity_col + '_orig2', right_on='Alias2')
+
         # still use df_entity_orig2 to store features without alias while use df2 to store those with alias
         df_entity_orig2 = df2.loc[df2['Alias'].isnull()][[entity_col + '_orig', entity_col + '_orig2', 'Filtered']].reset_index(drop=True)
         df2 = df2.loc[~df2['Alias'].isnull()].reset_index(drop=True).drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)  
-        # mark 101 for those matching ascii cleanups
-        df2["Score"] = 101 
+        
+        # mark 102 for those matching ascii cleanups, indicating the 2nd step
+        if len(df2) != 0:
+            df2.loc[:, "Score"] = 102
+        else:
+            df2.loc[:, "Score"] = []
+
     else:
         df_entity_orig2 = df_entity_orig1 # if not method specified, skip step2 and keep using orig 1 
         df2 = pd.DataFrame([], columns=df1.columns) # and make df2 empty then 
     
     return df2, df_entity_orig2
+    
 
 def _fuzzy_match(df_entity_orig3, df_entity_alias, entity_col, match_method, df1, df2, df3, f_minscore):
-    ''' use fuzzywuzzy for matching alias'''
-    if match_method in ['levenshtein', 'languageTrans']:
+    """
+    Check whether a feature/unit name can 'fuzzi-ly' match a pre-defined alias/synonym. 
+    If so, save the matched items in df3 and raise a score according the number of matching characters. 
+    Later, the score will be compared to the threshold. Only the ones higher than the threshold will be kept.
+    Otherwise, pass the unrecognizable items to df_entity_orig3
+
+    Parameters
+    ----------
+    df_entity_orig3 : dataframe
+        orginal df with feature/unit names.
+
+    df_entity_alias : dataframe
+        alias to be matched with.
+    
+    entity_col : string
+        'feature' or 'Unit
+
+    match_method : method for matching
+        if method is in ['levenshtein'], this step will be implemented
+    
+    df1, df2, df3 : dataframes
+        what have been processed from the previous step
+
+    Returns
+    -------
+    df3 : dataframe with items that can be matched.    
+    df_entity_orig3: dataframe with items that can be matched at this step.    
+    """ 
+
+    if match_method in ['levenshtein']:
+        
+        # use fuzzywuzzy to calculate similarity
         choices = df_entity_alias['Alias2']
         feature_orig2alias = []
         i = len(df1) + len(df2) + len(df3)
@@ -267,17 +381,18 @@ def _fuzzy_match(df_entity_orig3, df_entity_alias, entity_col, match_method, df1
             [df_entity_orig3, pd.DataFrame(feature_orig2alias, columns=['Alias2', 'Score', 'Index_orig'])],
             axis=1).drop('Index_orig', axis=1)
         df4t = df4t.merge(df_entity_alias, on='Alias2').drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)
-        if not df4t.empty:
-            df4t['Alias2_length'] = df4t['Alias'].astype(str).map(len)
-            df4t['MinScore'] = f_minscore(df4t['Alias2_length'])
-            df4t['Success'] = np.where(df4t['Score'] >= df4t['MinScore'], True, False)
-        else: 
-            df4t['Alias2_length'] = None
-            df4t['MinScore'] = None
-            df4t['Success'] = None 
 
+        # save the ones whose scores are higher than the threshold
+        if not df4t.empty:
+            df4t.loc[:,'Alias2_length'] = df4t['Alias'].astype(str).map(len)
+            df4t.loc[:,'MinScore'] = f_minscore(df4t['Alias2_length'])
+            df4t.loc[:,'Success'] = np.where(df4t['Score'] >= df4t['MinScore'], True, False)
+        else: 
+            df4t.loc[:,'Alias2_length'] = []
+            df4t.loc[:,'MinScore'] = []
+            df4t.loc[:,'Success'] = [] 
         mask = df4t['Success'] == True
-        df4 = df4t[mask].drop(['Alias2_length', 'MinScore', 'Success'], axis=1)
+        df4 = df4t[mask].drop(['Alias2_length', 'MinScore', 'Success'], axis=1) # save those in df4t only, but not in df4 to keep df4 the same structure as df3
         if not all(mask):
             if entity_col == 'Feature':       
                 df_entity_orig4 = df4t[np.logical_not(mask)][['Feature_orig', 'Feature_orig2', 'Filtered']]
@@ -288,35 +403,69 @@ def _fuzzy_match(df_entity_orig3, df_entity_alias, entity_col, match_method, df1
                 df_entity_orig4 = pd.DataFrame([], columns=['Feature_orig', 'Feature_orig2', 'Filtered'])
             elif entity_col == 'Unit':
                 df_entity_orig4 =  pd.DataFrame([], columns=['Unit_orig', 'Unit_orig2', 'Filtered'])
+
     else:
-        df4 = pd.DataFrame([], columns=df1.columns) # and make df3 empty then 
+        df4 = pd.DataFrame([], columns=df1.columns) # otherwise, make all df's empty 
         df_entity_orig4 = df_entity_orig3       
         df4t =  pd.DataFrame()
 
     return df4, df_entity_orig4, df4t
 
+
 def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 'NL', trans_to = 'EN',  bracket = 'with'):
-    ''' 
-    Use google translate to convert Dutch (default) alias to English, then call exact_matching for generating a score
+    """
+    Check whether a feature/unit name can match a pre-defined alias/synonym in pubchem after google translation. 
+    Frist use google translate to convert Dutch (default) alias to English, then use exact match for names in pubchempy.
     Language default: to translate Dutch to English. Other languages are also supported. Check Google for language codes.
-    '''
+    
+    If matched, save the matched items in df3 and raise a score 103 (with information from brackets) 
+    or 105 (without information from brackets). Otherwise, pass the unrecognizable items to df_entity_orig3
+
+    Parameters
+    ----------
+    df_entity_orig2 : dataframe
+        orginal df with feature/unit names.
+
+    match_method : method for matching
+        if method is in ['levenshtein', 'languageTrans'], this step will be implemented
+       
+    entity_col : string
+        'feature' or 'Unit
+
+    trans_from : string
+        original language, default is 'NL' 
+    
+    trans_to : string
+        destination language, default is 'EN'
+    
+    bracket : string
+        option to include information from brackets or not choose from 'with' and 'without'
+
+    Returns
+    -------
+    df3 : dataframe with items that can be matched.    
+    df_entity_orig3: dataframe with items that can be matched at this step.    
+    """ 
+
     # saved for testing
     # df_entity_orig2.Feature_orig[0] = '1,2,3-trimethylbenzeen'
     # df_entity_orig2.Feature_orig[1] = '1,2,3,4-tetramethylbenzeen'
     # df_entity_orig2.loc[2,'Feature_orig'] = 'nothing'
-    if match_method in ['levenshtein', 'ascii', 'languageTrans'] and entity_col == 'Feature': # Note only implemented on feature 
+    if match_method in ['levenshtein', 'languageTrans'] and entity_col == 'Feature': # Note only implemented on feature 
+        # process the information in brackets first, include or exclude.
         if bracket == 'with':
             pass
         elif bracket == 'without':
             df_entity_orig2.loc[:,'Feature_orig'] = df_entity_orig2.loc[:,'Feature_orig'].str.replace(r'\(.*\)', '').str.rstrip()
         else:
-            print('Keyword for "bracket" is unknow. It can be either "with" or "without" only. We use default "with" here.')
+            print('Keyword for "bracket" is unknow. It can be either "with" or "without" only. We use default "with" then.')
 
+        # get a list to be translated
         name2trans = list(df_entity_orig2.Feature_orig)
         
         # Next, call google translator two times in case it fails for the first time due to API issues. 
         attemp = 1
-        while attemp <= 10:
+        while attemp <= 10: # google api may fail randomly, just try it for 10 times
             try:
                 name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
                 print('Calling google translate API was successful after %i attemp(s).' % (attemp))
@@ -328,20 +477,21 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
                 print('Calling google translate API failed after %i attemp(s). Try it again later.' % (attemp))
                 flag = 'n'
     
-        # get compound from the translated/original names
+        # get compound index (cid) from the translated/original names
         if flag == 'y':
             idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
-        elif flag == 'n':
+        elif flag == 'n': # keep the lopp here as strang thing may happen with pubchem...
             idx = []
             for component in name2trans:
                 try:
                     idx.append(pcp.get_compounds(component, 'name'))
-                except:
+                except: # unknow reason that pcp cannot find component # To be improved#
                     idx.append([])
             # idx = [pcp.get_compounds(component, 'name') for component in name2trans] 
 
+        # get  
         empty_check = all([not elem for elem in idx])
-        if empty_check:
+        if empty_check: 
             df3 = pd.DataFrame()
             df_entity_orig3 = copy.deepcopy(df_entity_orig2)
         else:        
@@ -349,10 +499,10 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
             iupac_name = [compound.iupac_name if compound != [] else [] for compound in compounds]
             # reconstruct df_trans as the df1 and df2
             df_trans = copy.deepcopy(df_entity_orig2)
-            df_trans['Feature'] = iupac_name
-            df_trans['Alias'] = iupac_name
-            df_trans['Alias2'] = iupac_name
-            df_trans['Index_orig'] = None # not needed as df_entity_alias is not called here
+            df_trans.loc[:,'Feature'] = iupac_name
+            df_trans.loc[:,'Alias'] = iupac_name
+            df_trans.loc[:,'Alias2'] = iupac_name
+            df_trans.loc[:,'Index_orig'] = None # not needed as df_entity_alias is not called here
 
             # for i in range(len(df_trans['iupac'])):
             #     df_trans['synonyms'][i] = '; '.join([elem for elem in synonyms[i]])
@@ -361,13 +511,19 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
             # df4 = df_entity_orig2.merge(default_trans_feature, how='left',
             #                        left_on='Feature_orig', right_on='Alias') # combine intersection of two df's
 
+            # get the succefully matched parts whose Feature is not empty
             mask = [not not item for item in df_trans['Feature']]
             df3 = df_trans[mask]
-            if bracket == 'with':
-                df3['Score'] = 103    
-            elif bracket == 'without':  
-                df3['Score'] = 105            
+            if len(df3) != 0:
+                if bracket == 'with':
+                    df3.loc[:,'Score'] = 103 # indicating step 3
+                elif bracket == 'without': 
+                    df3.loc[:,'Score'] = 105 # indicating step 5  
+            else:
+                df3.loc[:, "Score"] = []
+
             df_entity_orig3 = df_trans[np.logical_not(mask)][['Feature_orig', 'Feature_orig2', 'Filtered']]
+
     else:
         df_entity_orig3 = df_entity_orig2 # if not method specified, skip step2 and keep using orig 1 
         df3 = pd.DataFrame()
@@ -511,11 +667,16 @@ def generate_entity_map(entity_orig=[],
         The minimum score is generally higher for shorter features.
         keys = length of feature or unit (number of symbols; integer)
         values = minimum score required for a positive recognition (0-100 scale; integer or float)
+
+    language_from_to : list
+        Translate from 1st language to the 2nd one
+
     match_method: string {'exact', 'ascii', 'levenshtein', 'languageTrans'}
         'exact' : match original entity and Alias only when the strings are exactly the same.
         This is the recommended method for matching CAS number.
         'ascii' : match after removing non ascii symbols from original entities and aliases.
         'levenshtein' : match using the least Levenshtein Distance (fuzzywuzzy algorithm).
+        'languageTrans' : use google translation and pubchem to match
         Default = 'levenshtein'
 
     Returns
@@ -549,10 +710,7 @@ def generate_entity_map(entity_orig=[],
                                     strings_filtered=strings_filtered_gem)
     if 'Filtered' not in df_entity_orig.columns:
         df_entity_orig['Filtered']=np.nan
-
-    # Find to which new features/ units each old feature/ unit best corresponds in 3 steps
-    # n = len(df_entity_orig)
-    
+  
     # define score threshold
     f_minscore = _interp1d_fill_value(x=entity_minscore.keys(), y=entity_minscore.values())
 
@@ -612,14 +770,13 @@ def generate_feature_map(entity_orig=[],
                             strings_filtered_gem=strings_filtered_gfm,
                             entity_minscore=default_feature_minscore(),
                             match_method=match_method)
-
     print('Feature recognition is done.')
 
     return feature_map, feature_unmapped, df_feature_map
 
 
 def generate_unit_map(entity_orig=[],
-                      df_entity_alias=default_unit_alias(),
+                      df_entity_alias=generate_unit_alias(),
                       entity_col='Unit',
                       string2whitespace=['/', '-'],
                       string2replace={'Ä': 'a', 'ä': 'a', 'Ë': 'e', 'ë': 'e',

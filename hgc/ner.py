@@ -372,6 +372,7 @@ def _fuzzy_match(df_entity_orig3, df_entity_alias, entity_col, match_method, df1
         feature_orig2alias = []
         i = len(df1) + len(df2) + len(df3)
         for query in df_entity_orig3[entity_col + '_orig2']:
+            # here it will return a warning from fuzzywuzzy, no clue about how to solve it
             feature_orig2alias.append(process.extractOne(query, choices, scorer=fuzz.token_sort_ratio)) # note: if input is series, return index too
         df4t = pd.concat(
             [df_entity_orig3, pd.DataFrame(feature_orig2alias, columns=['Alias2', 'Score', 'Index_orig'])],
@@ -495,9 +496,9 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
             iupac_name = [compound.iupac_name if compound != [] else [] for compound in compounds]
             # reconstruct df_trans as the df1 and df2
             df_trans = copy.deepcopy(df_entity_orig2)
-            df_trans.loc[:,'Feature'] = iupac_name
-            df_trans.loc[:,'Alias'] = iupac_name
-            df_trans.loc[:,'Alias2'] = iupac_name
+            df_trans.loc[:,'Feature'] = pd.Series(iupac_name)
+            df_trans.loc[:,'Alias'] = pd.Series(iupac_name)
+            df_trans.loc[:,'Alias2'] =  pd.Series(iupac_name)
             df_trans.loc[:,'Index_orig'] = None # not needed as df_entity_alias is not called here
 
             # for i in range(len(df_trans['iupac'])):
@@ -595,7 +596,7 @@ def _cleanup_alias(df=None, col='', col2='', string2whitespace=[], string2replac
 
     # Check if sample was filtered (do this step before removing strings)
     if len(strings_filtered) > 0:
-        df['Filtered'] = np.where(df[col2].str.contains('|'.join(strings_filtered)), True, False)
+        df.loc[:, 'Filtered'] = np.where(df[col2].str.contains('|'.join(strings_filtered)), True, False)
         
     # remove strings
     if isinstance(string2remove, list):
@@ -691,7 +692,7 @@ def generate_entity_map(entity_orig=[],
                                      string2whitespace=string2whitespace,
                                      string2remove=string2remove,
                                      strings_filtered=[])
-    df_entity_alias['Index_orig'] = df_entity_alias.index
+    df_entity_alias.loc[:, 'Index_orig'] = df_entity_alias.index
 
     # generate a dataframe with the original features/ units
     df_entity_orig = pd.DataFrame(set(entity_orig), columns=[entity_col + '_orig'])
@@ -703,7 +704,7 @@ def generate_entity_map(entity_orig=[],
                                     string2remove=string2remove,
                                     strings_filtered=strings_filtered_gem)
     if 'Filtered' not in df_entity_orig.columns:
-        df_entity_orig['Filtered']=np.nan
+        df_entity_orig.loc[:, 'Filtered']=np.nan
   
     # define score threshold
     f_minscore = _interp1d_fill_value(x=entity_minscore.keys(), y=entity_minscore.values())

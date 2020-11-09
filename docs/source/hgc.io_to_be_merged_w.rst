@@ -1,5 +1,5 @@
 ===================
-HGC.IO documentation (import functionality)
+HGC.IO and HGC.ner documentation (importing and recognizing hydrogeochemical data)
 ===================
 From experience, we know that each organization has its own (different) formats and
 data models to store water quality data. Importing data to a uniform database
@@ -13,19 +13,19 @@ The aim of this import module is to partly automate importing water quality data
 It takes csv and excel files (or pandas' dataframe). And can handle both ‘wide’ data formats 
 (with each parameter stored in a different column) and ‘stacked’ data formats where all data
 is stored in 1 column. Features are automatically recognized using an algorithm
-for named entity recognition.
+for name entity recognition (ner).
 
 Steps
 ------------
 Operating the import module typically involves 4 steps:
-
-1. Map the features in the original file to features recognized by HGC with
-“hgc.io.generate_feature_map()”. For example, “Iron”: “Fe”. Check the mapping
-manually and adjust if necessary.
-2. Map the units in the original file to units recognized by HGC with “hgc.io.generate_unit_map()”. 
-For example, “mg-NO3/L”: ”mg/L”. Check the mapping manually and adjust if necessary.
-3. Read the original file and and convert the data with “hgc.io.import_file()”
-4. Convert the imported data to a dataframe in HGC wide format with “hgc.io.to_hgc()”
+    1. Map the features in the original file to features recognized/accepted by HGC with
+    “hgc.io.generate_feature_map()”. For example, “Iron” will be mapped to “Fe”. It is possible to 
+    check the mapping manually and adjust if necessary.
+    2. Map the units in the original file to units recognized/accepted by HGC with “hgc.io.generate_unit_map()”. 
+    For example, “mg-NO3/L” will be mapped to ”mg/L”. It is also possible to 
+    check the mapping manually and adjust if necessary.
+    3. Read the original file based on specified row and column ranges and and convert the data, with “hgc.io.import_file()”
+    4. Convert the imported data to a dataframe in HGC default format with “hgc.io.to_hgc()”
 
 Note
 ----------------

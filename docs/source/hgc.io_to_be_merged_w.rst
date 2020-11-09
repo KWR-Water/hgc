@@ -1,10 +1,9 @@
-===================
+========================================================================================================
 HGC.IO and HGC.ner documentation (importing and recognizing hydrogeochemical data)
-===================
+========================================================================================================
 From experience, we know that each organization has its own (different) formats and
 data models to store water quality data. Importing data to a uniform database
 that is suitable for analysis in HGC can therefore be quite cumbersome.
-
 
 Highlights
 ===================
@@ -17,19 +16,16 @@ for name entity recognition (ner).
 
 Steps
 ------------
-Operating the import module typically involves 4 steps:
+Operating the io and ner module typically involves 4 steps:
 
-    1. Map the features in the original file to features recognized/accepted by HGC with
-    “hgc.io.generate_feature_map()”. For example, “Iron” will be mapped to “Fe”. It is possible to 
-    check the mapping manually and adjust if necessary.
+1. Map the features in the original file to features recognized/accepted by HGC with “hgc.io.generate_feature_map()”. For example, “Iron” will be mapped to “Fe”. It is possible to check the mapping manually and adjust if necessary.
 
-    2. Map the units in the original file to units recognized/accepted by HGC with “hgc.io.generate_unit_map()”. 
-    For example, “mg-NO3/L” will be mapped to ”mg/L”. It is also possible to 
-    check the mapping manually and adjust if necessary.
-
-    3. Read the original file based on specified row and column ranges and and convert the data, with “hgc.io.import_file()”
+2. Map the units in the original file to units recognized/accepted by HGC with “hgc.io.generate_unit_map()”. For example, “mg-NO3/L” will be mapped to ”mg/L”. It is also possible to check the mapping manually and adjust if necessary. 
     
-    4. Convert the imported data to a dataframe in HGC default format with “hgc.io.to_hgc()”
+3. Read the original file based on specified row and column ranges and and convert the data, with “hgc.io.import_file()”
+
+4. Convert the imported data to a dataframe in HGC default format with “hgc.io.to_hgc()”
+
 
 Note
 ----------------
@@ -40,15 +36,16 @@ The following packages are needed in running this module. Please install them fr
     pip intall molmass
     pip install pubchempy
     pip install googletrans
+
     
 Example: import stacked data
-------------
-Let’s try using an excel file with stacked data as a simple example.
+------------------------------------
+Let’s try to import an excel file with stacked data as a simple example.
 
-Note: the testing file is also availabe in the folder of 'tests': .\tests\test_example1.py
+Note: the testing file is also availabe in the folder of 'tests': .\\tests\\test_example1.py
 
 Step 1: hgc.ner.generate_feature_map()
-----------------------
+--------------------------------------------
 First map the features in the original file, to feature names recognized by HGC.
 Note: input of hgc.ner.generate_feature_map() must be a list, e.g., ['NO3']
 
@@ -266,3 +263,4 @@ Only with a differente database and alias_cols
 WARNING: 
 give pH as units '1'
 same for kve, pve, etc. replace them by '1' to prevent problems with NaN errors
+=======

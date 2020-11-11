@@ -38,16 +38,16 @@ The following packages are needed in running this module. Please install them fr
     pip install googletrans
 
     
-Example: import stacked data
-------------------------------------
+Example 1: import stacked data
+==========================================
 Let’s try to import an excel file with stacked data as a simple example.
 
 Note: the testing file is also availabe in the folder of 'tests': .\\tests\\test_example1.py
 
 Step 1: hgc.ner.generate_feature_map()
 --------------------------------------------
-First map the features in the original file, to feature names recognized by HGC.
-Note: input of hgc.ner.generate_feature_map() must be a list, e.g., ['NO3']
+First let us map the features in the original file to those recognizable by HGC.
+Note: input of hgc.ner.generate_feature_map() must be a list, e.g., ['NO3', 'NH4', ]
 
 .. ipython:: python
     import pandas as pd
@@ -67,7 +67,7 @@ Note: input of hgc.ner.generate_feature_map() must be a list, e.g., ['NO3']
     # check if features are correctly mapped
     assert(feature_map == {'chloride': 'Cl', 'nitrate (filtered)': 'NO3', 'manganese': 'Mn', 'nietrate': 'NO3'})
 
-    # check for which features the algorithm was not able to find a match that met the minimum resemblance.
+    # check which features the algorithm is still not able to find a match.
     assert(feature_unmapped == ['EC new sensor'])
 
     # The dataframe can be used to check in more detail the scores how well the original features were matched to HGC features. 
@@ -78,42 +78,37 @@ In this case we find that the algorithm was not able to find a match for one
 of the features ('EC new sensor'). Hence, we need to adjust the mapping manually.
 
 .. ipython:: python
-    # manually adjust the mapping by merging with a user defined dictionary (optional)
+    # manually adjust the mapping by adding a user defined dictionary (optional)
     feature_map2 = {**feature_map, 'EC new sensor': 'ec_field'}
 
 
 Step 2: hgc.io. generate_unit_map()
-----------------------
+--------------------------------------------
 Next, we need to make a mapping for the units, using the same approach as for the features. 
-Note: input of hgc.ner.generate_unit_map() must be a list, e.g., ['mg/l NO3']
+Note: input of hgc.ner.generate_unit_map() must be a list, e.g., ['mg/l NO3', ]
 
 
 .. ipython:: python
     lst_units = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Unit'])
     unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=lst_units)
-    assert(unit_map == {'mg-N/L': 'mg/L N', 'mg/L': 'mg/L', 'ug/L': 'μg/L', 'μS/cm': 'μS/cm'})
+    assert(unit_map == {'mg-N/L': 'mg/L N', 'mg/L': 'mg/L'})
 
 Step 3: hgc.io.import_file()
-----------------------
+--------------------------------------------
 The third step is to read the original file and and convert the data to the desired 
 datamodel. This requires that we first indicate where to find the data and how to 
 convert it.
 
 .. ipython:: python
     # Arguments defining where to find data
-    slice_header = [0, slice(0, 6)]  # row 0
+    slice_header = [0, slice(0, 6)]  # which means where the header spans, in this example: row 0, column 0 to 5 
     slice_data = [slice(1, None)]  # row 1 till end of file. "None" indicates "end" here. 
-
     # map_header -->  mapping how to adjust headers name
     # Note: The headers 'Value', 'Unit' and 'SampleID' are compulsory. Other headers can be any string
     map_header = {**hgc.io.default_map_header(), 
                 'loc.': 'LocationID', 'date': 'Datetime', 'sample': 'SampleID'}
 
-    # map_features --> see step 1
-
-    # map_units --> see step 2
-
-    # feature_units -->  mapping of the desired units for each feature
+    # check feature_units in HGC 
     # For instance, we can inspect the default units for Cl, NO3 and ec_field
     assert(io.default_feature_units()['Cl'] == 'mg/L')
     assert(io.default_feature_units()['NO3'] == 'mg/L')
@@ -126,14 +121,14 @@ convert it.
     # Now the we have defined all the arguments, lets import the data
 
     df = io.import_file(file_path=str(Path(__file__).cwd()/'tests/example1.xlsx'),
-                        sheet_name='stacked',
-                        shape='stacked',
+                        sheet_name='stacked', 
+                        shape='stacked', # important here to tell the shape of the file
                         slice_header= slice_header,
                         slice_data=slice_data,
                         map_header=map_header,
                         map_features=feature_map2,
                         map_units=unit_map)[0]
-    df.head(3) # imported data                     
+    df.head(3) # df indicates imported data                     
     df_1 = io.import_file(file_path=str(Path(__file__).cwd()/'tests/example1.xlsx'),
                         sheet_name='stacked',
                         shape='stacked',
@@ -142,7 +137,7 @@ convert it.
                         map_header=map_header,
                         map_features=feature_map2,
                         map_units=unit_map)[1]
-    df_1.head(3) # nan values   
+    df_1.head(3) # df_1 indicates nan values   
     df_2 = io.import_file(file_path=str(Path(__file__).cwd()/'tests/example1.xlsx'),
                         sheet_name='stacked',
                         shape='stacked',
@@ -151,23 +146,23 @@ convert it.
                         map_header=map_header,
                         map_features=feature_map2,
                         map_units=unit_map)[2]                        
-    df_2.head(3) # duplication
+    df_2.head(3) # df_2 indicate duplication
   
-Note that we put a '[0]' behind the function, the [1] and [2] are the data
-that was dropped because duplicate or nan_value
+Note that we put a '[0]' behind the function, [1] and [2] are the data
+that are dropped because of nan_value or duplicate values
 
 
 Step 4: hgc.io.to_hgc()
-----------------------
-Finally, we need to pivot the stacked data to the wide format used by HGC.
+--------------------------------------------
+Finally, we need to pivot the stacked data to a default (wide) format used by HGC.
 The default is to use 'LocationID', 'Datetime' and 'SampleID' as index.
 
 .. ipython:: python
     df_hgc = hgc.io.stack_to_hgc(df)
 
 
-Example: import wide data
-=====================
+Example 2: import wide data
+==========================================
 Next, we will import the same data, but from a ‘wide’ shaped file.
 
 Note that it is also possible to use a dataframe instead of excel or csv as input
@@ -200,28 +195,31 @@ An advantage of this approach is to prevent repeatedly reading the input file .
     # step 4: convert to wide format
     df2_hgc = hgc.io.stack_to_hgc(df2)
 
-Mapping feature
-===================
+Additional information about mapping features and units
+============================================================================
 
-The funtions generate_feature_map() and generate_unit_map() use Named Entity
-Recognition (NER) techniques to match original entities to the entities used by HGC.
-It is based on the fuzzywuzzy module. And uses Levenshtein Distance to calculate the differences between
+Mapping features
+------------------------
+The funtions generate_feature_map() and generate_unit_map() use (i) Named Entity
+Recognition (NER) techniques and (ii) google translate combined with pubchempy database to match original entities to the entities used by HGC.
+It is based on the fuzzywuzzy module and googletrans module. In fuzzywuzzy, Levenshtein Distance is used to calculate the differences between
 original entities and HGC-compatible entities. Original entities are matched to the HGC-entity to which they
-have the least distance. A match is only succesful if the score based on the Levenstein Distance remains above
-a certain threshold.
+have the least distance (represented as a score). A match is only succesful if the score based on the Levenstein Distance remains above
+a certain score threshold. On the other hand, Google translate is used to convert non-English feature names to English, then search the pubchempy database 
+for match. Step 1 and Step 2 in the above-mentioned two exmaples in reading wide/stacked formats are based on feature name recognition.
 
-For the features, a default database has been provided with the module that contains
+For the features, we also use a default database, which provides with the module that contains
 both features and a selection of alias (synonyms). The NER function will try find which
 alias provides the best match (= highest score) for each original feature.
 
 .. ipython:: python
     # Print first lines of default database for mapping features.
-    print(hgc.ner.default_feature_alias_dutch_english.head())
+    print(hgc.ner.generate_feature_alias.head())
 
 By default, all columns are used except for 'CAS'.
 
 It is possible to change the selection of colums through the argument 'alias_cols'
-In the next example, we will attempt mapping using the CAS number.
+In the next example, we show how to make a map using the CAS number.
 
 .. ipython:: python
     # example with mapping with CAS number
@@ -252,15 +250,15 @@ It is also possible to load a user defined database with the argument
 
 
 Mapping units
-===================
+--------------
 For mapping units, similar functionalities are availabe as for mapping features.
 Only with a differente database and alias_cols
 
 .. ipython:: python
     # Print first lines of default database for mapping units.
-    print(hgc.ner.default_unit_alias.head())
+    print(hgc.ner.generate_unit_alias.head())
 
 WARNING: 
-give pH as units '1'
+We make the unit for pH as '1'
 same for kve, pve, etc. replace them by '1' to prevent problems with NaN errors
 =======

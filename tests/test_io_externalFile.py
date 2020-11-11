@@ -112,7 +112,7 @@ def test_exm_stacked():
     """
     lst_units = list(pd.read_excel(Path(__file__).cwd()/'tests/example1.xlsx', sheet_name='stacked')['Unit'])
     unit_map, unit_unmapped, df_unit_map = ner.generate_unit_map(entity_orig=lst_units)
-
+    assert(unit_map == {'mg-N/L': 'mg/L N', 'mg/L': 'mg/L'})
     """
     ----------------------
     Step 3: hgc.io.import_file()
@@ -127,7 +127,6 @@ def test_exm_stacked():
     slice_data = [slice(1, None)]  # row 1 till end of file. "None" indicates "end" here. 
 
     # Arguments how to convert the data
-
     # map_header -->  mapping how to adjust headers name
     # Note: The headers 'Value', 'Unit' and 'SampleID' are compulsory. Other headers can be any string
     map_header = {**io.default_map_header(), 

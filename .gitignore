@@ -111,3 +111,4 @@ hgc.code-workspace
 hgc/constants/constants.pickle
 docs/source/_build
 hgc/constants/default_features_alias99.xlsx
+docs/source/api/*

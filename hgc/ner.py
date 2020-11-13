@@ -376,13 +376,13 @@ def _fuzzy_match(df_entity_orig3, df_entity_alias, entity_col, match_method, df1
             # here it will return a warning from fuzzywuzzy, no clue about how to solve it
             feature_orig2alias.append(process.extractOne(query, choices, scorer=fuzz.token_sort_ratio)) # note: if input is series, return index too
         df4t = pd.concat(
-            [df_entity_orig3, pd.DataFrame(feature_orig2alias, columns=['Alias2', 'Score', 'Index_orig'])],
+            [df_entity_orig3.reset_index(drop=True), pd.DataFrame(feature_orig2alias, columns=['Alias2', 'Score', 'Index_orig'])],
             axis=1).drop('Index_orig', axis=1)
         df4t = df4t.merge(df_entity_alias, on='Alias2').drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)
 
         # save the ones whose scores are higher than the threshold
         if not df4t.empty:
-            df4t.loc[:,'Alias2_length'] = df4t['Alias'].astype(str).map(len)
+            df4t.loc[:,'Alias2_length'] = df4t['Alias2'].astype(str).map(len)
             df4t.loc[:,'MinScore'] = f_minscore(df4t['Alias2_length'])
             df4t.loc[:,'Success'] = np.where(df4t['Score'] >= df4t['MinScore'], True, False)
         else: 

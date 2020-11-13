@@ -496,10 +496,10 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
             compounds = [pcp.Compound.from_cid(idx0[0].cid) if idx0 != [] else [] for idx0 in idx ]
             iupac_name = [compound.iupac_name if compound != [] else [] for compound in compounds]
             # reconstruct df_trans as the df1 and df2
-            df_trans = copy.deepcopy(df_entity_orig2)
+            df_trans = df_entity_orig2.copy(deep=True).reset_index(drop=True)
             df_trans.loc[:,'Feature'] = pd.Series(iupac_name)
             df_trans.loc[:,'Alias'] = pd.Series(iupac_name)
-            df_trans.loc[:,'Alias2'] =  pd.Series(iupac_name)
+            df_trans.loc[:,'Alias2'] = pd.Series(iupac_name)
             df_trans.loc[:,'Index_orig'] = None # not needed as df_entity_alias is not called here
 
             # for i in range(len(df_trans['iupac'])):

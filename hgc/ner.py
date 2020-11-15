@@ -454,6 +454,7 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
         if bracket == 'with':
             pass
         elif bracket == 'without':
+            feature_name_to_recover = df_entity_orig2.loc[:,'Feature_orig'].copy()
             df_entity_orig2.loc[:,'Feature_orig'] = df_entity_orig2.loc[:,'Feature_orig'].str.replace(r'\(.*\)', '').str.rstrip()
         else:
             print('Keyword for "bracket" is unknow. It can be either "with" or "without" only. We use default "with" then.')
@@ -516,6 +517,7 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
                 if bracket == 'with':
                     df3.loc[:,'Score'] = 103 # indicating step 3
                 elif bracket == 'without': 
+                    df3.loc[:,'Feature_orig']= feature_name_to_recover[mask].values
                     df3.loc[:,'Score'] = 105 # indicating step 5  
 
             df_entity_orig3 = df_trans[np.logical_not(mask)][['Feature_orig', 'Feature_orig2', 'Filtered']]

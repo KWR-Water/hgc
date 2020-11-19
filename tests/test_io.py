@@ -63,6 +63,7 @@ def test_io_stacked():
     WD = Path(tests.__file__).parent
     # get feature_map and unit_map for testing
     df_temp = pd.read_excel(WD / 'testfile1_io.xlsx', sheet_name='stacked')
+
     feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[slice(3, None), 6].dropna()))
     unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[slice(3, None), 7].dropna()))
     dct2_arguments = {
@@ -77,6 +78,7 @@ def test_io_stacked():
             'Sample Number': 'SampleID',  # "SampleID" already exists as header, but contains wrong date. Use "Sample number" as "SampleID"
             'SampleID': None  # otherwise exists twice in output file
         },
+        
         'map_features': feature_map,
         'map_units': unit_map,
     }

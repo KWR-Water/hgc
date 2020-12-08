@@ -9,12 +9,15 @@ import copy
 import numpy as np
 import pandas as pd
 import scipy.interpolate
+# import math
 from pathlib import Path
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from hgc import constants
-from googletrans import Translator
+# from googletrans import Translator #pip install googletrans==3.1.0a0
 import pubchempy as pcp
+from google_trans_new import google_translator  
+translator = google_translator() 
 
 
 # maintenance_flag = 'n'
@@ -464,9 +467,20 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
         
         # Next, call google translator two times in case it fails for the first time due to API issues. 
         attemp = 1
+
         while attemp <= 10: # google api may fail randomly, just try it for 10 times
             try:
-                name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
+                # step = 1
+                # num_grp = math.ceil(len(name2trans)/step)
+                name_transed_cls =[]
+                for i in range(len(name2trans)):
+                   name_transed_cls.append(translator.translate(name2trans[i], lang_src=trans_from, lang_tgt=trans_to))
+                  
+    
+                # name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
+                # name_transed_cls = [Translator().translate(element, lang_src=trans_from, lang_tgt=trans_to) for element in name2trans]
+                # name_transed_cls = [google_translator().translate(element, lang_src=trans_from, lang_tgt=trans_to) for element in name2trans]
+
                 print('Calling google translate API was successful after %i attemp(s).' % (attemp))
                 flag = 'y'
                 break
@@ -478,7 +492,9 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
     
         # get compound index (cid) from the translated/original names
         if flag == 'y':
-            idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
+            # idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
+            idx = [pcp.get_compounds(component, 'name') for component in name_transed_cls] 
+            
         elif flag == 'n': # keep the lopp here as strang thing may happen with pubchem...
             idx = []
             for component in name2trans:

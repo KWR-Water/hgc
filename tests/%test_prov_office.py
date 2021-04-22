@@ -16,7 +16,6 @@ from hgc import io
 import tests
 # import xlsxwriter
 
-#%%
 def _generate_feature_unit_map(feature_map, feature_unmapped, feature_map_manual, unit_map, unit_unmapped, unit_map_manual):
     # generate mapped/unmapped features and units 
     df_feature_map = pd.DataFrame(feature_map.items(), columns=['Original feature', 'New feature'])
@@ -39,20 +38,6 @@ def _generate_feature_unit_map(feature_map, feature_unmapped, feature_map_manual
     df_unit = pd.concat([df_unit_map, df_unit_unmap, df_unit_manmap])
 
     return df_feature, df_unit
-
-def _whether_mapped_hgc(features, units, feature_map, unit_map):
-    flag_feature = [('mappable' if feature in feature_map.keys() else 'unmappable') for feature in features]
-    flag_unit = [('mappable' if unit in unit_map.keys() else 'unmappable') for unit in units]    
-    return flag_feature, flag_unit
-
-# def _export_data():
-        # with pd.ExcelWriter(project_folder+r'/province_processed.xlsx') as writer:              
-    #     df2_select.to_excel(writer, sheet_name='df_processed')
-    #     df_feature.to_excel(writer, sheet_name='feature_map')
-    #     df_unit.to_excel(writer, sheet_name='unit_map')
-    #     df_feature_map.to_excel(writer, sheet_name='feature_reference')
-    #     df_unit_map.to_excel(writer, sheet_name='unit_reference') 
-    # pass
 
 def test_province():
     # project_folder = r'D:\DBOX\Dropbox\008KWR\0081Projects\kennisimpulse'
@@ -91,13 +76,15 @@ def test_province():
         'map_units': {**unit_map, **unit_map_manual},
     }
     df2 = io.import_file(**dct2_arguments)[0]
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'Province'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "province.pckl", "wb" ) )
+    # with pd.ExcelWriter(r'C:\Users\beta6\Documents\Dropbox\008KWR\0081Projects\kennisimpulse'+r'/provincie_processed.xlsx') as writer:    
+    with pd.ExcelWriter(project_folder+r'/province_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
 
 
 def test_KIWKZUID():
@@ -131,21 +118,23 @@ def test_KIWKZUID():
             'Eenheid': 'Unit',
             'Gerapporteerde waarde': 'Value', 
             'Monstername datum': 'Datetime',
-            'Analyse': 'SampleID', 
+            'Analyse': 'SampleID',  # Analyse !?
             'Cas nummer': 'CAS',
         },
         'map_features': {**feature_map},
         'map_units': {**unit_map},
     }
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'WML Zuid'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS', 'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "WML Zuid.pckl", "wb" ))
-              
+    # with pd.ExcelWriter(r'C:\Users\beta6\Documents\Dropbox\008KWR\0081Projects\kennisimpulse'+r'/provincie_processed.xlsx') as writer:    
+    with pd.ExcelWriter(project_folder+r'/KIWK_Zuid_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
+
 
 def test_KIWKVenloschol():
     project_folder = r'C:\Users\beta6\Documents\Dropbox\008KWR\0081Projects\kennisimpulse'
@@ -184,16 +173,17 @@ def test_KIWKVenloschol():
         'map_features': {**feature_map},
         'map_units': {**unit_map},
     }
-  
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'WML Venloschol'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS', 'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "WML Venloschol.pckl", "wb" ) )
-    
+    with pd.ExcelWriter(project_folder+r'\KIWK Venloschol_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')  
+
         
 def test_KIWKRoerdalslenk():
     # project_folder = r'D:\DBOX\Dropbox\008KWR\0081Projects\kennisimpulse'
@@ -234,14 +224,15 @@ def test_KIWKRoerdalslenk():
         'map_units': {**unit_map},
     }
 
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'WML Roerdalslenk'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS', 'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "WML Roerdalslenk.pckl", "wb" ) )
+    with pd.ExcelWriter(project_folder+r'/KIWK Roerdalslenk_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
 
 
 
@@ -284,14 +275,16 @@ def test_KIWKHeelBeegden():
         'map_units': {**unit_map},
     }
 
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'WML Heel Beegden'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS', 'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "WML Heel Beegden.pckl", "wb" ) )
+    with pd.ExcelWriter(project_folder+r'/KIWK Heel Beegden_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
+
 
  
 
@@ -333,15 +326,16 @@ def test_WBGR():
         'map_features': {**feature_map},
         'map_units': {**unit_map},
     }
-      
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'WBGR'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS', 'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "WBGR.pckl", "wb" ) )
+    with pd.ExcelWriter(project_folder+r'/WBGR_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
 
 
  
@@ -383,14 +377,15 @@ def test_WMD():
         'map_units': {**unit_map},
     }
 
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'WMD'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS', 'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "WMD.pckl", "wb" ) ) 
+    with pd.ExcelWriter(project_folder+r'\WMD_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
 
 
         
@@ -430,27 +425,23 @@ def test_BOexport_bewerkt():
             'cas_id' : 'CAS',
             'x_coordinaat' : 'X',
             'y_coordinaat' : 'Y',
-            'filter_bovenkant_ref' : 'Z_upper',
-            'filter_onderkant_ref' : 'Z_lower',
-            'maaiveld_NAP' : 'Ground level',
         },
         'map_features': {**feature_map},
         'map_units': {**unit_map},
     }
 
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'BrabantWater'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 
-                      'CAS', 'X', 'Y', 'Z_upper', 'Z_lower', 'Ground level', 
-                      'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'CAS', 'X', 'Y']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "BrabantWater.pckl", "wb" ) )
-    
-    
-  
+    with pd.ExcelWriter(project_folder+r'/BOexport_bewerkt_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
+
+
+
        
 def test_LIMS_Ruw_2017_2019():
     project_folder = r'C:\Users\beta6\Documents\Dropbox\008KWR\0081Projects\kennisimpulse'
@@ -484,20 +475,22 @@ def test_LIMS_Ruw_2017_2019():
             'UNITS': 'Unit',
             'FINAL': 'Value', # Gerapporteerde waarde, right?!
             'SAMPDATE': 'Datetime',
-            'TESTNO': 'SampleID', 
+            'TESTNO': 'SampleID',  # Analyse !?
         },
         'map_features': {**feature_map},
         'map_units': {**unit_map},
     }
-       
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'Vitens_Lims'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "Vitens_Lims.pckl", "wb" ) ) 
+    with pd.ExcelWriter(project_folder+r'/LIMS_Ruw_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')        
+
 
 
 
@@ -540,14 +533,17 @@ def test_Oasen():
         'map_units': {**unit_map},
     }
 
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'Oasen'
-    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit', 'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'LocationID', 'Feature', 'Value', 'Unit']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "Oasen.pckl", "wb" ) ) 
+    with pd.ExcelWriter(project_folder+r'/Oasen_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
+
+
 
     
 def test_VitensMacro():
@@ -588,25 +584,21 @@ def test_VitensMacro():
             'Naam': 'SampleID',  # Analyse !?
             'X coördinaat (m+NAP)' : 'X',
             'Y coördinaat (m+NAP)' : 'Y',
-            'Maaiveld hoogte (m+NAP)' : 'Ground level',
-            'Bovenkant filter': 'Z_upper',	 
-            'Onderkant filter': 'Z_lower',
         },
         'map_features': {**feature_map},
         'map_units': {**unit_map},
-
     }
 
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'Vitens_Macro'
-    df2_select = df2[['Datetime', 'SampleID', 'Feature', 'Value', 'Unit', 
-                      'X', 'Y', 'Z_upper', 'Z_lower', 'Ground level', 
-                      'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'Feature', 'Value', 'Unit', 'X', 'Y']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "VitensMacro.pckl", "wb" ) )
+    with pd.ExcelWriter(project_folder+r'/VitensMacro_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
+
 
 
 
@@ -648,63 +640,32 @@ def test_VitensOMIVE():
             'Naam': 'SampleID',  # Analyse !?
             'X coördinaat (m+NAP)' : 'X',
             'Y coördinaat (m+NAP)' : 'Y',
-            'Maaiveld hoogte (m+NAP)' : 'Ground level',
-            'Bovenkant filter': 'Z_upper',	 
-            'Onderkant filter': 'Z_lower',
         },
         'map_features': {**feature_map},
         'map_units': {**unit_map},
     }
 
-    df2 = io.import_file(**dct2_arguments)[0] 
-    flag_feature, flag_unit = _whether_mapped_hgc(df2['Feature_orig'], df2['Unit_orig'], feature_map, unit_map)
-    df2.loc[:, 'Flag feature'] = flag_feature
-    df2.loc[:, 'Flag unit'] = flag_unit 
-    df2.loc[:, 'Source'] = 'Vitens_OMIVE'
-    df2_select = df2[['Datetime', 'SampleID', 'Feature', 'Value', 'Unit', 
-                      'X', 'Y', 'Z_upper', 'Z_lower', 'Ground level', 
-                      'Flag feature', 'Flag unit', 'Source']].reset_index(drop=True)
+    df2 = io.import_file(**dct2_arguments)[0]
+    df2_select = df2[['Datetime', 'SampleID', 'Feature', 'Value', 'Unit', 'X', 'Y']].reset_index(drop=True)
     df2_hgc = io.stack_to_hgc(df2)
-    pckl.dump([df2, df2_select, df2_hgc], open( "VitensOMIVE.pckl", "wb" ) )
+    with pd.ExcelWriter(project_folder+r'/VitensOMIVE_processed.xlsx') as writer:              
+        df2_select.to_excel(writer, sheet_name='df_processed')
+        df_feature.to_excel(writer, sheet_name='feature_map')
+        df_unit.to_excel(writer, sheet_name='unit_map')
+        df_feature_map.to_excel(writer, sheet_name='feature_reference')
+        df_unit_map.to_excel(writer, sheet_name='unit_reference')   
 
-# test_province()
-# test_KIWKZUID()
-# test_KIWKVenloschol()
-# test_KIWKRoerdalslenk()
-# test_KIWKHeelBeegden()   
-# test_WBGR()
-# test_WMD()
+
+test_province()
+test_KIWKZUID()
+test_KIWKVenloschol()
+test_KIWKRoerdalslenk()
+test_KIWKHeelBeegden()   
+test_WBGR()
+test_WMD()
 test_BOexport_bewerkt()
 test_LIMS_Ruw_2017_2019()
 test_Oasen()
 test_VitensMacro()
 test_VitensOMIVE()
-
-
-#%% data with metadata information
-[df_pro_full, df_pro, df1_pro_hgc]  = pckl.load(open( "province.pckl", "rb" ))
-[df_WML1_full, df_WML1, df_WML1_hgc]  = pckl.load(open( "WML Heel Beegden.pckl", "rb" ))
-[df_WML2_full, df_WML2, df_WML2_hgc]  = pckl.load(open( "WML Roerdalslenk.pckl", "rb" ))
-[df_WML3_full, df_WML3, df_WML3_hgc]  = pckl.load(open( "WML Venloschol.pckl", "rb" ))
-[df_WML4_full, df_WML4, df_WML4_hgc]  = pckl.load(open( "WML Zuid.pckl", "rb" ))
-[df_WBGR_full, df_WBGR, df_WBGR_hgc]  = pckl.load(open( "WBGR.pckl", "rb" ))
-[df_WMD_full, df_WMD, df_WMD_hgc]  = pckl.load(open( "WMD.pckl", "rb" ))
-[df_Oasen_full, df_Oasen, df_Oasen_hgc]  = pckl.load(open( "Oasen.pckl", "rb" ))
-[df_LIM_full, df_LIM, df_LIM_hgc]  = pckl.load(open( "Vitens_Lims.pckl", "rb" ))
-
-df_wMD = pd.concat([df_pro, df_WML1, df_WML2, df_WML3, df_WML4,
-                    df_WBGR, df_WMD, df_Oasen, df_LIM])
-df_wMD.to_csv('Data with metadata.csv', index=False, encoding='utf-32')
-
-
-#%% data with direct X Y Z
-[df_BW_full, df_BW, df_BW_hgc]  = pckl.load(open( "BrabantWater.pckl", "rb" ))
-[df_V1_full, df_V1, df_V1_hgc]  = pckl.load(open( "VitensOMIVE.pckl", "rb" ))
-[df_V2_full, df_V2, df_V2_hgc]  = pckl.load(open( "VitensMacro.pckl", "rb" ))
-df_wXYZ = pd.concat([df_BW, df_V1, df_V2])
-df_wXYZ.to_csv('Data with XYZ.csv', index=False, encoding='utf-32')
-
-
-
-
-
+        

@@ -9,12 +9,15 @@ import copy
 import numpy as np
 import pandas as pd
 import scipy.interpolate
+# import math
 from pathlib import Path
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from hgc import constants
-from googletrans import Translator
+# from googletrans import Translator #pip install googletrans==3.1.0a0
 import pubchempy as pcp
+from google_trans_new import google_translator  
+translator = google_translator() 
 
 
 # maintenance_flag = 'n'
@@ -376,13 +379,13 @@ def _fuzzy_match(df_entity_orig3, df_entity_alias, entity_col, match_method, df1
             # here it will return a warning from fuzzywuzzy, no clue about how to solve it
             feature_orig2alias.append(process.extractOne(query, choices, scorer=fuzz.token_sort_ratio)) # note: if input is series, return index too
         df4t = pd.concat(
-            [df_entity_orig3, pd.DataFrame(feature_orig2alias, columns=['Alias2', 'Score', 'Index_orig'])],
+            [df_entity_orig3.reset_index(drop=True), pd.DataFrame(feature_orig2alias, columns=['Alias2', 'Score', 'Index_orig'])],
             axis=1).drop('Index_orig', axis=1)
         df4t = df4t.merge(df_entity_alias, on='Alias2').drop_duplicates(subset=[entity_col + '_orig']).reset_index(drop=True)
 
         # save the ones whose scores are higher than the threshold
         if not df4t.empty:
-            df4t.loc[:,'Alias2_length'] = df4t['Alias'].astype(str).map(len)
+            df4t.loc[:,'Alias2_length'] = df4t['Alias2'].astype(str).map(len)
             df4t.loc[:,'MinScore'] = f_minscore(df4t['Alias2_length'])
             df4t.loc[:,'Success'] = np.where(df4t['Score'] >= df4t['MinScore'], True, False)
         else: 
@@ -454,6 +457,7 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
         if bracket == 'with':
             pass
         elif bracket == 'without':
+            feature_name_to_recover = df_entity_orig2.loc[:,'Feature_orig'].copy()
             df_entity_orig2.loc[:,'Feature_orig'] = df_entity_orig2.loc[:,'Feature_orig'].str.replace(r'\(.*\)', '').str.rstrip()
         else:
             print('Keyword for "bracket" is unknow. It can be either "with" or "without" only. We use default "with" then.')
@@ -463,9 +467,20 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
         
         # Next, call google translator two times in case it fails for the first time due to API issues. 
         attemp = 1
+
         while attemp <= 10: # google api may fail randomly, just try it for 10 times
             try:
-                name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
+                # step = 1
+                # num_grp = math.ceil(len(name2trans)/step)
+                name_transed_cls =[]
+                for i in range(len(name2trans)):
+                   name_transed_cls.append(translator.translate(name2trans[i], lang_src=trans_from, lang_tgt=trans_to))
+                  
+    
+                # name_transed_cls = Translator().translate(name2trans, src=trans_from, dest=trans_to)
+                # name_transed_cls = [Translator().translate(element, lang_src=trans_from, lang_tgt=trans_to) for element in name2trans]
+                # name_transed_cls = [google_translator().translate(element, lang_src=trans_from, lang_tgt=trans_to) for element in name2trans]
+
                 print('Calling google translate API was successful after %i attemp(s).' % (attemp))
                 flag = 'y'
                 break
@@ -477,7 +492,9 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
     
         # get compound index (cid) from the translated/original names
         if flag == 'y':
-            idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
+            # idx = [pcp.get_compounds(component.text, 'name') for component in name_transed_cls] 
+            idx = [pcp.get_compounds(component, 'name') for component in name_transed_cls] 
+            
         elif flag == 'n': # keep the lopp here as strang thing may happen with pubchem...
             idx = []
             for component in name2trans:
@@ -496,10 +513,10 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
             compounds = [pcp.Compound.from_cid(idx0[0].cid) if idx0 != [] else [] for idx0 in idx ]
             iupac_name = [compound.iupac_name if compound != [] else [] for compound in compounds]
             # reconstruct df_trans as the df1 and df2
-            df_trans = copy.deepcopy(df_entity_orig2)
+            df_trans = df_entity_orig2.copy(deep=True).reset_index(drop=True)
             df_trans.loc[:,'Feature'] = pd.Series(iupac_name)
             df_trans.loc[:,'Alias'] = pd.Series(iupac_name)
-            df_trans.loc[:,'Alias2'] =  pd.Series(iupac_name)
+            df_trans.loc[:,'Alias2'] = pd.Series(iupac_name)
             df_trans.loc[:,'Index_orig'] = None # not needed as df_entity_alias is not called here
 
             # for i in range(len(df_trans['iupac'])):
@@ -516,6 +533,7 @@ def _translate_matching(df_entity_orig2, match_method, entity_col, trans_from = 
                 if bracket == 'with':
                     df3.loc[:,'Score'] = 103 # indicating step 3
                 elif bracket == 'without': 
+                    df3.loc[:,'Feature_orig']= feature_name_to_recover[mask].values
                     df3.loc[:,'Score'] = 105 # indicating step 5  
 
             df_entity_orig3 = df_trans[np.logical_not(mask)][['Feature_orig', 'Feature_orig2', 'Filtered']]

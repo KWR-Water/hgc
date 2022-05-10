@@ -5,6 +5,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 2
 
    hgc.constants.constants
    hgc.constants.read_write

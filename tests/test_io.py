@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Jul 26 21:55:57 2020
-
-@author: Xin Tian 
+@author: Xin Tian
 """
 import pytest
 import numpy as np
@@ -11,18 +10,20 @@ from pathlib import Path
 import pickle as pckl
 import hgc
 import os
-from hgc import ner 
+from hgc import named_entity_recognition as ner
+from hgc.named_entity_recognition import mapping
 from hgc import io
 import tests
+# from hgc.named_entity_recognition.mapping import generate_feature_map
 # from googletrans import Translator
 
 
 def test_ner():
     ''' to test whether the function ner can generate correctly mapped features and units '''
-    WD = Path(tests.__file__).parent
-    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx', sheet_name='wide')
-    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
-    unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
+    file_path = Path(tests.__file__).parent
+    df_temp = pd.read_excel(file_path / 'testfile1_io.xlsx', sheet_name='wide')
+    feature_map, _, _ = mapping.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
+    unit_map, _, _ = ner.mapping.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
     assert feature_map['Acidity'] == 'Acidity'
     assert feature_map['Electrical Conductivity'] == 'ec'
     assert unit_map['mS/m'] == 'mS/m'
@@ -30,14 +31,14 @@ def test_ner():
 
 def test_io_wide():
     '''test wide-shaped file'''
-    WD = Path(tests.__file__).parent
+    file_path = Path(tests.__file__).parent
     # get feature_map and unit_map for testing
-    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx', sheet_name='wide')
-    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
-    unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
+    df_temp = pd.read_excel(file_path / 'testfile1_io.xlsx', sheet_name='wide')
+    feature_map, _, _ = ner.mapping.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
+    unit_map, _, _ = ner.mapping.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
     # define input dictionary
     dct1_arguments = {
-        'file_path': str(WD / 'testfile1_io.xlsx'),
+        'file_path': str(file_path / 'testfile1_io.xlsx'),
         'sheet_name': 'wide',
         'shape': 'wide',
         'slice_header': [[9, slice(2, 5)], [8, slice(32, 33)]],
@@ -60,14 +61,13 @@ def test_io_wide():
 
 def test_io_stacked():
     '''test stacked shape'''
-    WD = Path(tests.__file__).parent
+    file_path = Path(tests.__file__).parent
     # get feature_map and unit_map for testing
-    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx', sheet_name='stacked')
-
-    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[slice(3, None), 6].dropna()))
-    unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[slice(3, None), 7].dropna()))
+    df_temp = pd.read_excel(file_path / 'testfile1_io.xlsx', sheet_name='stacked')
+    feature_map, feature_unmapped, df_feature_map = ner.mapping.generate_feature_map(entity_orig=list(df_temp.iloc[slice(3, None), 6].dropna()))
+    unit_map, unit_unmapped, df_unit_map = ner.mapping.generate_unit_map(entity_orig=list(df_temp.iloc[slice(3, None), 7].dropna()))
     dct2_arguments = {
-        'file_path': str(WD / 'testfile1_io.xlsx'),
+        'file_path': str(file_path / 'testfile1_io.xlsx'),
         'sheet_name': 'stacked',
         'shape': 'stacked',
         'slice_header': [2, slice(2, None)],
@@ -78,7 +78,6 @@ def test_io_stacked():
             'Sample Number': 'SampleID',  # "SampleID" already exists as header, but contains wrong date. Use "Sample number" as "SampleID"
             'SampleID': None  # otherwise exists twice in output file
         },
-        
         'map_features': feature_map,
         'map_units': unit_map,
     }
@@ -91,13 +90,13 @@ def test_io_stacked():
 
 # def test_Gilian_file():
 #     ''' test an example from Gilian '''
-#     WD = Path(tests.__file__).parent
+#     file_path = Path(tests.__file__).parent
 #     # get feature_map and unit_map for testing
-#     df_temp = pd.read_excel(WD / 'BO_exmp.xlsx')
-#     feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[slice(1, None), 6].dropna()))
-#     unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[slice(1, None), 8].dropna()))
+#     df_temp = pd.read_excel(file_path / 'BO_exmp.xlsx')
+#     feature_map, feature_unmapped, df_feature_map = ner.mapping.generate_feature_map(entity_orig=list(df_temp.iloc[slice(1, None), 6].dropna()))
+#     unit_map, unit_unmapped, df_unit_map = ner.mapping.generate_unit_map(entity_orig=list(df_temp.iloc[slice(1, None), 8].dropna()))
 #     dct3_arguments = {
-#         'file_path': str(WD / 'BO_exmp.xlsx'),
+#         'file_path': str(file_path / 'BO_exmp.xlsx'),
 #         'sheet_name': 'example',
 #         'shape': 'stacked',
 #         'slice_header': [0, slice(0, None)],
@@ -105,7 +104,7 @@ def test_io_stacked():
 #         'map_header': {
 #             **hgc.io.default_map_header(),
 #             'sampled.date': 'Datetime',
-#             'sample.id': 'SampleID',  
+#             'sample.id': 'SampleID',
 #             'eenheid': 'Unit',
 #             'value.result': 'Value',
 #             'component': 'Feature'
@@ -119,28 +118,28 @@ def test_io_stacked():
 def test_io_default_features():
     ''' testing whether features have right units '''
     dct_feature = io.default_feature_units()
-    assert dct_feature['Cl'] == 'mg/L'   
-    assert dct_feature['Fe'] == 'mg/L'      
-    assert dct_feature['Ca'] == 'mg/L'      
-    assert dct_feature['Na'] == 'mg/L'      
-    assert dct_feature['Mn'] == 'mg/L'      
-    assert dct_feature['NH4'] == 'mg/L'      
-    assert dct_feature['NO2'] == 'mg/L'      
-    assert dct_feature['NO3'] == 'mg/L'      
-    assert dct_feature['Al'] == 'μg/L'       
-    assert dct_feature['As'] == 'μg/L'      
-    assert dct_feature['ec'] == 'μS/cm'      
-    assert dct_feature['ec_field'] == 'μS/cm'         
-    assert dct_feature['ph'] == '1'    
+    assert dct_feature['Cl'] == 'mg/L'
+    assert dct_feature['Fe'] == 'mg/L'
+    assert dct_feature['Ca'] == 'mg/L'
+    assert dct_feature['Na'] == 'mg/L'
+    assert dct_feature['Mn'] == 'mg/L'
+    assert dct_feature['NH4'] == 'mg/L'
+    assert dct_feature['NO2'] == 'mg/L'
+    assert dct_feature['NO3'] == 'mg/L'
+    assert dct_feature['Al'] == '�g/L'
+    assert dct_feature['As'] == '�g/L'
+    assert dct_feature['ec'] == '�S/cm'
+    assert dct_feature['ec_field'] == '�S/cm'
+    assert dct_feature['ph'] == '1'
 
 def test_ner_units():
     ''' testing whether ner returns right units and features '''
-    print(hgc.ner.generate_unit_map(entity_orig=['mg/l NH4'])[0])
-    print(hgc.ner.generate_unit_map(entity_orig=['    mg/l NH4', 'mg/L NO3   '])[0]) # remove whitespace before unit
+    print(ner.mapping.generate_unit_map(entity_orig=['mg/l NH4'])[0])
+    print(ner.mapping.generate_unit_map(entity_orig=['    mg/l NH4', 'mg/L NO3   '])[0]) # remove whitespace before unit
 
 def test_ner_entire_feature_alias_table():
     ''' check the loadings from "default_features_alias.csv" '''
-    df_check = ner.entire_feature_alias_table()
+    df_check = ner.mapping.entire_feature_alias_table()
     df_check.head(4)
     #   Feature        CAS REMARK  ... SIKB_Omschrijving SIKB_CASnummer     SIKB_Group
     # 0     CH4    74-82-8    NaN  ...           methaan       '74-82-8  ChemischeStof
@@ -158,7 +157,7 @@ def test_ner_entire_feature_alias_table():
 
 def test_ner_entire_unit_alias_table():
     ''' check the loadings from "entire_unit_alias_table.csv" '''
-    df_check = ner.entire_unit_alias_table()
+    df_check = ner.mapping.entire_unit_alias_table()
     df_check.head(10)
     #     Unit Alias (English) Alias (Dutch) Unnamed: 3
     # 0    1             NaN           NaN        NaN
@@ -171,42 +170,42 @@ def test_ner_entire_unit_alias_table():
 #%% individual tests for ner
 def test_ner_generate_feature_alias():
     ''' check the feature alias '''
-    df_check = ner.generate_feature_alias()
+    df_check = ner.mapping.generate_feature_alias()
     df_check.head(15) # check combined dictionaries
 
 def test_default_unit_alias():
     ''' check the unit alias '''
-    df_check = ner.generate_unit_alias()
+    df_check = ner.mapping.generate_unit_alias()
     df_check.head(15)
 
 def test_ner_generate_entity_alias():
     ''' check the function used for generating unit/feature'''
-    df_check = ner.generate_entity_alias(
-        df=ner.entire_feature_alias_table(),
+    df_check = ner.mapping.generate_entity_alias(
+        df=ner.mapping.entire_feature_alias_table(),
         entity_col='Feature',
         alias_cols=['Feature', 'IUPAC',
                     'UserDefined_Dutch', 'UserDefined_English',
                     'SIKBcode', 'SIKBomschrijving'])
     df_check.head(15)
 
-    df_check = ner.generate_entity_alias(
-        df=ner.entire_unit_alias_table(),
+    df_check = ner.mapping.generate_entity_alias(
+        df=ner.mapping.entire_unit_alias_table(),
         entity_col='Unit',
         alias_cols=['Alias (English)'])
     df_check.head(15)
     pass
 
 def test_generate_feature2remove():
-    lst_check = ner.generate_feature2remove()
+    lst_check = ner.mapping.generate_feature2remove()
     print(lst_check[:10]) # find atoms, ions, and others
 
 
 def test_strings2remove_from_units():
-    lst_check = ner.strings2remove_from_units()
+    lst_check = ner.mapping.strings2remove_from_units()
     print(lst_check[:10]) # given feature names ['N', 'P', 'S', 'Si'] removed.
 
 def test_strings_filtered():
-    lst_check = ner._strings_filtered()
+    lst_check = ner.mapping._strings_filtered()
     print(lst_check[:10])
 
 def test_interp1d_fill_value():
@@ -219,7 +218,7 @@ def test_interp1d_fill_value():
         8: 75  # at most two mismatching
     }
     df_test = pd.DataFrame({'x': list(dct.keys()), 'y': list(dct.values())})
-    func = ner._interp1d_fill_value(df_test.x, df_test.y)
+    func = ner.mapping._interp1d_fill_value(df_test.x, df_test.y)
     assert func(1) == 100.
     assert func(2) == 100.
     assert func(5) == 80
@@ -228,30 +227,30 @@ def test_interp1d_fill_value():
 
 def test_cleanup_alias():
     df = pd.DataFrame({'feature':['SO4', 'SO4', '\t'], 'Unit':['Mg/L', 'mg/L', '\n']})
-    df_check = ner._cleanup_alias(df, col='feature')
+    df_check = ner.mapping._cleanup_alias(df, col='feature')
     pass
 
 def test_generate_feature_map():
-    WD = Path(tests.__file__).parent
-    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx')
-    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
+    file_path = Path(tests.__file__).parent
+    df_temp = pd.read_excel(file_path / 'testfile1_io.xlsx')
+    feature_map, feature_unmapped, df_feature_map = ner.mapping.generate_feature_map(entity_orig=list(df_temp.iloc[2, slice(5, 999)].dropna()))
     assert feature_map['Acidity'] == 'Acidity'
     assert feature_map['Electrical Conductivity'] == 'ec'
 
 def test_generate_unit_map():
-    WD = Path(tests.__file__).parent
-    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx')
-    unit_map, unit_unmapped, df_unit_map = hgc.ner.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
+    file_path = Path(tests.__file__).parent
+    df_temp = pd.read_excel(file_path / 'testfile1_io.xlsx')
+    unit_map, unit_unmapped, df_unit_map = ner.mapping.generate_unit_map(entity_orig=list(df_temp.iloc[3, slice(5, 999)].dropna()))
     assert unit_map['mS/m'] == 'mS/m'
-    assert unit_map['μmol N/l'] == 'μmol/L N'
+    assert unit_map['�mol N/l'] == '�mol/L N'
     assert unit_map['mg-N/l'] == 'mg/L N'
 
 def test_entity_map():
-    WD = Path(tests.__file__).parent
-    # df_temp = pd.read_excel(WD / 'testfile1_io.xlsx')
-    df_temp = pd.read_excel(WD / 'testfile1_io.xlsx', sheet_name='wide')
+    file_path = Path(tests.__file__).parent
+    # df_temp = pd.read_excel(file_path / 'testfile1_io.xlsx')
+    df_temp = pd.read_excel(file_path / 'testfile1_io.xlsx', sheet_name='wide')
     feature_test = list(df_temp.iloc[2, slice(5, 20, 3)].dropna()) + ['SO3', '124TClBen', 'Flumethasonacetaat', 'strange_name']
-    feature_map, feature_unmapped, df_feature_map = hgc.ner.generate_feature_map(entity_orig=feature_test)
+    feature_map, feature_unmapped, df_feature_map = ner.mapping.generate_feature_map(entity_orig=feature_test)
     # feature_test = ['NO3']
     print(feature_map['Flumethasonacetaat'])
 
@@ -259,6 +258,5 @@ def test__translate_matching():
     df_entity_orig4_f=pd.DataFrame()
     df_entity_orig4_f.loc[0, 'Feature_orig'] = '1,2,3-trimethylbenzeen'
     df_entity_orig4_f.loc[1, 'Feature_orig'] = '1,2,3,4-tetramethylbenzeen'
-    ner._translate_matching(df_entity_orig4_f, match_method = 'levenshtein', entity_col = 'feature', trans_from = 'nl', trans_to = 'en')
-
+    ner.mapping._translate_matching(df_entity_orig4_f, match_method = 'levenshtein', entity_col = 'feature', trans_from = 'nl', trans_to = 'en')
 

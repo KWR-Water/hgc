@@ -21,7 +21,7 @@ negative concentrations or text placeholders.
 
 .. ipython:: python
 
-    testdata = {'alkalinity', 'Al': [2600], 'Ba': [44.0],
+   testdata = {'alkalinity': [0], 'Al': [2600], 'Ba': [44.0],
                 'Br': [0.0], 'Ca': [2.0], 'Cl': [19.0],
                 'Co': [1.2], 'Cu': [4.0], 'doc': [4.4],
                 'F': [0.08], 'Fe': [0.29], 'K': [1.1],
@@ -30,8 +30,8 @@ negative concentrations or text placeholders.
                 'NO2': [0.0], 'NO3': [22.6], 'Pb': [2.7],
                 'PO4': ['0.04'], 'ph': [4.3], 'SO4': [16.0],
                 'Sr': [50], 'Zn': [60.0] }
-    df = pd.DataFrame.from_dict(testdata)
-    df
+   df = pd.DataFrame.from_dict(testdata)
+   df
 
 Since the data in this DataFrame is messy, we cannot use it yet for hydrochemical calculations. HGC can check
 if the data contains obvious errors:
@@ -142,7 +142,7 @@ Let's consider this example:
     this will return an error. The same holds for ``use_temp`` and ``use_o2``.
 
 .. ipython:: python
-    :okexcept:
+   :okexcept:
 
     df.hgc.consolidate(use_ph='field', use_ec='lab', use_temp=None,)
 
@@ -207,9 +207,6 @@ we can calculate the saturation index of different minerals like Calcite:
     when building the docs. it works fine when executing the code in a local environment
     though. This needs to be fixed or some other solution needs to be found.
 
-.. .. ipython:: python
-..     :okexcept:
-
 .. code-block:: python
 
     si_calcite = df.hgc.get_saturation_index('Calcite')
@@ -221,9 +218,6 @@ used by phreeqpython.
 Similar to the SI, the specific conductance (SC), also known as electric conductance (EC) or EGV,
 is simply retrieved by calling:
 
-.. .. ipython:: python
-..     :okexcept:
-
 .. code-block:: python
 
     df.hgc.get_specific_conductance()
@@ -232,9 +226,6 @@ Internally, these methods call the method `get_phreeqpython_solutions` to retrie
 instances of the `phreeqpython` `Solution` class. These solutions can also be available
 to the user by calling
 
-.. .. ipython:: python
-..     :okexcept:
-
 .. code-block:: python
 
     pp_solutions = df.hgc.get_phreeqpython_solutions()
@@ -242,18 +233,12 @@ to the user by calling
 As all elements of the returned `Series` are `phreeqpython` `Solution`'s, all its methods can be called as well.
 For example, the sc can be derived by:
 
-.. .. ipython:: python
-..     :okexcept:
-
 .. code-block:: python
 
     [s.sc for s in pp_solutions]
 
 But also more involved operations are possible, for example, inspecting the speciation of the first sample in the
 original `SamplesFrame` `df`:
-
-.. .. ipython:: python
-..     :okexcept:
 
 .. code-block:: python
 

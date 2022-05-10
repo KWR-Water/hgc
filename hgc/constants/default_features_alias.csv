@@ -1,171 +1,171 @@
-Feature,DefaultUnits,Category,CAS,HGC,MicrobialParameters,IUPAC,UserDefined_English,UserDefined_Dutch,SIKBcode,SIKBomschrijving
-CH4,,ions,74-82-8,CH4,,Methane,,methaan,C1a,methaan
-H2S,,ions,7783-06-4,H2S,,Hydrogen sulfide,,waterstofsulfide,H2S,waterstofsulfide
-CO2,,ions,124-38-9,CO2,,,Carbon dioxide,kooldioxide | koolzuurgas,CO2,kooldioxide
-CO3,,ions,3812-32-6,CO3,,,Carbon trioxide | Carbonate,carbonaat | koolstoftrioxide,CO3,carbonaat
-HCO3,,ions,71-52-3,HCO3,,Bicarbonate,hydrogencarbonate,waterstofcarbonaat | bicarbonaat,HCO3,waterstofcarbonaat
-Alkalinity,,ions,,Alkalinity,,,alkalinity,alkaliniteit,ALKLTT,Alkaliteit
-O2_field,,ions,,O2_field,,,oxygen field | O2 field,zuurstof veld | O2 veld | zuurstof opgelost veld,,
-O2_lab,,ions,,O2_lab,,,oxygen lab | O2 lab,zuurstof lab | O2 lab | zuurstof opgelost lab,,
-O2,,ions,7782-44-7,O2,,,oxygen,zuurstof | zuurstof opgelost,O2,zuurstof
-KMnO4,,ions,7722-64-7,KMnO4,,,Potassium permanganate,Kaliumpermanganaat,KMnO4,kaliumpermanganaat
-NH4,,ions,14798-03-9,NH4,,,Ammonium,ammonium,NH4,ammonium
-NO2,,ions,14797-65-0,NO2,,,Nitrite,nitriet,NO2,nitriet
-NO3,,ions,14797-55-8,NO3,,,Nitrate,nitraat,NO3,nitraat
-N_kj,,ions,,N_kj,,,TKN | Kjeldahl Nitrogen,Kjeldahl Stikstof,NKj,stikstof Kjeldahl
-N,,ions,,N,,,Total N | Total Nitrogen,Totaal Stikstof | Total N,,
-PO4,,ions,14265-44-2,PO4,,,Phosphate | total Phosphate,fosfaat | totaal fosfaat,PO4,fosfaat
-PO4_ortho,,ions,,PO4_ortho,,,ortho phosphate,Ortho-fosfaat,,
-P,,ions,,P,,,Total P | Phosphorus,totaal P | fosfor,,
-SiO2,,ions,14808-60-7,SiO2,,Silicondioxide,,siliciumdioxide | kiezelzuur | silica,SiO2,siliciumdioxide
-SO4,,ions,14808-79-8,SO4,,,Sulphate,sulfaat,SO4,sulfaat
-SO4_ic,,ions,,SO4_ic,,,Sulphate Ion Chromatography,Sulfaat Ion Chromatograaf,,
-SO4_icp,,ions,,SO4_icp,,,Sulphate ICP,Sulfaat ICP,,
-doc,,ions,,doc,,,Dissolved Organic Carbon | Organic Carbon,koolstof organisch | Opgeloste Organische Stof | Organische stof | Corg,Corg,koolstof organisch
+Feature,DefaultUnits,Category,CAS,HGC,MicrobialParameters,IUPAC,Alias_English,Alias_Dutch,SIKBcode,SIKBomschrijving
+CH4,mg/L,ions,74-82-8,CH4,,Methane,,methaan,C1a,methaan
+H2S,mg/L,ions,7783-06-4,H2S,,Hydrogen sulfide,,waterstofsulfide,H2S,waterstofsulfide
+CO2,mg/L,ions,124-38-9,CO2,,,Carbon dioxide,kooldioxide | koolzuurgas,CO2,kooldioxide
+CO3,mg/L,ions,3812-32-6,CO3,,,Carbon trioxide | Carbonate,carbonaat | koolstoftrioxide,CO3,carbonaat
+HCO3,mg/L,ions,71-52-3,HCO3,,Bicarbonate,hydrogencarbonate,waterstofcarbonaat | bicarbonaat,HCO3,waterstofcarbonaat
+Alkalinity,mg/L,ions,,Alkalinity,,,alkalinity,alkaliniteit,ALKLTT,Alkaliteit
+O2_field,mg/L,ions,,O2_field,,,oxygen field | O2 field,zuurstof veld | O2 veld | zuurstof opgelost veld,,
+O2_lab,mg/L,ions,,O2_lab,,,oxygen lab | O2 lab,zuurstof lab | O2 lab | zuurstof opgelost lab,,
+O2,mg/L,ions,7782-44-7,O2,,,oxygen,zuurstof | zuurstof opgelost,O2,zuurstof
+KMnO4,mg/L,ions,7722-64-7,KMnO4,,,Potassium permanganate,Kaliumpermanganaat,KMnO4,kaliumpermanganaat
+NH4,mg/L,ions,14798-03-9,NH4,,,Ammonium,ammonium,NH4,ammonium
+NO2,mg/L,ions,14797-65-0,NO2,,,Nitrite,nitriet,NO2,nitriet
+NO3,mg/L,ions,14797-55-8,NO3,,,Nitrate,nitraat,NO3,nitraat
+N_kj,mg/L,ions,,N_kj,,,TKN | Kjeldahl Nitrogen,Kjeldahl Stikstof,NKj,stikstof Kjeldahl
+N,mg/L,ions,,N,,,Total N | Total Nitrogen,Totaal Stikstof | Total N,,
+PO4,mg/L,ions,14265-44-2,PO4,,,Phosphate | total Phosphate,fosfaat | totaal fosfaat,PO4,fosfaat
+PO4_ortho,mg/L,ions,,PO4_ortho,,,ortho phosphate,Ortho-fosfaat,,
+P,mg/L,ions,,P,,,Total P | Phosphorus,totaal P | fosfor,,
+SiO2,mg/L,ions,14808-60-7,SiO2,,Silicondioxide,,siliciumdioxide | kiezelzuur | silica,SiO2,siliciumdioxide
+SO4,mg/L,ions,14808-79-8,SO4,,,Sulphate,sulfaat,SO4,sulfaat
+SO4_ic,mg/L,ions,,SO4_ic,,,Sulphate Ion Chromatography,Sulfaat Ion Chromatograaf,,
+SO4_icp,mg/L,ions,,SO4_icp,,,Sulphate ICP,Sulfaat ICP,,
+doc,mg/L,ions,,doc,,,Dissolved Organic Carbon | Organic Carbon,koolstof organisch | Opgeloste Organische Stof | Organische stof | Corg,Corg,koolstof organisch
 tic,mg/L,,,tic,,,TOC | total inorganic carbon | inorganic carbon,,Canorg,koolstof anorganisch
-toc,,ions,,toc,,,Total Organic Carbon,Koolstof totaal | Totaal organische stof | Totaal organisch koolstof | Canorg,,
-cod,,ions,,cod,,,Chemical Oxygen Demand,Chemisch Zuurstof Verbruik | CZV,CZV,Chemisch zuurstofverbruik
+toc,mg/L,ions,,toc,,,Total Organic Carbon,Koolstof totaal | Totaal organische stof | Totaal organisch koolstof | Canorg,,
+cod,mg/L,ions,,cod,,,Chemical Oxygen Demand,Chemisch Zuurstof Verbruik | CZV,CZV,Chemisch zuurstofverbruik
 bod,mg/L,,,bod,,,Biological Oxygen Demand,Biologisch Zuurstof Verbruik | BZV,,
-ec_field,,other,,ec_field,,,EC field | Electric Conductivity field,EGV veld | Electrisch Geleidings Vermogen veld,,
-ec_lab,,other,,ec_lab,,,EC lab | Electric Conductivity lab,EGV lab | Electrisch Geleidings Vermogen lab,,
-ec,,other,,ec,,,EC | Electric Conductivity | EC 20C,EGV | Electrisch Geleidings Vermogen | EGV 20C,,
+ec_field,μS/cm,other,,ec_field,,,EC field | Electric Conductivity field,EGV veld | Electrisch Geleidings Vermogen veld,,
+ec_lab,μS/cm,other,,ec_lab,,,EC lab | Electric Conductivity lab,EGV lab | Electrisch Geleidings Vermogen lab,,
+ec,μS/cm,other,,ec,,,EC | Electric Conductivity | EC 20C,EGV | Electrisch Geleidings Vermogen | EGV 20C,,
 ph_field,1,other,,ph_field,,,pH field | acidity field,pH veld | zuurgraad veld,,
 ph_lab,1,other,,ph_lab,,,pH lab | acidity lab,pH lab | zuurgraad lab,,
 ph,1,other,,ph,,,pH | acidity,zuurgraad,pH,Zuurgraad
-temp_field,C,other,,temp_field,,,T field | Temp field | Temperature field,T veld | Temp veld | Temperatuur veld | watertemperatuur veld,,
-temp_lab,C,other,,temp_lab,,,T lab | Temp lab | Temperature lab,Temperatuur lab | watertemperatuur lab,,
-temp,C,other,,temp,,,T | Temp | Temperature,Temperatuur | watertemperatuur,,
-eh_field,,other,,eh_field,,,Redox potential,,REDPTTAL,Redoxpotentiaal
-turb,,other,,turb,,,Turbidity | FTU | NTU,Turbiditeit,,
+temp_field,°C,other,,temp_field,,,T field | Temp field | Temperature field,T veld | Temp veld | Temperatuur veld | watertemperatuur veld,,
+temp_lab,°C,other,,temp_lab,,,T lab | Temp lab | Temperature lab,Temperatuur lab | watertemperatuur lab,,
+temp,°C,other,,temp,,,T | Temp | Temperature,Temperatuur | watertemperatuur,,
+eh_field,mV,other,,eh_field,,,Redox potential,,REDPTTAL,Redoxpotentiaal
+turb,NTU,other,,turb,,,Turbidity | FTU | NTU,Turbiditeit,,
 uva254,1/m,other,,uva254,,,UV adsorption,SUVA,,
-pH T field,C,other,,,,,pH T field | pH Temp field | pH Temperature field,pH T veld | pH Temp veld | pH Temperature veld,,
-pH T lab,C,other,,,,,pH T lab | pH Temp lab | pH Temperature lab,pH Temperatuur lab,,
-pH T,C,other,,,,,pH T | pH Temp | pH Temperature,pH Temperatuur,,
-O2 T field,C,other,,,,,O2 T field | O2 Temp field | O2 Temperature field | Oxygen T field | Oxygen Temp field | Oxygen Temperature field,O2 T veld | O2 Temp veld | O2 Temperature veld | Oxygen T veld | Oxygen Temp veld | Oxygen Temperature veld,,
-O2 T lab,C,other,,,,,O2 T lab | O2 Temp lab | O2 Temperature lab | Oxygen T lab | Oxygen Temp lab | Oxygen Temperature lab,O2 T lab | O2 Temp lab | O2 Temperature lab | Oxygen T lab | Oxygen Temp lab | Oxygen Temperature lab,,
-O2 T,C,other,,,,,O2 T | O2 Temp | O2 Temperature | Oxygen T | Oxygen Temp | Oxygen Temperature,O2 T | O2 Temp | O2 Temperature | Oxygen T | Oxygen Temp | Oxygen Temperature,,
-EC field T,C,other,,,,,EC field T | EC field Temp | EC field Temperature | Electric Conductivity field T | Electric Conductivity field Temp | Electric Conductivity field Temperature,EGV veld T | EGV veld Temp | EGV veld Temperatuur | Electrisch Geleidings Vermogen veld T | Electrisch Geleidings Vermogen veld Temp | Electrisch Geleidings Vermogen veld Temperatuur,,
-EC lab T,C,other,,,,,EC lab T | EC lab Temp | EC lab Temperature | Electric Conductivity lab T | Electric Conductivity lab Temp | Electric Conductivity lab Temperature,EGV lab T | EGV lab Temp | EGV lab Temperatuur | Electrisch Geleidings Vermogen lab T | Electrisch Geleidings Vermogen lab Temp | Electrisch Geleidings Vermogen lab Temperatuur,,
-EC T,C,other,,,,,EC T | EC Temp | EC Temperature | Electric Conductivity T | Electric Conductivity Temp | Electric Conductivity Temperature,EGV T | EGV Temp | EGV Temperatuur | Electrisch Geleidings Vermogen T | Electrisch Geleidings Vermogen Temp | Electrisch Geleidings Vermogen Temperatuur,,
+pH T field,°C,other,,,,,pH T field | pH Temp field | pH Temperature field,pH T veld | pH Temp veld | pH Temperature veld,,
+pH T lab,°C,other,,,,,pH T lab | pH Temp lab | pH Temperature lab,pH Temperatuur lab,,
+pH T,°C,other,,,,,pH T | pH Temp | pH Temperature,pH Temperatuur,,
+O2 T field,°C,other,,,,,O2 T field | O2 Temp field | O2 Temperature field | Oxygen T field | Oxygen Temp field | Oxygen Temperature field,O2 T veld | O2 Temp veld | O2 Temperature veld | Oxygen T veld | Oxygen Temp veld | Oxygen Temperature veld,,
+O2 T lab,°C,other,,,,,O2 T lab | O2 Temp lab | O2 Temperature lab | Oxygen T lab | Oxygen Temp lab | Oxygen Temperature lab,O2 T lab | O2 Temp lab | O2 Temperature lab | Oxygen T lab | Oxygen Temp lab | Oxygen Temperature lab,,
+O2 T,°C,other,,,,,O2 T | O2 Temp | O2 Temperature | Oxygen T | Oxygen Temp | Oxygen Temperature,O2 T | O2 Temp | O2 Temperature | Oxygen T | Oxygen Temp | Oxygen Temperature,,
+EC field T,°C,other,,,,,EC field T | EC field Temp | EC field Temperature | Electric Conductivity field T | Electric Conductivity field Temp | Electric Conductivity field Temperature,EGV veld T | EGV veld Temp | EGV veld Temperatuur | Electrisch Geleidings Vermogen veld T | Electrisch Geleidings Vermogen veld Temp | Electrisch Geleidings Vermogen veld Temperatuur,,
+EC lab T,°C,other,,,,,EC lab T | EC lab Temp | EC lab Temperature | Electric Conductivity lab T | Electric Conductivity lab Temp | Electric Conductivity lab Temperature,EGV lab T | EGV lab Temp | EGV lab Temperatuur | Electrisch Geleidings Vermogen lab T | Electrisch Geleidings Vermogen lab Temp | Electrisch Geleidings Vermogen lab Temperatuur,,
+EC T,°C,other,,,,,EC T | EC Temp | EC Temperature | Electric Conductivity T | Electric Conductivity Temp | Electric Conductivity Temperature,EGV T | EGV Temp | EGV Temperatuur | Electrisch Geleidings Vermogen T | Electrisch Geleidings Vermogen Temp | Electrisch Geleidings Vermogen Temperatuur,,
 Total Dissolved Solids,mg/L,other,,,,,Total Dissolved Solids,Totaal Gesuspendeerde Stoffen,,
-H,,atoms,1333-74-0,H,,,Hydrogen,waterstof,H,waterstof
-He,,atoms,7440-59-7,He,,,Helium,helium,He,helium
-Li,,atoms,7439-93-2,Li,,,Lithium,lithium,Li,lithium
-Be,,atoms,7440-41-7,Be,,,Beryllium,beryllium,Be,beryllium
-B,,atoms,7440-42-8,B,,,Boron,boor,B,boor
-C,,atoms,7440-44-0,C,,,Carbon,koolstof,C,koolstof
-N,,atoms,,N,,,Nitrogen,stikstof,,
-O,,atoms,,O,,,,,,
-F,,atoms,16984-48-8,F,,,Fluorine,fluoride,F,fluoride
-Ne,,atoms,7440-01-9,Ne,,,Neon,neon,Ne,neon
-Na,,atoms,7440-23-5,Na,,,Sodium,natrium,Na,natrium
-Mg,,atoms,7439-95-4,Mg,,,Magnesium,magnesium,Mg,magnesium
-Al,,atoms,7429-90-5,Al,,,Aluminium,aluminium,Al,aluminium
-Si,,atoms,7440-21-3,Si,,,Silicon,silicium,Si,silicium
-P,,atoms,,P,,,Phosphorus,fosfor,,
-S,,atoms,18496-25-8,S,,,Sulfur,sulfide | zwavel,S,sulfide
-Cl,,atoms,16887-00-6,Cl,,,Chloride,chloride,Cl,chloride
-Ar,,atoms,7440-37-1,Ar,,,Argon,argon,Ar,argon
-K,,atoms,7440-09-7,K,,,Potassium,kalium,K,kalium
-Ca,,atoms,7440-70-2,Ca,,,Calcium,calcium,Ca,calcium
-Sc,,atoms,7440-20-2,Sc,,,Scandium,scandium,Sc,scandium
-Ti,,atoms,7440-32-6,Ti,,,Titanium,titaan,Ti,titaan
-V,,atoms,7440-62-2,V,,,Vanadium,vanadium,V,vanadium
-Cr,,atoms,7440-47-3,Cr,,,Chromium,chroom,Cr,chroom
-Mn,,atoms,7439-96-5,Mn,,,Manganese,mangaan,Mn,mangaan
-Fe,,atoms,7439-89-6,Fe,,,Iron,ijzer,Fe,ijzer
-Co,,atoms,7440-48-4,Co,,,Cobalt,kobalt,Co,kobalt
-Ni,,atoms,7440-02-0,Ni,,,Nickel,nikkel,Ni,nikkel
-Cu,,atoms,7440-50-8,Cu,,,Copper,koper,Cu,koper
-Zn,,atoms,7440-66-6,Zn,,,Zinc,zink,Zn,zink
-Ga,,atoms,7440-55-3,Ga,,,Gallium,gallium,Ga,gallium
-Ge,,atoms,7440-56-4,Ge,,,Germanium,germanium,Ge,germanium
-As,,atoms,7440-38-2,As,,,Arsenic,arseen,As,arseen
-Se,,atoms,7782-49-2,Se,,,Selenium,seleen,Se,seleen
-Br,,atoms,24959-67-9,Br,,,Bromine,bromide,Br,bromide
-Kr,,atoms,7439-90-9,Kr,,,Krypton,krypton,Kr,krypton
-Rb,,atoms,7440-17-7,Rb,,,Rubidium,rubidium,Rb,rubidium
-Sr,,atoms,7440-24-6,Sr,,,Strontium,strontium,Sr,strontium
-Y,,atoms,7440-65-5,Y,,,Yttrium,yttrium,Y,yttrium
-Zr,,atoms,7440-67-7,Zr,,,Zirconium,zirkonium,Zr,zirkonium
-Nb,,atoms,7440-03-1,Nb,,,Niobium,niobium,Nb,niobium
-Mo,,atoms,7439-98-7,Mo,,,Molybdenum,molybdeen,Mo,molybdeen
-Tc,,atoms,7440-26-8,Tc,,,Technetium,technetium,Tc,technetium
-Ru,,atoms,7440-18-8,Ru,,,Ruthenium,ruthenium,Ru,ruthenium
-Rh,,atoms,7440-16-6,Rh,,,Rhodium,rhodium,Rh,rhodium
-Pd,,atoms,7440-05-3,Pd,,,Palladium,palladium,Pd,palladium
-Ag,,atoms,7440-22-4,Ag,,,Silver,zilver,Ag,zilver
-Cd,,atoms,7440-43-9,Cd,,,Cadmium,cadmium,Cd,cadmium
-In,,atoms,7440-74-6,In,,,Indium,indium,In,indium
-Sn,,atoms,7440-31-5,Sn,,,Tin,tin,Sn,tin
-Sb,,atoms,7440-36-0,Sb,,,Antimony,antimoon,Sb,antimoon
-Te,,atoms,,Te,,,,,,
-I,,atoms,20461-54-5,I,,,Iodine,jodide,I,jodide
-Xe,,atoms,7440-63-3,Xe,,,Xenon,xenon,Xe,xenon
-Cs,,atoms,7440-46-2,Cs,,,Caesium,cesium,Cs,cesium
-Ba,,atoms,7440-39-3,Ba,,,Barium,barium,Ba,barium
-La,,atoms,7439-91-0,La,,,Lanthanum,lanthaan,La,lanthaan
-Ce,,atoms,7440-45-1,Ce,,,Cerium,cerium,Ce,cerium
-Pr,,atoms,7440-10-0,Pr,,,Praseodymium,praseodymium,Pr,praseodymium
-Nd,,atoms,7440-00-8,Nd,,,Neodymium,neodymium,Nd,neodymium
-Pm,,atoms,7440-12-2,Pm,,,Promethium,promethium,Pm,promethium
-Sm,,atoms,7440-19-9,Sm,,,Samarium,samarium,Sm,samarium
-Eu,,atoms,7440-53-1,Eu,,,Europium,europium,Eu,europium
-Gd,,atoms,7440-54-2,Gd,,,Gadolinium,gadolinium,Gd,gadolinium
-Tb,,atoms,7440-27-9,Tb,,,Terbium,terbium,Tb,terbium
-Dy,,atoms,7429-91-6,Dy,,,Dysprosium,Dysprosium,Dy,Dysprosium
-Ho,,atoms,7440-60-0,Ho,,,Holmium,holmium,Ho,holmium
-Er,,atoms,7440-52-0,Er,,,Erbium,erbium,Er,erbium
-Tm,,atoms,7440-30-4,Tm,,,Thulium,thulium,Tm,thulium
-Yb,,atoms,7440-64-4,Yb,,,Ytterbium,ytterbium,Yb,ytterbium
-Lu,,atoms,7439-94-3,Lu,,,Lutetium,lutetium,Lu,lutetium
-Hf,,atoms,7440-58-6,Hf,,,Hafnium,waterstoffluoride,Hf,hafnium
-Ta,,atoms,7440-25-7,Ta,,,Tantalum,tantalium,Ta,tantalium
-W,,atoms,7440-33-7,W,,,Tungsten,wolfraam,W,wolfraam
-Re,,atoms,7440-15-5,Re,,,Rhenium,renium,Re,renium
-Os,,atoms,7440-04-2,Os,,,Osmium,,Os,osmium
-Ir,,atoms,7439-88-5,Ir,,,Iridium,iridium,Ir,iridium
-Pt,,atoms,7440-06-4,Pt,,,Platinum,platina,Pt,platina
-Au,,atoms,7440-57-5,Au,,,Gold,goud,Au,goud
-Hg,,atoms,7439-97-6,Hg,,,Mercury,kwik,Hg,kwik
-Tl,,atoms,7440-28-0,Tl,,,Thallium,thallium,Tl,thallium
-Pb,,atoms,7439-92-1,Pb,,,Lead,lood,Pb,lood
-Bi,,atoms,7440-69-9,Bi,,,Bismuth,bismut,Bi,bismut
-Po,,atoms,7440-08-6,Po,,,Polonium,polonium,Po,polonium
-At,,atoms,7440-68-8,At,,,Astatine,astatium,At,astatium
-Rn,,atoms,10043-92-2,Rn,,,Radon,radon,Rn,radon
-Fr,,atoms,7440-73-5,Fr,,,Francium,francium,Fr,francium
-Ra,,atoms,7440-14-4,Ra,,,Radium,radium,Ra,radium
-Ac,,atoms,7440-34-8,Ac,,,Actinium,actinium,Ac,actinium
-Th,,atoms,7440-29-1,Th,,,Thorium,thorium,Th,thorium
-Pa,,atoms,7440-13-3,Pa,,,Protactinium,protactinium,Pa,protactinium
-U,,atoms,7440-61-1,U,,,Uranium,uranium,U,uranium
-Np,,atoms,7439-99-8,Np,,,Neptunium,neptunium,Np,neptunium
-Pu,,atoms,7440-07-5,Pu,,,Plutonium,plutonium,Pu,plutonium
-Am,,atoms,7440-35-9,Am,,,Americium,americium,Am,americium
-Cm,,atoms,7440-51-9,Cm,,,Curium,curium,Cm,curium
-Bk,,atoms,7440-40-6,Bk,,,Berkelium,berkelium,Bk,berkelium
-Cf,,atoms,7440-71-3,Cf,,,Californium,californium,Cf,californium
-Es,,atoms,7429-92-7,Es,,,Einsteinium,einsteinium,Es,einsteinium
-Fm,,atoms,7440-72-4,Fm,,,Fermium,fermium,Fm,fermium
-Md,,atoms,7440-11-1,Md,,,Mendelevium,mendelevium,Md,mendelevium
-No,,atoms,10028-14-5,No,,,Nobelium,nobelium,No,nobelium
-Lr,,atoms,22537-19-5,Lr,,,Lawrencium,lawrencium,Lr,lawrencium
-Rf,,atoms,53850-36-5,Rf,,,Rutherfordium,rutherfordium,Rf,rutherfordium
-Db,,atoms,53850-35-4,Db,,,Dubnium,dubnium,Db,dubnium
-Sg,,atoms,54038-81-2,Sg,,,Seaborgium,seaborgium,Sg,seaborgium
-Bh,,atoms,54037-14-8,Bh,,,Bohrium,bohrium,Bh,bohrium
-Hs,,atoms,54037-57-9,Hs,,,Hassium,hassium,Hs,hassium
-Mt,,atoms,54038-01-6,Mt,,,Meitnerium,meitnerium,Mt,meitnerium
-Ds,,atoms,54083-77-1,Ds,,,Darmstadtium,,Ds,damstadtium
-Rg,,atoms,54386-24-2,Rg,,,Roentgenium,roentgenium,Rg,roentgenium
-Cn,,atoms,54084-26-3,Cn,,,Copernicium,cyanide,Cn,copernicium
-Nh,,atoms,,Nh,,,Nihonium,,,
-Fl,,atoms,54085-16-4,Fl,,,Flerovium,flerovium,Fl,flerovium
-Mc,,atoms,,Mc,,,Moscovium,,,
-Lv,,atoms,54100-71-9,Lv,,,Livermorium,livermorium,Lv,livermorium
-Ts,,atoms,,Ts,,,Tennessine,,,
-Og,,atoms,,Og,,,Oganesson,,,
+H,mg/L,atoms,1333-74-0,H,,,Hydrogen,waterstof,H,waterstof
+He,μg/l,atoms,7440-59-7,He,,,Helium,helium,He,helium
+Li,μg/l,atoms,7439-93-2,Li,,,Lithium,lithium,Li,lithium
+Be,μg/l,atoms,7440-41-7,Be,,,Beryllium,beryllium,Be,beryllium
+B,μg/l,atoms,7440-42-8,B,,,Boron,boor,B,boor
+C,mg/L,atoms,7440-44-0,C,,,Carbon,koolstof,C,koolstof
+N,mg/L,atoms,,N,,,Nitrogen,stikstof,,
+O,mg/L,atoms,,O,,,,,,
+F,μg/l,atoms,16984-48-8,F,,,Fluorine,fluoride,F,fluoride
+Ne,μg/l,atoms,7440-01-9,Ne,,,Neon,neon,Ne,neon
+Na,mg/L,atoms,7440-23-5,Na,,,Sodium,natrium,Na,natrium
+Mg,mg/L,atoms,7439-95-4,Mg,,,Magnesium,magnesium,Mg,magnesium
+Al,mg/L,atoms,7429-90-5,Al,,,Aluminium,aluminium,Al,aluminium
+Si,mg/L,atoms,7440-21-3,Si,,,Silicon,silicium,Si,silicium
+P,mg/L,atoms,,P,,,Phosphorus,fosfor,,
+S,mg/L,atoms,18496-25-8,S,,,Sulfur,sulfide | zwavel,S,sulfide
+Cl,mg/L,atoms,16887-00-6,Cl,,,Chloride,chloride,Cl,chloride
+Ar,μg/l,atoms,7440-37-1,Ar,,,Argon,argon,Ar,argon
+K,mg/L,atoms,7440-09-7,K,,,Potassium,kalium,K,kalium
+Ca,mg/L,atoms,7440-70-2,Ca,,,Calcium,calcium,Ca,calcium
+Sc,μg/l,atoms,7440-20-2,Sc,,,Scandium,scandium,Sc,scandium
+Ti,μg/l,atoms,7440-32-6,Ti,,,Titanium,titaan,Ti,titaan
+V,μg/l,atoms,7440-62-2,V,,,Vanadium,vanadium,V,vanadium
+Cr,μg/l,atoms,7440-47-3,Cr,,,Chromium,chroom,Cr,chroom
+Mn,mg/L,atoms,7439-96-5,Mn,,,Manganese,mangaan,Mn,mangaan
+Fe,mg/L,atoms,7439-89-6,Fe,,,Iron,ijzer,Fe,ijzer
+Co,μg/l,atoms,7440-48-4,Co,,,Cobalt,kobalt,Co,kobalt
+Ni,μg/l,atoms,7440-02-0,Ni,,,Nickel,nikkel,Ni,nikkel
+Cu,μg/l,atoms,7440-50-8,Cu,,,Copper,koper,Cu,koper
+Zn,μg/l,atoms,7440-66-6,Zn,,,Zinc,zink,Zn,zink
+Ga,μg/l,atoms,7440-55-3,Ga,,,Gallium,gallium,Ga,gallium
+Ge,μg/l,atoms,7440-56-4,Ge,,,Germanium,germanium,Ge,germanium
+As,μg/l,atoms,7440-38-2,As,,,Arsenic,arseen,As,arseen
+Se,μg/l,atoms,7782-49-2,Se,,,Selenium,seleen,Se,seleen
+Br,μg/l,atoms,24959-67-9,Br,,,Bromine,bromide,Br,bromide
+Kr,μg/l,atoms,7439-90-9,Kr,,,Krypton,krypton,Kr,krypton
+Rb,μg/l,atoms,7440-17-7,Rb,,,Rubidium,rubidium,Rb,rubidium
+Sr,μg/l,atoms,7440-24-6,Sr,,,Strontium,strontium,Sr,strontium
+Y,μg/l,atoms,7440-65-5,Y,,,Yttrium,yttrium,Y,yttrium
+Zr,μg/l,atoms,7440-67-7,Zr,,,Zirconium,zirkonium,Zr,zirkonium
+Nb,μg/l,atoms,7440-03-1,Nb,,,Niobium,niobium,Nb,niobium
+Mo,μg/l,atoms,7439-98-7,Mo,,,Molybdenum,molybdeen,Mo,molybdeen
+Tc,μg/l,atoms,7440-26-8,Tc,,,Technetium,technetium,Tc,technetium
+Ru,μg/l,atoms,7440-18-8,Ru,,,Ruthenium,ruthenium,Ru,ruthenium
+Rh,μg/l,atoms,7440-16-6,Rh,,,Rhodium,rhodium,Rh,rhodium
+Pd,μg/l,atoms,7440-05-3,Pd,,,Palladium,palladium,Pd,palladium
+Ag,μg/l,atoms,7440-22-4,Ag,,,Silver,zilver,Ag,zilver
+Cd,μg/l,atoms,7440-43-9,Cd,,,Cadmium,cadmium,Cd,cadmium
+In,μg/l,atoms,7440-74-6,In,,,Indium,indium,In,indium
+Sn,μg/l,atoms,7440-31-5,Sn,,,Tin,tin,Sn,tin
+Sb,μg/l,atoms,7440-36-0,Sb,,,Antimony,antimoon,Sb,antimoon
+Te,μg/l,atoms,,Te,,,,,,
+I,μg/l,atoms,20461-54-5,I,,,Iodine,jodide,I,jodide
+Xe,μg/l,atoms,7440-63-3,Xe,,,Xenon,xenon,Xe,xenon
+Cs,μg/l,atoms,7440-46-2,Cs,,,Caesium,cesium,Cs,cesium
+Ba,μg/l,atoms,7440-39-3,Ba,,,Barium,barium,Ba,barium
+La,μg/l,atoms,7439-91-0,La,,,Lanthanum,lanthaan,La,lanthaan
+Ce,μg/l,atoms,7440-45-1,Ce,,,Cerium,cerium,Ce,cerium
+Pr,μg/l,atoms,7440-10-0,Pr,,,Praseodymium,praseodymium,Pr,praseodymium
+Nd,μg/l,atoms,7440-00-8,Nd,,,Neodymium,neodymium,Nd,neodymium
+Pm,μg/l,atoms,7440-12-2,Pm,,,Promethium,promethium,Pm,promethium
+Sm,μg/l,atoms,7440-19-9,Sm,,,Samarium,samarium,Sm,samarium
+Eu,μg/l,atoms,7440-53-1,Eu,,,Europium,europium,Eu,europium
+Gd,μg/l,atoms,7440-54-2,Gd,,,Gadolinium,gadolinium,Gd,gadolinium
+Tb,μg/l,atoms,7440-27-9,Tb,,,Terbium,terbium,Tb,terbium
+Dy,μg/l,atoms,7429-91-6,Dy,,,Dysprosium,Dysprosium,Dy,Dysprosium
+Ho,μg/l,atoms,7440-60-0,Ho,,,Holmium,holmium,Ho,holmium
+Er,μg/l,atoms,7440-52-0,Er,,,Erbium,erbium,Er,erbium
+Tm,μg/l,atoms,7440-30-4,Tm,,,Thulium,thulium,Tm,thulium
+Yb,μg/l,atoms,7440-64-4,Yb,,,Ytterbium,ytterbium,Yb,ytterbium
+Lu,μg/l,atoms,7439-94-3,Lu,,,Lutetium,lutetium,Lu,lutetium
+Hf,μg/l,atoms,7440-58-6,Hf,,,Hafnium,waterstoffluoride,Hf,hafnium
+Ta,μg/l,atoms,7440-25-7,Ta,,,Tantalum,tantalium,Ta,tantalium
+W,μg/l,atoms,7440-33-7,W,,,Tungsten,wolfraam,W,wolfraam
+Re,μg/l,atoms,7440-15-5,Re,,,Rhenium,renium,Re,renium
+Os,μg/l,atoms,7440-04-2,Os,,,Osmium,,Os,osmium
+Ir,μg/l,atoms,7439-88-5,Ir,,,Iridium,iridium,Ir,iridium
+Pt,μg/l,atoms,7440-06-4,Pt,,,Platinum,platina,Pt,platina
+Au,μg/l,atoms,7440-57-5,Au,,,Gold,goud,Au,goud
+Hg,μg/l,atoms,7439-97-6,Hg,,,Mercury,kwik,Hg,kwik
+Tl,μg/l,atoms,7440-28-0,Tl,,,Thallium,thallium,Tl,thallium
+Pb,μg/l,atoms,7439-92-1,Pb,,,Lead,lood,Pb,lood
+Bi,μg/l,atoms,7440-69-9,Bi,,,Bismuth,bismut,Bi,bismut
+Po,μg/l,atoms,7440-08-6,Po,,,Polonium,polonium,Po,polonium
+At,μg/l,atoms,7440-68-8,At,,,Astatine,astatium,At,astatium
+Rn,μg/l,atoms,10043-92-2,Rn,,,Radon,radon,Rn,radon
+Fr,μg/l,atoms,7440-73-5,Fr,,,Francium,francium,Fr,francium
+Ra,μg/l,atoms,7440-14-4,Ra,,,Radium,radium,Ra,radium
+Ac,μg/l,atoms,7440-34-8,Ac,,,Actinium,actinium,Ac,actinium
+Th,μg/l,atoms,7440-29-1,Th,,,Thorium,thorium,Th,thorium
+Pa,μg/l,atoms,7440-13-3,Pa,,,Protactinium,protactinium,Pa,protactinium
+U,μg/l,atoms,7440-61-1,U,,,Uranium,uranium,U,uranium
+Np,μg/l,atoms,7439-99-8,Np,,,Neptunium,neptunium,Np,neptunium
+Pu,μg/l,atoms,7440-07-5,Pu,,,Plutonium,plutonium,Pu,plutonium
+Am,μg/l,atoms,7440-35-9,Am,,,Americium,americium,Am,americium
+Cm,μg/l,atoms,7440-51-9,Cm,,,Curium,curium,Cm,curium
+Bk,μg/l,atoms,7440-40-6,Bk,,,Berkelium,berkelium,Bk,berkelium
+Cf,μg/l,atoms,7440-71-3,Cf,,,Californium,californium,Cf,californium
+Es,μg/l,atoms,7429-92-7,Es,,,Einsteinium,einsteinium,Es,einsteinium
+Fm,μg/l,atoms,7440-72-4,Fm,,,Fermium,fermium,Fm,fermium
+Md,μg/l,atoms,7440-11-1,Md,,,Mendelevium,mendelevium,Md,mendelevium
+No,μg/l,atoms,10028-14-5,No,,,Nobelium,nobelium,No,nobelium
+Lr,μg/l,atoms,22537-19-5,Lr,,,Lawrencium,lawrencium,Lr,lawrencium
+Rf,μg/l,atoms,53850-36-5,Rf,,,Rutherfordium,rutherfordium,Rf,rutherfordium
+Db,μg/l,atoms,53850-35-4,Db,,,Dubnium,dubnium,Db,dubnium
+Sg,μg/l,atoms,54038-81-2,Sg,,,Seaborgium,seaborgium,Sg,seaborgium
+Bh,μg/l,atoms,54037-14-8,Bh,,,Bohrium,bohrium,Bh,bohrium
+Hs,μg/l,atoms,54037-57-9,Hs,,,Hassium,hassium,Hs,hassium
+Mt,μg/l,atoms,54038-01-6,Mt,,,Meitnerium,meitnerium,Mt,meitnerium
+Ds,μg/l,atoms,54083-77-1,Ds,,,Darmstadtium,,Ds,damstadtium
+Rg,μg/l,atoms,54386-24-2,Rg,,,Roentgenium,roentgenium,Rg,roentgenium
+Cn,μg/l,atoms,54084-26-3,Cn,,,Copernicium,cyanide,Cn,copernicium
+Nh,μg/l,atoms,,Nh,,,Nihonium,,,
+Fl,μg/l,atoms,54085-16-4,Fl,,,Flerovium,flerovium,Fl,flerovium
+Mc,μg/l,atoms,,Mc,,,Moscovium,,,
+Lv,μg/l,atoms,54100-71-9,Lv,,,Livermorium,livermorium,Lv,livermorium
+Ts,μg/l,atoms,,Ts,,,Tennessine,,,
+Og,μg/l,atoms,,Og,,,Oganesson,,,
 Aeromonas,1/L,,,,Aeromonas,,Aeromonas,Aeromonas,,
 Aeromonas_counts,1,,,,Aeromonas_counts,,Aeromonas colony count,Aeromonas aantal kolonies,,
 Aeromonas_volume,L,,,,Aeromonas_volume,,Aeromonas analysis volume,Aeromonas geanalyseerd volume,,
@@ -230,6 +230,7 @@ conduct analysis,,,,,,,conduct analysis,uitvoering analyse,,
 filtration,,,,,,,filtration,filtratie,,
 filtration_field,,,,,,,filtration_field,filtratie veld,,
 filtration_laboratoy,,,,,,,filtration_laboratoy,filtratie laboratorium,,
+,,,,,,,,looptijd | looptijd (veld),,
 heroin,μg/l,,,,,,heroin,Heroïne,,
 Trihalomethane,μg/l,,,,,,Trihalomethane,Trihalomethanen,,
 Tert-Butyl ethyl ether,μg/l,,637-92-3,,,Tert-Butyl ethyl ether,,ETBE | Ethyl-tert-butylether,,
@@ -241,7 +242,7 @@ toluene,μg/l,,108-88-3,,,toluene,,methylbenzeen,Tol,tolueen
 "1,5-dimethyl-2-phenylpyrazol-3-one",μg/l,,60-80-0,,,"1,5-dimethyl-2-phenylpyrazol-3-one",,fenazon | antipyrine,fenzn,fenazon (antipyrine)
 "1,3,5,7-tetranitro-1,3,5,7-tetrazocane",μg/l,,2691-41-0,,,"1,3,5,7-tetranitro-1,3,5,7-tetrazocane",,octogeen | HMX,octgn,octogeen (HMX)
 2-ethoxy-2-methylpropane,μg/l,,637-92-3,,,2-ethoxy-2-methylpropane,,MTBE,C1yttC4yEtr,methyl-tertiair-butylether
-2-(4-chloro-2-methylphenoxy)propanoic acid,μg/l,,93-65-2,,,2-(4-chloro-2-methylphenoxy)propanoic acid,,mecoprop MCPP,MCPP,mecoprop
+2-(4-chloro-2-methylphenoxy)propanoic acid,μg/l,,93-65-2,,,2-(4-chloro-2-methylphenoxy)propanoic acid,,mecoprop MCPP | MCPP,MCPP,mecoprop
 methyl (2S)-5-(diaminomethylideneamino)-2-[(4-methylphenyl)sulfonylamino]pentanoate,μg/l,,994-05-8,,,methyl (2S)-5-(diaminomethylideneamino)-2-[(4-methylphenyl)sulfonylamino]pentanoate,Tert-Amyl Methyl Ether,tert-Amylmethylether (TAME) | tert-Amylmethylether | TAME,,
 "5,6-dihydroxy-5,6-dihydrobenzo[b][1]benzazepine-11-carboxamide",μg/l,,35079-97-1,,,"5,6-dihydroxy-5,6-dihydrobenzo[b][1]benzazepine-11-carboxamide",,,1011cDolcarb,"10,11-cisdiol carbamazepine"
 "1,1,1,2-tetrachloroethane",μg/l,,630-20-6,,,"1,1,1,2-tetrachloroethane",,,1112T4ClC2a,"1,1,1,2-tetrachloorethaan"
@@ -921,7 +922,7 @@ Drainable precipitation,,,,,,,Drainable precipitation,,AFVBRNRSG,Afvoerbare neer
 Deviation,,,,,,,Deviation,,AFWKG,Afwijking
 "1-(1,1,2,3,3,6-hexamethyl-2H-inden-5-yl)ethanone",μg/l,,15323-35-0,,,"1-(1,1,2,3,3,6-hexamethyl-2H-inden-5-yl)ethanone",,,AHMI,"5-acetyl-1,1,2,3,3,6-hexamethylindaan"
 "1-(3,5,5,6,8,8-hexamethyl-6,7-dihydronaphthalen-2-yl)ethanone",μg/l,,1506-02-1,,,"1-(3,5,5,6,8,8-hexamethyl-6,7-dihydronaphthalen-2-yl)ethanone",,,AHTN,tonalide
-aminomethylphosphonic acid,μg/l,,1066-51-9,,,aminomethylphosphonic acid,,,AMPA,aminomethylfosfonzuur
+aminomethylphosphonic acid,μg/l,,1066-51-9,,,aminomethylphosphonic acid,,AMPA,AMPA,aminomethylfosfonzuur
 Anabaena,,,,,,,Anabaena,,ANNA,Anabaena
 Anabaenopsis,,,,,,,Anabaenopsis,,ANNO,Anabaenopsis
 Biodiversity,,,,,,,Biodiversity,,ANSNL-D01,Biodiversiteit
@@ -1467,8 +1468,8 @@ didecyl(dimethyl)azanium;chloride,μg/l,,7173-51-5,,,didecyl(dimethyl)azanium;ch
 Flow fraction,,,,,,,Flow fraction,,DEBFTE,Debietfractie
 "sodium;N,N-diethylcarbamodithioate",μg/l,,148-18-5,,,"sodium;N,N-diethylcarbamodithioate",,,DEDC,diethyldithiocarbamaat
 Sub-sample,,,,,,,Sub-sample,,DEELMSR,Deelmonster
-"N,N-diethyl-3-methylbenzamide",μg/l,,134-62-3,,,"N,N-diethyl-3-methylbenzamide",,,DEET,diethyltoluamide
-"bis(2-ethylhexyl) benzene-1,2-dicarboxylate",μg/l,,117-81-7,,,"bis(2-ethylhexyl) benzene-1,2-dicarboxylate",,,DEHP,bis(2-ethylhexyl)ftalaat (DEHP)
+"N,N-diethyl-3-methylbenzamide",μg/l,,134-62-3,,,"N,N-diethyl-3-methylbenzamide",,DEET,DEET,diethyltoluamide
+"bis(2-ethylhexyl) benzene-1,2-dicarboxylate",μg/l,,117-81-7,,,"bis(2-ethylhexyl) benzene-1,2-dicarboxylate",,DEHP,DEHP,bis(2-ethylhexyl)ftalaat (DEHP)
 Denitrification rate,,,,,,,Denitrification rate,,DENTFCTSHD,Denitrificatiesnelheid
 Denitrification time,,,,,,,Denitrification time,,DENTFCTTD,Denitrificatietijd
 Metal destruction performed,,,,,,,Metal destruction performed,,DESTMTLUGVD,Destructie metalen uitgevoerd
@@ -2160,12 +2161,12 @@ N-cyclohexylacetamide,μg/l,,1124-53-4,,,N-cyclohexylacetamide,,,NccC6yacAd,N-cy
 neodymium-147,μg/l,,14269-74-0,,,neodymium-147,,,Nd147,neodymium 147
 chloronickel,μg/l,,13931-83-4,,,chloronickel,,,NiCl,nikkelchloride
 nickel(2+);sulfate,μg/l,,7786-81-4,,,nickel(2+);sulfate,,,NiSO4,nikkelsulfaat
-nitrogen organic,μg/l,,,,,,nitrogen organic,,Norg,stikstof organisch
-neptunium-237,μg/l,,13994-20-2,,,neptunium-237,,,Np237,neptunium 237
-neptunium-238,μg/l,,15766-25-3,,,neptunium-238,,,Np238,neptunium 238
-neptunium-239,μg/l,,13968-59-7,,,neptunium-239,,,Np239,neptunium 239
-nitrogen total,μg/l,,,,,,nitrogen total,,Ntot,stikstof totaal
-oxidane,μg/l,,14314-42-2,,,oxidane,,,O18-H2O,zuurstof18 water
+nitrogen organic,μg/l,,,,,,nitrogen organic | Norg,,Norg,stikstof organisch
+neptunium-237,μg/l,,13994-20-2,,,neptunium-237,Np237,,Np237,neptunium 237
+neptunium-238,μg/l,,15766-25-3,,,neptunium-238,Np238,,Np238,neptunium 238
+neptunium-239,μg/l,,13968-59-7,,,neptunium-239,Np239,,Np239,neptunium 239
+nitrogen total,μg/l,,,,,,nitrogen total |Ntot,,Ntot,stikstof totaal
+oxidane,μg/l,,14314-42-2,,,oxidane,O18-H2O,,O18-H2O,zuurstof18 water
 Bank vegetation,,,,,,,Bank vegetation,,OEVBGIG,Oeverbegroeiing
 Bank protection,,,,,,,Bank protection,,OEVBSIG,Oeverbeschoeiing
 Bank plants,,,,,,,Bank plants,,OEVPTN,Oeverplanten
@@ -2311,7 +2312,7 @@ Oil barrel- old,,,,,,,Oil barrel- old,,OSPAR_SA206,Olievat - oud
 Human faeces,,,,,,,Human faeces,,OSPAR_SA207,Menselijke faecaliën
 Animal feces,,,,,,,Animal feces,,OSPAR_SA208,Dierlijke faecaliën
 Clothing cord,,,,,,,Clothing cord,,OSPAR_SA210,Kleding-koord
-Organic dust,,,,,,,Organic dust,,OSTOF,Organisch stof
+Organic matter,,,,,,,Organic matter,,OSTOF,Organisch stof
 "1-(2,3,8,8-tetramethyl-1,3,4,5,6,7-hexahydronaphthalen-2-yl)ethanone",μg/l,,54464-57-2,,,"1-(2,3,8,8-tetramethyl-1,3,4,5,6,7-hexahydronaphthalen-2-yl)ethanone",,,OTNE,amberonne
 Overflow time,,,,,,,Overflow time,,OVERSDR,Overstortduur
 Overflow frequency,,,,,,,Overflow frequency,,OVERSFQTE,Overstortfrequentie
@@ -4104,7 +4105,7 @@ sum of dichloropropane isomers,μg/l,,,,,,sum of dichloropropane isomers,,sDClC3
 "sum of 2,3-, 2,4-, 2,5- and 3,4-dichloronitrobenzene",μg/l,,,,,,"sum of 2,3-, 2,4-, 2,5- and 3,4-dichloronitrobenzene",,sDClNO2Ben4,"som 2,3-, 2,4-, 2,5- en 3,4-dichloornitrobenzeen"
 "sum 2,4'- and 4,4'-DDD",μg/l,,,,,,"sum 2,4'- and 4,4'-DDD",,sDDD,"som 2,4'- en 4,4'-DDD"
 "sum 2,4'- and 4,4'-DDE",μg/l,,,,,,"sum 2,4'- and 4,4'-DDE",,sDDE,"som 2,4'- en 4,4'-DDE"
-"sum 2,4'- and 4,4'-DDT",μg/l,,,,,,"sum 2,4'- and 4,4'-DDT",,sDDT,"som 2,4'- en 4,4'-DDT"
+"sum 2,4'- and 4,4'-DDT",μg/l,,,,,,"sum 2,4'- and 4,4'-DDT",Dichloordifenyltrichloorethaan,sDDT,"som 2,4'- en 4,4'-DDT"
 "sum of DDT, DDE and DDD isomers",μg/l,,,,,,"sum of DDT, DDE and DDD isomers",,sDDX,"som DDT-, DDE- en DDD-isomeren"
 "sum 2,4'-DDT and 4,4'-DDD",μg/l,,,,,,"sum 2,4'-DDT and 4,4'-DDD",,sDDX2,"som 2,4'-DDT en 4,4'-DDD"
 "sum 2,4'-DDT, 4,4'-DDT, 4,4'-DDD and 4,4'-DDE",μg/l,,,,,,"sum 2,4'-DDT, 4,4'-DDT, 4,4'-DDD and 4,4'-DDE",,sDDX4,"som 2,4'-DDT, 4,4'-DDT, 4,4'-DDD en 4,4'-DDE"

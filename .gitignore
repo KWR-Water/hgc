@@ -112,3 +112,11 @@ hgc/constants/constants.pickle
 docs/source/_build
 hgc/constants/default_features_alias99.xlsx
 docs/source/api/*
+*.pkl
+.google-cookie
+.pylint.d
+hgc/constants/default_features_alias 20201112.xlsx
+hgc/constants/default_features_alias 20201122.xlsx
+hgc/constants/default_features_alias 20210203.xlsx
+hgc/constants/default_features_alias 20210204.xlsx
+hgc/constants/default_features_alias 20210205.xlsx

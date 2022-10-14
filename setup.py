@@ -40,7 +40,6 @@ setup(
         'googletrans',
         'pubchempy',
         'molmass',
-
         ],
     include_package_data=True,
     url='https://github.com/KWR-Water/hgc',

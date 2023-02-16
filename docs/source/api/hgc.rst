@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 2
 
    hgc.constants
 
@@ -12,9 +13,9 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 2
 
    hgc.samples_frame
-   hgc.utils
 
 Module contents
 ---------------

@@ -17,7 +17,7 @@ This is by design as its kinetics are generally too slow. It is added as a
 separate species in phreeqc (`Amm` instead of NH\ :sub:`4`\ \ :sup:`+`\ ).
 
 How do I report alkalinity and/or bicarbonate (HCO\ :sub:`3`\ \ :sup:`-`\ )?
----------------------------------------------------------------------------
+----------------------------------------------------------------------------
 It is assumed everywhere that the HCO\ :sub:`3`\ \ :sup:`-`\  concentration
 equals the alkalinity.
 

@@ -8,13 +8,15 @@ from phreeqpython import PhreeqPython, Solution
 
 import hgc
 from hgc.constants.constants import mw
+from . import test_directory
+
 
 
 @pytest.fixture(name='mineral_data')
 def fixture_mineral_data():
     ''' fixture that loads the test data into a dataframe and makes it valid
         (if possible). the dataframe is returned '''
-    df = pd.read_csv('./examples/data/dataset_basic.csv',
+    df = pd.read_csv(test_directory / 'data' / 'dataset_basic.csv',
                      skiprows=[1], index_col=None)
     df[df.hgc.hgc_cols] = df[df.hgc.hgc_cols].astype(float)
     df.hgc.make_valid()
@@ -26,7 +28,7 @@ def fixture_consolidated_data():
     ''' same as fixture mineral_data, but now
         including consolidate before returning
         df '''
-    df = pd.read_csv('./examples/data/dataset_basic.csv',
+    df = pd.read_csv(test_directory / 'data' / 'dataset_basic.csv',
                      skiprows=[1], index_col=None)
     df[df.hgc.hgc_cols] = df[df.hgc.hgc_cols].astype(float)
     df.hgc.make_valid()

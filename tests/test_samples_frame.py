@@ -5,6 +5,7 @@ import numpy as np
 from unittest import TestCase, mock
 from datetime import datetime
 import pytest
+from . import test_directory
 
 # define the fixtures
 @pytest.fixture(name='test_data_bas_vdg')
@@ -32,11 +33,11 @@ def fixture_test_bas_vdg():
     return pd.DataFrame(df)
 
 def test_valid_samples_frame():
-    df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
+    df = pd.read_csv(test_directory / 'data' / 'dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     assert df.hgc.is_valid == True
 
 def test_invalid_changed_samples_frame():
-    df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
+    df = pd.read_csv(test_directory / 'data' / 'dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     assert df.hgc.is_valid == True
     df.loc[1, 'F'] = -1
     # this test does not fail because the self._obj in df.hgc is the orginal
@@ -45,16 +46,16 @@ def test_invalid_changed_samples_frame():
     assert df.hgc.is_valid == False
 
 def test_valid_samples_frame_excel():
-    df = pd.read_excel('./examples/data/dataset_basic.xlsx', skiprows=[1])
+    df = pd.read_excel(test_directory / 'data' / 'dataset_basic.xlsx', skiprows=[1])
     assert df.hgc.is_valid == True
 
 def test_invalid_samples_frame():
-    df = pd.read_csv('./examples/data/dataset_invalid_columns.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
+    df = pd.read_csv(test_directory / 'data' / 'dataset_invalid_columns.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     assert df.hgc.is_valid == False
 
 
 def test_make_valid():
-    df = pd.read_csv('./examples/data/dataset_invalid_columns.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
+    df = pd.read_csv(test_directory / 'data' / 'dataset_invalid_columns.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     df.hgc.make_valid()
 
     assert df.hgc.is_valid == True
@@ -67,7 +68,7 @@ def test_get_ratios_invalid_frame():
 
 
 def test_get_ratios():
-    df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
+    df = pd.read_csv(test_directory / 'data' / 'dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     df_ratios_original = pd.DataFrame(dict(
         cl_to_br=[286, None, None, 309, None, None, 275, None,
                   None, None, 322, 275, 292, 231, None, None, None, ],
@@ -91,7 +92,7 @@ def test_get_ratios():
 
 
 def test_consolidate():
-    df = pd.read_csv('./examples/data/dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
+    df = pd.read_csv(test_directory / 'data' / 'dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     df.hgc.consolidate(use_so4=None, use_o2=None, use_ph='lab')
 
 def test_consolidate_w_not_all_cols():

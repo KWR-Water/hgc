@@ -1,4 +1,4 @@
-import hgc
+import logging
 from hgc.samples_frame import SamplesFrame
 import pandas as pd
 import numpy as np
@@ -67,7 +67,7 @@ def test_get_ratios_invalid_frame():
         df.hgc.get_ratios()
 
 
-def test_get_ratios():
+def test_get_ratios(caplog):
     df = pd.read_csv(test_directory / 'data' / 'dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     df_ratios_original = pd.DataFrame(dict(
         cl_to_br=[286, None, None, 309, None, None, 275, None,
@@ -90,6 +90,10 @@ def test_get_ratios():
 
     assert isinstance(df_ratios, pd.core.frame.DataFrame)
 
+    caplog.clear()
+    with caplog.at_level(logging.INFO):
+        df.hgc.get_ratios()
+    assert len(caplog.records) > 0
 
 def test_consolidate():
     df = pd.read_csv(test_directory / 'data' / 'dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)

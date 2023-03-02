@@ -187,6 +187,7 @@ def test_warning_with_hco3_column(caplog):
         use_so4=None, use_ph=None, use_ec=None, use_temp=None)
 
     # capture all logs and compare the messages to the expected messages.
+    caplog.clear()
     with caplog.at_level(logging.WARNING):
         sol_no_alk = test_data_no_alk.hgc.get_phreeqpython_solutions(inplace=False)
     assert len(caplog.records) == 0

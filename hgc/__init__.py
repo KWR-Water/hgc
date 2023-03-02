@@ -7,3 +7,7 @@ name = "hgc"
 
 # allow access to mw and units via a shortcut hgc.mw
 from hgc.constants.constants import mw, units
+
+import logging
+logging.basicConfig(format='%(levelname)s: %(message)s')
+logging.getLogger().setLevel(logging.INFO)

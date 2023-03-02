@@ -99,7 +99,8 @@ class SamplesFrame(object):
             if len(hgc_cols) > 0:
                 logging.info(f"Recognized HGC columns are: {','.join(hgc_cols)}")
 
-            logging.info(f'These columns of the dataframe are not used by HGC: {set(obj.columns)-set(hgc_cols)}')
+            if unused_columns := list(set(obj.columns) - set(hgc_cols)):
+                logging.info(f'These columns of the dataframe are not used by HGC: {unused_columns}')
 
             logging.info(f"DataFrame contains {len(neg_conc_cols)} HGC-columns with negative concentrations")
             if len(neg_conc_cols) > 0:
@@ -407,6 +408,7 @@ class SamplesFrame(object):
                 logging.info(f"Cannot calculate ratio {ratio} since columns {','.join(missing_cols)} are not present.")
 
         if inplace:
+            logging.info(f'Added columns {list(df_ratios.columns)}')
             self._obj[df_ratios.columns] = df_ratios
         else:
             return df_ratios
@@ -924,6 +926,7 @@ class SamplesFrame(object):
         return_series = pd.Series(saturation_index, index=self._obj.index,
                                   name=name_series)
         if inplace:
+            logging.info(f'Added column {name_series}')
             self._obj[name_series] = return_series
         else:
             return return_series

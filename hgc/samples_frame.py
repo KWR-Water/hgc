@@ -920,7 +920,7 @@ class SamplesFrame(object):
         self._clean_up_phreeqpython_solutions(solutions)
 
         # return it as series with the same index as the dataframe
-        name_series = 'SI '+ mineral_or_gas
+        name_series = 'si_'+ mineral_or_gas.lower()
         return_series = pd.Series(saturation_index, index=self._obj.index,
                                   name=name_series)
         if inplace:

@@ -216,6 +216,8 @@ def test_get_stuyfzand_water_type():
     df.hgc.make_valid()
     water_type = df.hgc.get_stuyfzand_water_type(inplace=False)
     assert water_type[0] == 'g*NaNO3o'
+    df.hgc.get_stuyfzand_water_type()
+    assert df.water_type[0] == 'g*NaNO3o'
 
 def test_get_stuyfzand_water_type_2(test_data_bas_vdg):
     """ test based on bas van de grift his test data """
@@ -281,6 +283,7 @@ def test_inplace(test_data_bas_vdg):
             assert n_columns == len(df.columns)
             assert df_out is not None
 
+
     assert_column_added_inplace('bex', is_added=True, method_name='get_bex',
                                 method_kwargs=dict(inplace=True))
     assert_column_added_inplace('bex', is_added=True, method_name='get_bex',
@@ -331,11 +334,11 @@ def test_inplace(test_data_bas_vdg):
     assert_column_added_inplace('pp_solutions', is_added=False, method_name='get_phreeqpython_solutions',
                                 method_kwargs=dict(inplace=False))
 
-    assert_column_added_inplace('SI calcite', is_added=True, method_name='get_saturation_index',
+    assert_column_added_inplace('si_calcite', is_added=True, method_name='get_saturation_index',
                                 method_kwargs=dict(inplace=True, mineral_or_gas='calcite'))
-    assert_column_added_inplace('SI calcite', is_added=True, method_name='get_saturation_index',
+    assert_column_added_inplace('si_calcite', is_added=True, method_name='get_saturation_index',
                                 method_kwargs=dict(mineral_or_gas='calcite'))
-    assert_column_added_inplace('SI calcite', is_added=False, method_name='get_saturation_index',
+    assert_column_added_inplace('si_calcite', is_added=False, method_name='get_saturation_index',
                                 method_kwargs=dict(inplace=False, mineral_or_gas='calcite'))
 
     assert_column_added_inplace('sc', is_added=True, method_name='get_specific_conductance',
@@ -344,4 +347,6 @@ def test_inplace(test_data_bas_vdg):
                                 method_kwargs=dict())
     assert_column_added_inplace('sc', is_added=False, method_name='get_specific_conductance',
                                 method_kwargs=dict(inplace=False))
+
+
 

@@ -186,34 +186,35 @@ def test_warning_with_hco3_column(caplog):
     test_data_both.hgc.consolidate(
         use_so4=None, use_ph=None, use_ec=None, use_temp=None)
 
+    # capture all logs and compare the messages to the expected messages.
     with caplog.at_level(logging.WARNING):
         sol_no_alk = test_data_no_alk.hgc.get_phreeqpython_solutions(inplace=False)
-    assert caplog.text == ''
+    assert len(caplog.records) == 0
+
     caplog.clear()
     with caplog.at_level(logging.WARNING):
         sol_alk = test_data_alk.hgc.get_phreeqpython_solutions(inplace=False)
-    assert caplog.text == ''
+    assert len(caplog.records) == 0
+
     caplog.clear()
     with caplog.at_level(logging.WARNING):
         sol_hco3 = test_data_hco3.hgc.get_phreeqpython_solutions(inplace=False)
     assert 'bicarbonate (or hco3) is found, but no alkalinity' in caplog.text
+
     caplog.clear()
     with caplog.at_level(logging.WARNING):
         sol_bicarb = test_data_bicarb.hgc.get_phreeqpython_solutions(inplace=False)
     assert 'bicarbonate (or hco3) is found, but no alkalinity' in caplog.text
+
     caplog.clear()
     with caplog.at_level(logging.WARNING):
         sol_both = test_data_both.hgc.get_phreeqpython_solutions(inplace=False)
     assert 'bicarbonate (or hco3) and alkalinity' in caplog.text
-    caplog.clear()
 
     assert sol_hco3.values[0].species == sol_bicarb.values[0].species
     assert sol_hco3.values[0].species == sol_no_alk.values[0].species
     assert sol_hco3.values[0].species != sol_alk.values[0].species
     assert sol_both.values[0].species == sol_alk.values[0].species
-
-
-
 
 
 def test_add_solution(consolidated_data, phreeqpython_solutions_excel):

@@ -62,7 +62,7 @@ You can also retreive the details of each compound, such as the expected units, 
 Since in this case our DataFrame contains negative concentrations, detection limits (rows with '<' or '>') and
 incorrect data types (e.g. string columns that are supposed to be numeric), HGC will initially report
 that the DataFrame is invalid. HGC can automatically solve inconsistencies with the 'make_valid' method.
-As a result, negative concentrations are replaced by 0, concentrations exceeding the detection limit are replaced
+As a result, negative concentrations are replaced by 0, TODO: MWK aanpassen concentrations exceeding the detection limit are replaced
 by 1/2 of the detection limit threshold and any string-columns cast to numeric:
 
 .. ipython:: python
@@ -80,34 +80,53 @@ Calculations
 ------------
 
 Now that our DataFrame is valid, we can use all HGC methods, such as calculating the
-Base Exchange Index of each row:
+Base Exchange Index of each row; this is added as column to `df`:
 
 .. ipython:: python
 
-    bex = df.hgc.get_bex()
-    bex
+    df.hgc.get_bex()
+    df.bex
 
 We can also classify each sample into the Stuyfzand water type:
 
 .. ipython:: python
 
-    water_types = df.hgc.get_stuyfzand_water_type()
-    water_types
+    df.hgc.get_stuyfzand_water_type()
+    df.water_type
+
 
 Or get the sum of all anions (using the Stuyfzand method):
 
 .. ipython:: python
 
-    sum_anions = df.hgc.get_sum_anions()
-    sum_anions
+    df.hgc.get_sum_anions()
+    df.sum_anions
 
 It is also possible to compute common hydrochemical ratios between different compounds.
 HGC calculates ratios for all columns that are available and ignores any missing columns.
 
 .. ipython:: python
 
-    df_ratios = df.hgc.get_ratios()
-    df_ratios
+    df.hgc.get_ratios()
+    df
+
+For all these above mentioned *get* functions, the columns are added to the dataframe. Most
+of the times this is convenient, but there are also cases where you don't want to add them
+to the DataFrame but only want to return the result. In that case, one could use the `inplace`
+argument; `this works the same as native pandas methods that have this argument
+<https://www.geeksforgeeks.org/what-does-inplace-mean-in-pandas/>`_
+With `inplace=True` (the default), the columns are added to the DataFrame (as shown
+in the examples above). With `inplace=False` the columns are not added to the database
+but returned as a pandas `Series` or `DataFrame`. E.g., for the Stuyfzand water type (a `Series`)
+or `ratios` (a `DataFrame`):
+
+.. ipython:: python
+
+    water_type = df.hgc.get_stuyfzand_water_type(inplace=False)
+    water_type
+    ratios = df.hgc.get_ratios(inplace=False)
+    ratios
+
 
 Consolidation
 =============

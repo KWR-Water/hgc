@@ -238,8 +238,10 @@ is simply retrieved by calling:
     df.sc
 
 Internally, these methods call the method `get_phreeqpython_solutions` to retrieve
-instances of the `phreeqpython` `Solution` class. These solutions can also be available
-to the user by calling
+instances of the PhreeqPython `Solution` class. `PhreeqPython <https://github.com/Vitens/phreeqpython>`_ is a
+Python package that allows the use of the Geochemical modeling package PhreeqC from within Python. HGC leverages this
+package to have a PhreeqC solution (or actually a PhreeqPython solution) for every row of the `SamplesFrame`. These are
+available to the user by calling
 
 .. ipython:: python
    :okexcept:
@@ -247,12 +249,22 @@ to the user by calling
     df.hgc.get_phreeqpython_solutions()
     df.pp_solutions
 
-As all elements of the returned `Series` are `phreeqpython` `Solution`'s, all its methods can be called as well.
-For example, the sc can be derived by:
+Because all elements in this column are PhreeqPython `Solution`'s, PhreeqC can be used to calculate all kind of
+properties of each water sample of each row in the `SamplesFrame`. In the documentation of PhreeqPython all these
+are described. For example, one can derive the specific conductance or pH from the first sample:
+
+.. ipython:: python
+
+    df.pp_solutions[0].sc
+    df.pp_solutions[0].pH
+
+or for all the samples:
 
 .. ipython:: python
 
     [s.sc for s in df.pp_solutions]
+
+Note that these are the exact same results as above when `df.hgc.get_specific_conductance()` was called.
 
 But also more involved operations are possible, for example, inspecting the speciation of the first sample in the
 original `SamplesFrame` `df`:
@@ -261,5 +273,20 @@ original `SamplesFrame` `df`:
 
     df.pp_solutions[0].species
 
-Note that units of these speciation calculations are in mmol/L. For more examples,
+Note that units of these speciation calculations are in mmol/L.
+
+One could even manipulate the solution by letting for example calcite precipitate
+and see how this changes pH
+
+.. ipython:: python
+
+    desaturated_solutions = [s.desaturate('Calcite') for s in df.pp_solutions]
+
+    pd.DataFrame(dict(
+        original=df.ph,
+        desaturated=[s.pH for s in desaturated_solutions],)
+    ).round(2)
+
+
+For more examples,
 please visit the `examples on the Github page of PhreeqPython <https://github.com/Vitens/phreeqpython/tree/master/examples>`_.

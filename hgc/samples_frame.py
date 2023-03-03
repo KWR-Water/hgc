@@ -1,6 +1,10 @@
 """
-The SamplesFrame class is an extended Pandas DataFrame, offering additional methods
+The `SamplesFrame` class is an extended Pandas DataFrame, offering additional methods
 for validation of hydrochemical data, calculation of relevant ratios and classifications.
+
+.. # an alias used in different doc strings in this file
+.. |HCO3| replace:: HCO\ :sub:`3`\ :sup:`-`
+
 """
 import logging
 
@@ -35,6 +39,8 @@ class SamplesFrame(object):
         df.hgc.is_valid
         False
         df.hgc.make_valid()
+
+
     """
 
     def __init__(self, pandas_obj):
@@ -119,7 +125,7 @@ class SamplesFrame(object):
 
     @property
     def allowed_hgc_columns(self):
-        """  Returns allowed columns of the hgc SamplesFrame"""
+        """  Returns allowed columns of the hgc `SamplesFrame`"""
         return (list(constants.atoms.keys()) +
                                list(constants.ions.keys()) +
                                list(constants.properties.keys()))
@@ -231,7 +237,7 @@ class SamplesFrame(object):
         merge_on_na : bool, default False
             Fill NaN's from one measurement method with measurements from other method.
         inplace : bool, default True
-            Modify SamplesFrame in place. inplace=False is not allowed
+            Modify `SamplesFrame` in place. inplace=False is not implemented (yet)
 
 
         Raises
@@ -307,11 +313,15 @@ class SamplesFrame(object):
         ----------
         watertype : {'G', 'P'}, default 'G'
             Watertype (Groundwater or Precipitation)
+        inplace: bool, optional, default True
+                whether the saturation index should be added to the `pd.DataFrame` (inplace=True)
+                as column `si_<mineral_name>` or returned as a `pd.Series` (inplace=False).
 
         Returns
         -------
-        pandas.Series
-            Series with for each row in the original.
+        pandas.Series or None
+            Returns None if `inplace=True` or `pd.Series` with base exchange index for each row in SamplesFrame
+            if `inplace=False`.
         """
         cols_req = ('Na', 'K', 'Mg', 'Cl')
         df = self._make_input_df(cols_req)
@@ -344,14 +354,16 @@ class SamplesFrame(object):
     def get_ratios(self, inplace=True):
         """
         Calculate common hydrochemical ratios, will ignore any ratios
-        in case their constituents are not present in the SamplesFrame.
-
-        It is assumed that only HCO<sub>3</sub><sup>-</sup> contributes to
-        the alkalinity.
+        in case their constituents are not present in the `SamplesFrame`.
 
         Notes
         -----
+
+        It is assumed that only |HCO3| contributes to
+        the alkalinity.
+
         HGC will attempt to calculate the following ratios:
+
          * Cl/Br
          * Cl/Na
          * Cl/Mg
@@ -365,10 +377,17 @@ class SamplesFrame(object):
          * MONC
          * COD/DOC
 
+        Parameters
+        ----------
+        inplace: bool, optional, default True
+                whether the saturation index should be added to the `pd.DataFrame` (inplace=True)
+                as column `<numerator>_to_<denominator>` or returned as a `pd.Series` (inplace=False).
+
         Returns
         -------
-        pandas.DataFrame
-            DataFrame with computed ratios.
+        pandas.DataFrame or None
+            Returns None if `inplace=True` and `pd.DataFrame` with the different ratios as column, for each row in
+            `SamplesFrame` if `inplace=False`.
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
@@ -420,13 +439,19 @@ class SamplesFrame(object):
         5 components: Salinity, Alkalinity, Dominant Cation, Dominant Anion and Base Exchange Index.
         This results in a classification such as for example 'F3CaMix+'.
 
-        It is assumed that only HCO<sub>3</sub><sup>-</sup> contributes to
+        It is assumed that only |HCO3| contributes to
         the alkalinity.
+
+        Parameters
+        ----------
+        inplace: bool, optional, default True
+                whether the saturation index should be added to the `pd.DataFrame` (inplace=True)
+                as column `<numerator>_to_<denominator>` or returned as a `pd.Series` (inplace=False).
 
         Returns
         -------
         pandas.Series
-            Series with Stuyfzand water type of each row in original SamplesFrame.
+            Series with Stuyfzand water type of each row in original `SamplesFrame`.
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
@@ -514,6 +539,7 @@ class SamplesFrame(object):
         df_out['swt'] = df_out['swt_s'].str.cat(df_out[['swt_a', 'swt_domcat', 'swt_doman', 'swt_bex']])
 
         if inplace:
+            logging.info(f'Added the column water_type.')
             self._obj['water_type'] = df_out['swt']
         else:
             return df_out['swt']
@@ -598,7 +624,20 @@ class SamplesFrame(object):
 
 
     def get_dominant_anions(self, inplace=True):
-        """ returns a series with the dominant anions."""
+        """ Adds column or returns a series with the dominant anions.
+
+        Parameters
+        ----------
+        inplace: bool, optional, default True
+                whether the saturation index should be added to the `pd.DataFrame` (inplace=True)
+                as column `<numerator>_to_<denominator>` or returned as a `pd.Series` (inplace=False).
+
+        Returns
+        -------
+        pandas.Series or None
+            Returns None if `inplace=True` and `pd.Series` with dominant anions for each row in `SamplesFrame`
+            if `inplace=False`.
+        """
         if inplace:
             self._obj['dominant_anion'] = self._get_dominant_anions_of_df(self._obj)
         else:
@@ -630,7 +669,7 @@ class SamplesFrame(object):
 
     def make_valid(self):
         """
-        Try to convert the DataFrame into a valid HGC-SamplesFrame.
+        Try to convert the DataFrame into a valid HGC-`SamplesFrame`.
         """
         # Conduct conversions here. If they fail, raise error (e.g. when not a single valid column is present)
         # Important: order is important, first convert strings to double, then replace negative concentrations
@@ -644,13 +683,20 @@ class SamplesFrame(object):
         """
         Calculate sum of anions according to the Stuyfzand method.
 
-        It is assumed that only HCO<sub>3</sub><sup>-</sup> contributes to
+        It is assumed that only |HCO3| contributes to
         the alkalinity.
+
+        Parameters
+        ----------
+        inplace: bool, optional, default True
+                whether the sum of anions should be added to the `pd.DataFrame` (inplace=True)
+                as column `sum_anions` or returned as a `pd.Series` (inplace=False).
 
         Returns
         -------
-        pandas.Series
-            Series with sum of cations for each row in SamplesFrame.
+        pandas.Series or None
+            Returns None if `inplace=True` or `pd.Series` with sum of anions for each row in `SamplesFrame`
+            if `inplace=False`.
         """
         cols_req = ('Br', 'Cl', 'doc', 'F', 'alkalinity', 'NO2', 'NO3', 'PO4', 'SO4', 'ph')
         df_in = self._make_input_df(cols_req)
@@ -679,10 +725,17 @@ class SamplesFrame(object):
         """
         Calculate sum of cations according to the Stuyfzand method.
 
+        Parameters
+        ----------
+        inplace: bool, optional, default True
+                whether the sum of cations should be added to the `pd.DataFrame` (inplace=True)
+                as column `sum_cations` or returned as a `pd.Series` (inplace=False).
+
         Returns
         -------
-        pandas.Series
-            Sum of all cations for each row in original SamplesFrame.
+        pandas.Series or None
+            Returns None if `inplace=True` or `pd.Series` with sum of cations for each row in `SamplesFrame`
+            if `inplace=False`.
         """
         cols_req = ('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn')
         df_in = self._make_input_df(cols_req)
@@ -717,7 +770,7 @@ class SamplesFrame(object):
             return s_sum_cations
 
 
-    def get_phreeq_columns(self):
+    def select_phreeq_columns(self):
         """
         Returns the columns from the DataFrame that might be used
         by PhreeqPython.
@@ -797,18 +850,21 @@ class SamplesFrame(object):
 
     def get_phreeqpython_solutions(self, equilibrate_with='none', inplace=True):
         """
-        Return a series of `phreeqpython solutions <https://github.com/Vitens/phreeqpython>`_ derived from the (row)data in the SamplesFrame.
+        Return a series of `phreeqpython solutions <https://github.com/Vitens/phreeqpython>`_ derived from the (row)data in the `SamplesFrame`.
 
         Parameters
         ----------
         equilibrate_with : str, default 'none'
             Ion to add for achieving charge equilibrium in the solutions.
         inplace : bool, default True
-            Whether the returned series is added to the DataFrame or not (default: False).
+            Whether the result is returned as a `pd.Series` or is added to the `pd.DataFrame`
+            as column `pp_solutions`.
 
         Returns
         -------
-        pandas.Series
+        pandas.Series or None
+            Returns None if `inplace=True` and `pd.Series` with `PhreeqPython.Solution` instances for every row in
+            `SamplesFrame` if `inplace=False`.
         """
         # `None` is also a valid argument and is translated to the strin `'none'`
         if equilibrate_with is None:
@@ -817,7 +873,7 @@ class SamplesFrame(object):
         pp = self._pp
         df = self._obj.copy()
 
-        phreeq_cols = self.get_phreeq_columns()
+        phreeq_cols = self.select_phreeq_columns()
 
         solutions = pd.Series(index=df.index, dtype='object')
         for index, row in df[phreeq_cols].iterrows():
@@ -882,7 +938,7 @@ class SamplesFrame(object):
                         solutions[index] = pp.add_solution(_sol)
                     except Exception as error:
                         logging.info(error)
-                        raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}. Charge balancing with both Na and Cl failed.')
+                        raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}. Charge balancing with either Na or Cl failed.')
                 else:
                     logging.info(error)
                     raise ValueError(f'Something went wrong with the phreeqc calculation with index {index} from the DataFrame. PHREEQC returned: {error}. ' +
@@ -896,7 +952,8 @@ class SamplesFrame(object):
             return return_series
 
     def get_saturation_index(self, mineral_or_gas, use_phreeqc=True, inplace=True, **kwargs):
-        ''' adds or returns the saturation index of a mineral or the partial pressure of a gas using phreeqc.
+        """ adds or returns the saturation index (SI) of a mineral or the partial pressure of a gas using phreeqc. The
+            column name of the result is si_<mineral_name> (if inplace=True).
 
            Parameters
            ----------
@@ -905,13 +962,16 @@ class SamplesFrame(object):
            use_phreeqc: bool
                         whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
                         or partial pressure
-           inplace: bool
-                    whether to return a new dataframe with the column added or change the current dataframe itself
+            inplace: bool, optional, default=True
+                    whether the saturation index should be added to the `pd.DataFrame` (inplace=True)
+                    as column `si_<mineral_name>` or returned as a `pd.Series` (inplace=False).
 
-           Returns
-           -------
-                pandas.Series
-                             with values of SI for each row of the input dataframe '''
+        Returns
+        -------
+        pandas.Series or None
+            Returns None if `inplace=True` and `pd.Series` with the saturation index of the mineral for each row in `SamplesFrame`
+            if `inplace=False`.
+        """
         if not use_phreeqc:
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')
 
@@ -932,20 +992,26 @@ class SamplesFrame(object):
             return return_series
 
     def get_specific_conductance(self, use_phreeqc=True, inplace=True, **kwargs):
-        ''' returns the specific conductance (sc) of a water sample using phreeqc. sc is
+        """ returns the specific conductance (sc) of a water sample using phreeqc. sc is
             also known as electric conductivity (ec) or egv measurements.
 
             Parameters
             ----------
-            use_phreeqc: bool
-                        whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
-                        or partial pressure
+            use_phreeqc: bool, optional
+                    whether to return use phreeqc as backend or fall back on internal hgc-routines to calculate SI
+                    or partial pressure
+            inplace: bool, optional, default=True
+                    whether the specific conductance should be added to the `pd.DataFrame` (inplace=True)
+                    as column `sc` or returned as a `pd.Series` (inplace=False).
             **kwargs:
                      are passed to the method `get_phreeqpython_solutions`
 
-            Returns
-            -------
-            Series: with values of specific conductance for each row of the input dataframe '''
+        Returns
+        -------
+        pandas.Series or None
+            Returns None if `inplace=True` and `pd.Series` with specific conductance for each row in `SamplesFrame`
+            if `inplace=False`.
+        """
         if not use_phreeqc:
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')
 

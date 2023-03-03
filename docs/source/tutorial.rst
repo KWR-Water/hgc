@@ -108,7 +108,7 @@ HGC calculates ratios for all columns that are available and ignores any missing
 .. ipython:: python
 
     df.hgc.get_ratios()
-    df
+    df.cl_to_na
 
 For all these above mentioned *get* functions, the columns are added to the dataframe. Most
 of the times this is convenient, but there are also cases where you don't want to add them
@@ -221,18 +221,10 @@ Let's extend the above DataFrame a little to make it more meaningful in the cont
 With this DataFrame, we can do some PHREEQC calculations. For example,
 we can calculate the saturation index of different minerals like Calcite:
 
-.. todo::
-    below code gives an error because somehow the integration with phreeqc is failing
-    when building the docs. it works fine when executing the code in a local environment
-    though. This needs to be fixed or some other solution needs to be found.
+.. ipython:: python
 
-.. .. ipython:: python
-..     :okexcept:
-
-.. code-block:: python
-
-    si_calcite = df.hgc.get_saturation_index('Calcite')
-    si_calcite
+    df.hgc.get_saturation_index('Calcite')
+    df.si_calcite
 
 Only saturation index (SI) of minerals can be retrieved if they are defined in the phreeqc database
 used by phreeqpython.
@@ -240,42 +232,34 @@ used by phreeqpython.
 Similar to the SI, the specific conductance (SC), also known as electric conductance (EC) or EGV,
 is simply retrieved by calling:
 
-.. .. ipython:: python
-..     :okexcept:
-
-.. code-block:: python
+.. ipython:: python
 
     df.hgc.get_specific_conductance()
+    df.sc
 
 Internally, these methods call the method `get_phreeqpython_solutions` to retrieve
 instances of the `phreeqpython` `Solution` class. These solutions can also be available
 to the user by calling
 
-.. .. ipython:: python
-..     :okexcept:
+.. ipython:: python
+   :okexcept:
 
-.. code-block:: python
-
-    pp_solutions = df.hgc.get_phreeqpython_solutions()
+    df.hgc.get_phreeqpython_solutions()
+    df.pp_solutions
 
 As all elements of the returned `Series` are `phreeqpython` `Solution`'s, all its methods can be called as well.
 For example, the sc can be derived by:
 
-.. .. ipython:: python
-..     :okexcept:
+.. ipython:: python
 
-.. code-block:: python
-
-    [s.sc for s in pp_solutions]
+    [s.sc for s in df.pp_solutions]
 
 But also more involved operations are possible, for example, inspecting the speciation of the first sample in the
 original `SamplesFrame` `df`:
 
-.. .. ipython:: python
-..     :okexcept:
+.. ipython:: python
 
-.. code-block:: python
+    df.pp_solutions[0].species
 
-    pp_solutions[0].species
-
-Note that units of these speciation calculations are in mmol/L.
+Note that units of these speciation calculations are in mmol/L. For more examples,
+please visit the `examples on the Github page of PhreeqPython <https://github.com/Vitens/phreeqpython/tree/master/examples>`_.

@@ -667,6 +667,32 @@ class SamplesFrame(object):
         """
         raise NotImplementedError()
 
+    def get_ion_balance(self, inplace=True):
+        """
+        Calculate the balance between anion and kations and add it as a percentage [%]
+        to the column 'ion_balance' to the SamplesFrame
+
+        Parameters:
+        -----------
+        inplace: bool, optional, default True
+                whether the ion balance should be added to the `SamplesFrame` (inplace=True)
+                as column `ion_balance` or returned as a `pd.Series` (inplace=False).
+
+        Returns
+        -------
+        pandas.Series or None
+            Returns None if `inplace=True` or `pd.Series` with ion balance for each row in `SamplesFrame`
+            if `inplace=False`.
+        """
+        anions = abs(self.get_sum_anions(inplace=False))
+        cations = abs(self.get_sum_cations(inplace=False))
+        ion_balance = 100 * (cations - anions) / (cations + anions)
+        if inplace:
+            logging.info("Charge balance of ions is added to the column ion_balance to the DataFrame")
+            self._obj['ion_balance'] = ion_balance
+        else:
+            return ion_balance
+
 
     def fillna_ec(self, use_phreeqc=True):
         """

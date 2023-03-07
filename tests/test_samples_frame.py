@@ -219,6 +219,12 @@ def test_get_sum_cations():
     sum_cations = df.hgc.get_sum_cations(inplace=False)
     assert np.round(sum_cations[0], 2)  == 0.66
 
+def test_get_ion_balance(test_data_bas_vdg):
+    expected_value = pytest.approx([99.54, 99.62, 97.77], abs=0.01)
+    assert test_data_bas_vdg.hgc.get_ion_balance(inplace=False).to_numpy() == expected_value
+    test_data_bas_vdg.hgc.get_ion_balance(inplace=True)
+    assert test_data_bas_vdg.ion_balance == expected_value
+
 
 def test_get_stuyfzand_water_type():
     """ Testcase matches row 12, sheet 6 of HGC Excel """

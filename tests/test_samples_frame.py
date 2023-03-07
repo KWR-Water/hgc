@@ -60,6 +60,40 @@ def test_make_valid():
 
     assert df.hgc.is_valid == True
 
+def test_replace_detection_limit():
+    df_original = pd.read_csv(test_directory / 'data' / 'dataset_invalid_columns.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
+    df_half = df_original.copy(deep=True)
+    df_on = df_original.copy(deep=True)
+    df_zero = df_original.copy(deep=True)
+    df_invalid = df_original.copy(deep=True)
+
+    df_half.hgc._replace_detection_lim(rule='half')
+    df_on.hgc._replace_detection_lim(rule='on')
+    df_zero.hgc._replace_detection_lim(rule='zero')
+
+    with pytest.raises(ValueError) as exc_info:
+        df_invalid.hgc._replace_detection_lim(rule='invalid_option')
+    assert 'Invalid rule' in str(exc_info)
+
+    expected_changed_column = 'ec_field'
+    expected_unchanged_columns = list(set(df_half.columns) - {expected_changed_column})
+
+    df_is_not_nan_and_not_changed_half = df_half.isna() | (df_half == df_original)
+    df_is_not_nan_and_not_changed_on = df_on.isna() | (df_on == df_original)
+    df_is_not_nan_and_not_changed_zero = df_zero.isna() | (df_zero == df_original)
+
+    assert all(df_is_not_nan_and_not_changed_half[expected_unchanged_columns])
+    assert all(df_is_not_nan_and_not_changed_on[expected_unchanged_columns])
+    assert all(df_is_not_nan_and_not_changed_zero[expected_unchanged_columns])
+
+    assert not all(df_half[expected_changed_column] == df_original[expected_changed_column])
+    assert not all(df_on[expected_changed_column] == df_original[expected_changed_column])
+    assert not all(df_zero[expected_changed_column] == df_original[expected_changed_column])
+
+    assert all(df_half.ec_field.astype(float) == [200, 350, 215, 1.5, 1.5, 525])
+    assert all(df_on.ec_field.astype(float) == [200, 350, 215, 3, 3, 525])
+    assert all(df_zero.ec_field.astype(float) == [200, 350, 215, 0, 0, 525])
+
 
 def test_get_ratios_invalid_frame():
     df = pd.DataFrame()

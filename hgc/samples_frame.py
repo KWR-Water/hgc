@@ -170,22 +170,35 @@ class SamplesFrame(object):
 
         Parameters
         ----------
-        rule : str, default 'half'
-            Can be any of "half" or "at"... Rule "half" replaces cells with detection limit for half of the value.
+        rule : {'half', 'on', 'zero'}, default 'half'
+            Rule "half" replaces cells *below* detection limit with half of the value of the detection limit;
+                   and replaces cells *above* upper detection limit with 1.5 of that detection limit's value.
             Rule "at" replaces detection limit cells with the exact value of the detection limit.
+            Rule "zero" replaces below detection limit cells with zero; values above the detection limit set at detection limit.
         """
+        rule = str(rule)
         for col in self.hgc_cols:
             if self._obj[col].dtype in ('object', 'str'):
                 is_below_dl = self._obj[col].str.contains(pat=r'^[<]\s*\d').fillna(False)
                 is_above_dl = self._obj[col].str.contains(pat=r'^[>]\s*\d').fillna(False)
+                lower_detection_limit = self._obj.loc[is_below_dl, col].str.extract(r'(\d+)').astype(np.float64).values
+                upper_detection_limit = self._obj.loc[is_below_dl, col].str.extract(r'(\d+)').astype(np.float64).values
 
-                if rule == 'half':
-                    self._obj.loc[is_below_dl, col] = self._obj.loc[is_below_dl, col].str.extract(r'(\d+)').astype(np.float64) / 2
-                    self._obj.loc[is_above_dl, col] = self._obj.loc[is_above_dl, col].str.extract(r'(\d+)').astype(np.float64) + \
-                                     (self._obj.loc[is_above_dl, col].str.extract(r'(\d+)').astype(np.float64) / 2)
-                elif rule == 'on':
-                    self._obj[col] = self._obj.loc[col].str.extract(r'(\d+)').astype(np.float64)
-
+                if rule.lower() == 'half':
+                    logging.info("Replace values below detection limit with (detection limit) / 2.")
+                    self._obj.loc[is_below_dl, col] = lower_detection_limit / 2
+                    logging.info("Replace values above detection limit with 1.5 * (detection limit).")
+                    self._obj.loc[is_above_dl, col] = 1.5 * upper_detection_limit
+                elif rule.lower() == 'on':
+                    logging.info("Replace values above and below detection limit with detection limit.")
+                    self._obj.loc[is_below_dl, col] = lower_detection_limit
+                    self._obj.loc[is_above_dl, col] = upper_detection_limit
+                elif str(rule).lower() in ['zero', '0']:
+                    logging.info("Replace values below detection limit with zero, above detection limit with (upper) detection limit.")
+                    self._obj.loc[is_below_dl, col] = 0
+                    self._obj.loc[is_above_dl, col] = upper_detection_limit
+                else:
+                    raise ValueError("Invalid rule. Allowed rules are half, on and zero.")
 
     def _replace_negative_concentrations(self):
         """

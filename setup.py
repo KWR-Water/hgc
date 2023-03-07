@@ -42,5 +42,5 @@ setup(
     include_package_data=True,
     url='https://github.com/KWR-Water/hgc',
     author='KWR Water Research Institute',
-    author_email='martin.korevaar@kwrwater.nl, martin.van.der.schans@kwrwater.nl, erwin.vonk@kwrwater.nl',
+    author_email='martin.korevaar@kwrwater.nl, martin.van.der.schans@kwrwater.nl',
 )

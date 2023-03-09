@@ -223,7 +223,7 @@ def test_get_ion_balance(test_data_bas_vdg):
     expected_value = pytest.approx([99.54, 99.62, 97.77], abs=0.01)
     assert test_data_bas_vdg.hgc.get_ion_balance(inplace=False).to_numpy() == expected_value
     test_data_bas_vdg.hgc.get_ion_balance(inplace=True)
-    assert test_data_bas_vdg.ion_balance == expected_value
+    assert test_data_bas_vdg.ion_balance.to_numpy() == expected_value
 
 
 def test_get_stuyfzand_water_type():

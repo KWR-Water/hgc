@@ -992,7 +992,7 @@ class SamplesFrame(object):
 
     def get_saturation_index(self, mineral_or_gas, use_phreeqc=True, inplace=True, **kwargs):
         """ adds or returns the saturation index (SI) of a mineral or the partial pressure of a gas using phreeqc. The
-            column name of the result is si_<mineral_name> (if inplace=True).
+            column name of the result is si_<mineral_name> in lower case (if inplace=True).
 
            Parameters
            ----------
@@ -1029,6 +1029,19 @@ class SamplesFrame(object):
             self._obj[name_series] = return_series
         else:
             return return_series
+
+    def get_partial_pressure(self, gas, use_phreeqc=True, inplace=True, **kwargs):
+        """ adds or returns the partial pressure of a gas using phreeqc. It is an alias for `get_saturation_index` so
+            look at that method for details. gas column is pp_<gas_name>
+
+        """
+        pp_gas = self.get_saturation_index(gas, use_phreeqc, inplace=False, **kwargs)
+        name_series = 'pp_'+ gas.lower()
+        if inplace:
+            logging.info(f'Added column {name_series}')
+            self._obj[name_series] = pp_gas
+        else:
+            return pp_gas
 
     def get_specific_conductance(self, use_phreeqc=True, inplace=True, **kwargs):
         """ returns the specific conductance (sc) of a water sample using phreeqc. sc is

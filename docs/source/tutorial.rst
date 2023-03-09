@@ -224,10 +224,24 @@ we can calculate the saturation index of different minerals like Calcite:
 .. ipython:: python
 
     df.hgc.get_saturation_index('Calcite')
-    df.si_calcite
+    df['si_calcite'] # or df.si_calcite
 
-Only saturation index (SI) of minerals can be retrieved if they are defined in the phreeqc database
-used by phreeqpython.
+The mineral name will be added as a column named `si_<mineral_name>` where `<mineral_name>` is the name of the mineral
+as given to PHREEQC but all letters in lower case. The saturation index (SI) of a mineral can only be retrieved if they are defined in the phreeqc database
+used by phreeqpython. If the mineral is not defined, always an SI of -999 will be returned.
+
+This also works for the partial pressure of gasses (because in PhreeqC both minerals and gasses are defined as `PHASES`;
+see below for explanation of the coupling to PhreeqC). But it looks
+better if one uses the alias `partial_pressure` which returns the same values but with a different name of the column (prepending pp instead of si, since
+it is the partial pressure and not the saturation index).
+
+.. ipython:: python
+
+    df.hgc.get_saturation_index('CO2(g)')
+    df['si_co2(g)']
+    df.hgc.get_partial_pressure('CO2(g)')
+    df['pp_co2(g)']
+
 
 Similar to the SI, the specific conductance (SC), also known as electric conductance (EC) or EGV,
 is simply retrieved by calling:

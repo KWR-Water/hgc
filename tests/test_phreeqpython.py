@@ -218,7 +218,7 @@ def test_warning_with_hco3_column(caplog):
     assert sol_both.values[0].species == sol_alk.values[0].species
 
 
-def test_add_solution(consolidated_data, phreeqpython_solutions_excel):
+def test_get_phreeqpython_solutions(consolidated_data, phreeqpython_solutions_excel):
     ''' Assert phreeqpython solutions are returned as series with correct
        compounds'''
     df = consolidated_data
@@ -320,7 +320,7 @@ def test_solution_equilibrate_with(consolidated_data):
 #     # test it by calculating it seperately by phreeqpython manually.
 
 
-def test_sc(consolidated_data, phreeqpython_solutions_excel):
+def test_get_specific_conductance(consolidated_data, phreeqpython_solutions_excel):
     ''' Assert get_specific_conductance wrapper returns correct saturation indices of all test
         solutions in the fixtures '''
     df = consolidated_data
@@ -331,7 +331,39 @@ def test_sc(consolidated_data, phreeqpython_solutions_excel):
     pd.testing.assert_series_equal(sc_hgc, sc_pp)
 
 
-def test_si_calcite(consolidated_data, phreeqpython_solutions_excel):
+def test_get_saturation_index_unknown_mineral(consolidated_data, phreeqpython_solutions_excel, caplog):
+    """ Assert if saturation of unkown mineral is -Inf (i.e. <-900)"""
+    df = consolidated_data
+    si_unknown = df.hgc.get_saturation_index('Unknown', inplace=False)
+    assert si_unknown.min() < 900
+
+def test_get_saturation_index_mineral_with_brackets(consolidated_data, phreeqpython_solutions_excel, caplog):
+    """ PHREEQC allows very strange names for minerals or phases. E.g. [NH4] CO2(g)"""
+    df = consolidated_data
+    si_nh4 = df.hgc.get_saturation_index('[NH4]', inplace=False)
+    assert si_nh4.min() < 900
+    si_co2 = df.hgc.get_saturation_index('CO2(g)', inplace=False)
+    # waters without CO2 or HCO3 should have -Inf (=-999) as saturation index
+    assert si_co2.min() < 900
+    # waters with CO2/HCO3 should have a saturation index above -10 but below 0
+    assert all(si_co2[3:] >-10)
+    assert all(si_co2[3:] <0)
+    df.hgc.get_saturation_index('CO2(g)', inplace=True)
+    assert all(df['si_co2(g)'] == si_co2)
+
+def test_get_partial_pressure(consolidated_data):
+    """ Same as test_get_saturation_index as it is only an alias"""
+    df = consolidated_data
+    pp_co2 = df.hgc.get_partial_pressure('CO2(g)', inplace=False)
+    # waters without CO2 or HCO3 should have -Inf (=-999) as saturation index
+    assert pp_co2.min() < 900
+    # waters with CO2/HCO3 should have a saturation index above -10 but below 0
+    assert all(pp_co2[3:] >-10)
+    assert all(pp_co2[3:] <0)
+    df.hgc.get_partial_pressure('CO2(g)', inplace=True)
+    assert all(df['pp_co2(g)'] == pp_co2)
+
+def test_get_saturation_index_calcite(consolidated_data, phreeqpython_solutions_excel, caplog):
     ''' Assert get_si wrapper returns correct saturation indices of all test
         solutions in the fixtures '''
     df = consolidated_data
@@ -345,27 +377,12 @@ def test_si_calcite(consolidated_data, phreeqpython_solutions_excel):
 
     pd.testing.assert_series_equal(si_calcite_hgc, si_calcite_pp)
 
+    df.drop(columns=['doc','DOC'], errors='ignore', inplace=True)
 
-def test_for_docs():
-    ''' A test to check if the code in docs is wrong or only the building fails. This can be removed. '''
-    test_data = {
-        'ph_lab': [4.5, 5.5, 7.6], 'ph_field': [4.4, 6.1, 7.7],
-        'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],
-        'temp': [10, 10, 10],
-        'alkalinity':  [0, 7, 121],
-        'O2':  [11, 0, 0],
-        'Na': [9, 20, 31], 'K': [0.4, 2.1, 2.0],
-        'Ca': [1, 3, 47],
-        'Fe': [0.10, 2.33, 0.4],
-        'Mn': [0.02, 0.06, 0.13],
-        'NH4': [1.29, 0.08, 0.34],
-        'SiO2': [0.2, 15.4, 13.3],
-        'SO4': [7, 19, 35],
-        'NO3': [3.4, 0.1, 0],
-    }
-    df = pd.DataFrame.from_dict(test_data)
-    df.hgc.make_valid()
-    df.hgc.consolidate(use_ph='lab', use_ec='lab', use_temp=None,
-                       use_so4=None, use_o2=None)
-
-    si_calcite = df.hgc.get_saturation_index('Calcite')
+    caplog.clear()
+    with caplog.at_level(logging.INFO):
+        df.hgc.get_saturation_index('Calcite', inplace=True)
+    assert len(caplog.records) == 1
+    column_name = 'si_calcite'
+    assert column_name in caplog.text.lower()
+    assert f'{column_name}' in set(df.columns)

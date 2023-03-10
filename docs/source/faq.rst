@@ -30,3 +30,8 @@ A common mistake is that the temperature is added with
     df.temp = 10
 
 But this is an invalid way of adding columns to a DataFrame and therefore, it is not recognized as a column
+Instead, use
+
+.. code-block:: python
+
+    df['temp'] = 10

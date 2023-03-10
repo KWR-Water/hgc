@@ -669,7 +669,7 @@ class SamplesFrame(object):
 
     def get_ion_balance(self, inplace=True):
         """
-        Calculate the balance between anion and kations and add it as a percentage [%]
+        Calculate the balance between anion and cations and add it as a percentage [%]
         to the column 'ion_balance' to the SamplesFrame
 
         Parameters:

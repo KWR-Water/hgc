@@ -15,6 +15,7 @@ HydroGeoChemistry - A python package for correction, validation and analysis of 
     tutorial.rst
     faq.rst
     glossary.rst
+    units.rst
     API reference <api/hgc.samples_frame.rst>
     about.rst
 

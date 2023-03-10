@@ -59,11 +59,12 @@ You can also retreive the details of each compound, such as the expected units, 
     constants.atoms['H']
     constants.properties['ec']
 
+For your convenience, all units for all allowed (columns with) atoms, ions and properties are enlisted here :ref:`here <Units>`.
+
 Since in this case our DataFrame contains negative concentrations, detection limits (rows with '<' or '>') and
 incorrect data types (e.g. string columns that are supposed to be numeric), HGC will initially report
 that the DataFrame is invalid. HGC can automatically solve inconsistencies with the 'make_valid' method.
-As a result, negative concentrations are replaced by 0, TODO: MWK aanpassen concentrations exceeding the detection limit are replaced
-by 1/2 of the detection limit threshold and any string-columns cast to numeric:
+As a result, negative concentrations are replaced by 0:
 
 .. ipython:: python
 

@@ -21,3 +21,12 @@ How do I report alkalinity and/or bicarbonate (HCO\ :sub:`3`\ \ :sup:`-`\ )?
 It is assumed everywhere that the HCO\ :sub:`3`\ \ :sup:`-`\  concentration
 equals the alkalinity.
 
+Why is my pH, temperature or other column not added to the SamplesFrame and/or recognized by HGC?
+--------------------------------------------------------------------------------------------------
+A common mistake is that the temperature is added with
+
+.. code-block:: python
+
+    df.temp = 10
+
+But this is an invalid way of adding columns to a DataFrame and therefore, it is not recognized as a column

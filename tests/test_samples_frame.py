@@ -392,5 +392,37 @@ def test_inplace(test_data_bas_vdg):
     assert_column_added_inplace('sc', is_added=False, method_name='get_specific_conductance',
                                 method_kwargs=dict(inplace=False))
 
+def test_add_temp_ph_later():
+
+    test_data = {
+        'ph_lab': [7.5, 6.1, 7.6], 'ph_field': [4.4, 6.1, 7.7],
+        'ec_lab': [304, 401, 340], 'ec_field': [290, 'error', 334.6],
+        'alkalinity':  [110, 7, 121],
+        'O2':  [11, 0, 0],
+        'Na': [2,40,310],
+        'K':[0.4, 2.1, 2.0],
+        'Ca':[40,3,47],
+        'Fe': [0.10, 2.33, 0.4],
+        'Mn': [0.02, 0.06, 0.13],
+        'NH4': [1.29, 0.08, 0.34],
+        'SiO2': [0.2, 15.4, 13.3],
+        'SO4': [7,19,35],
+        'NO3': [3.4,0.1,0],
+        'Cl': [10,50,310]
+    }
+    df = pd.DataFrame(test_data)
+    df.hgc.make_valid()
+
+    with pytest.raises(ValueError) as exc_info:
+        df.hgc.get_saturation_index('Calcite')
+    assert 'required column' in str(exc_info)
+    df['ph']=7
+    with pytest.raises(ValueError) as exc_info:
+        df.hgc.get_saturation_index('Calcite')
+    assert 'required column temp' in str(exc_info)
+    df['temp']=10
+    # assert no error is raised
+    df.hgc.get_saturation_index('Calcite')
+
 
 

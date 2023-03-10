@@ -356,6 +356,13 @@ def test_inplace(test_data_bas_vdg):
     assert_column_added_inplace('dominant_anion', is_added=False, method_name='get_dominant_anions',
                                 method_kwargs=dict(inplace=False))
 
+    assert_column_added_inplace('dominant_cation', is_added=True, method_name='get_dominant_cations',
+                                method_kwargs=dict(inplace=True))
+    assert_column_added_inplace('dominant_cation', is_added=True, method_name='get_dominant_cations',
+                                method_kwargs=dict())
+    assert_column_added_inplace('dominant_cation', is_added=False, method_name='get_dominant_cations',
+                                method_kwargs=dict(inplace=False))
+
     assert_column_added_inplace('sum_anions', is_added=True, method_name='get_sum_anions',
                                 method_kwargs=dict(inplace=True))
     assert_column_added_inplace('sum_anions', is_added=True, method_name='get_sum_anions',

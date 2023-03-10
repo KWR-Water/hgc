@@ -455,6 +455,8 @@ class SamplesFrame(object):
         It is assumed that only |HCO3| contributes to
         the alkalinity.
 
+        See http://www.hydrology-amsterdam.nl/valorisation/HGCmanual_v2_1.pdf chapter 5 for the definitions.
+
         Parameters
         ----------
         inplace: bool, optional, default True
@@ -500,32 +502,16 @@ class SamplesFrame(object):
         #Dominant cation
         s_sum_cations = self.get_sum_cations(inplace=False)
 
-        df_out['swt_domcat'] = self._get_dominant_anions_of_df(df_in)
+        df_out['swt_domcat'] = self.get_dominant_cations(inplace=False)
 
         # Dominant anion
-        s_sum_anions = self.get_sum_anions(inplace=False)
-        cl_mmol = df_in.Cl/mw('Cl')
-        hco3_mmol = df_in.alkalinity/(mw('H') + mw('C') + 3*mw('O'))
-        no3_mmol = df_in.NO3/(mw('N') + 3*mw('O'))
-        so4_mmol = df_in.SO4/(mw('S') + 4*mw('O'))
-
-        # TODO: consider renaming doman to dom_an or dom_anion
-        is_doman_cl = (cl_mmol > s_sum_anions/2)
-        df_out.loc[is_doman_cl, 'swt_doman'] = "Cl"
-
-        is_doman_hco3 = ~is_doman_cl & (hco3_mmol > s_sum_anions/2)
-        df_out.loc[is_doman_hco3, 'swt_doman'] = "HCO3"
-
-        is_doman_so4_or_no3 = ~is_doman_cl & ~is_doman_hco3 & (2*so4_mmol + no3_mmol > s_sum_anions/2)
-        is_doman_so4 = (2*so4_mmol > no3_mmol)
-        df_out.loc[is_doman_so4_or_no3 & is_doman_so4, 'swt_doman'] = "SO4"
-        df_out.loc[is_doman_so4_or_no3 & ~is_doman_so4, 'swt_doman'] = "NO3"
-
-        is_mix = ~is_doman_cl & ~is_doman_hco3 & ~is_doman_so4_or_no3
-        df_out.loc[is_mix, 'swt_doman'] = "Mix"
+        df_out['swt_doman'] = self.get_dominant_anions(inplace=False)
 
         # Base Exchange Index
         s_bex = self.get_bex(inplace=False)
+        s_sum_anions = self.get_sum_anions(inplace=False)
+        cl_mmol = df_in.Cl/mw('Cl')
+
         threshold1 = 0.5 + 0.02*cl_mmol
         threshold2 = -0.5-0.02*cl_mmol
         is_plus = (s_bex > threshold1) & (s_bex > 1.5*(s_sum_cations-s_sum_anions))
@@ -557,12 +543,26 @@ class SamplesFrame(object):
         else:
             return df_out['swt']
 
-    def _get_dominant_anions_of_df(self, df_in):
-        """  calculates the dominant anions of the dataframe df_in """
+    def get_dominant_cations(self, inplace=True):
+        """  calculates the dominant cations of the SamplesFrame as used by the Stuyfzand water type classification (
+        See: http://www.hydrology-amsterdam.nl/valorisation/HGCmanual_v2_1.pdf chapter 5 for the definitions.)
+
+        Parameters:
+        -----------
+        inplace: bool, optional, default True
+                whether the dominant cations should be added to the `SamplesFrame` (inplace=True)
+                as column `dominant_cation` or returned as a `pd.Series` (inplace=False).
+
+        Returns
+        -------
+        pandas.Series or None
+            Returns None if `inplace=True` or `pd.Series` with dominant cation for each row in `SamplesFrame`
+            if `inplace=False`.
+        """
         s_sum_cations = self.get_sum_cations(inplace=False)
 
         cols_req = ('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn')
-        df_in = df_in.hgc._make_input_df(cols_req)
+        df_in = self._make_input_df(cols_req)
 
         na_mmol = df_in.Na/mw('Na')
         k_mmol = df_in.K/mw('K')
@@ -621,40 +621,69 @@ class SamplesFrame(object):
         is_domcat_fe = is_domcat_fe_mn & (fe_mmol > mn_mmol)
         is_domcat_mn = is_domcat_fe_mn & (mn_mmol > fe_mmol)
 
-        sr_out = pd.Series(index=df_in.index, dtype='object')
-        sr_out[:] = ""
-        sr_out[is_domcat_nh4] = "NH4"
-        sr_out[is_domcat_na] = "Na"
-        sr_out[is_domcat_k] = "K"
-        sr_out[is_domcat_ca] = 'Ca'
-        sr_out[is_domcat_mg] = 'Mg'
-        sr_out[is_domcat_fe] = 'Fe'
-        sr_out[is_domcat_mn] = 'Mn'
-        sr_out[is_domcat_al] = 'Al'
-        sr_out[is_domcat_h] = 'H'
+        sr_dominant_cation = pd.Series(index=df_in.index, dtype='object')
+        sr_dominant_cation[:] = ""
+        sr_dominant_cation[is_domcat_nh4] = "NH4"
+        sr_dominant_cation[is_domcat_na] = "Na"
+        sr_dominant_cation[is_domcat_k] = "K"
+        sr_dominant_cation[is_domcat_ca] = 'Ca'
+        sr_dominant_cation[is_domcat_mg] = 'Mg'
+        sr_dominant_cation[is_domcat_fe] = 'Fe'
+        sr_dominant_cation[is_domcat_mn] = 'Mn'
+        sr_dominant_cation[is_domcat_al] = 'Al'
+        sr_dominant_cation[is_domcat_h] = 'H'
 
-        return sr_out
+        if inplace:
+            logging.info("Dominant cation is added to SamplesFrame as column 'dominant_cation' to the DataFrame")
+            self._obj['dominant_cation'] = sr_dominant_cation
+        else:
+            return sr_dominant_cation
 
 
     def get_dominant_anions(self, inplace=True):
-        """ Adds column or returns a series with the dominant anions.
+        """  calculates the dominant anion of each row in the SamplesFrame as used by the Stuyfzand water type classification (
+        See: http://www.hydrology-amsterdam.nl/valorisation/HGCmanual_v2_1.pdf chapter 5 for the definitions.)
 
-        Parameters
-        ----------
+        Parameters:
+        -----------
         inplace: bool, optional, default True
-                whether the saturation index should be added to the `pd.DataFrame` (inplace=True)
-                as column `<numerator>_to_<denominator>` or returned as a `pd.Series` (inplace=False).
+                whether the dominant anion should be added to the `SamplesFrame` (inplace=True)
+                as column `dominant_anion` or returned as a `pd.Series` (inplace=False).
 
         Returns
         -------
         pandas.Series or None
-            Returns None if `inplace=True` and `pd.Series` with dominant anions for each row in `SamplesFrame`
+            Returns None if `inplace=True` or `pd.Series` with dominant anion for each row in `SamplesFrame`
             if `inplace=False`.
         """
+        s_sum_anions = self.get_sum_anions(inplace=False)
+        df_in = self._obj
+        cl_mmol = df_in.Cl/mw('Cl')
+        hco3_mmol = df_in.alkalinity/(mw('H') + mw('C') + 3*mw('O'))
+        no3_mmol = df_in.NO3/(mw('N') + 3*mw('O'))
+        so4_mmol = df_in.SO4/(mw('S') + 4*mw('O'))
+
+        # TODO: consider renaming doman to dom_an or dom_anion
+        is_doman_cl = (cl_mmol > s_sum_anions/2)
+        sr_dominant_anions = pd.Series(index=self._obj.index)
+        sr_dominant_anions[is_doman_cl] = "Cl"
+
+        is_doman_hco3 = ~is_doman_cl & (hco3_mmol > s_sum_anions/2)
+        sr_dominant_anions[is_doman_hco3] = "HCO3"
+
+        is_doman_so4_or_no3 = ~is_doman_cl & ~is_doman_hco3 & (2*so4_mmol + no3_mmol > s_sum_anions/2)
+        is_doman_so4 = (2*so4_mmol > no3_mmol)
+        sr_dominant_anions[is_doman_so4_or_no3 & is_doman_so4] = "SO4"
+        sr_dominant_anions[is_doman_so4_or_no3 & ~is_doman_so4] = "NO3"
+
+        is_mix = ~is_doman_cl & ~is_doman_hco3 & ~is_doman_so4_or_no3
+        sr_dominant_anions[is_mix] = "Mix"
+
         if inplace:
-            self._obj['dominant_anion'] = self._get_dominant_anions_of_df(self._obj)
+            logging.info("Dominant anion is added to SamplesFrame as column 'dominant_anion' to the DataFrame")
+            self._obj['dominant_anion'] = sr_dominant_anions
         else:
-            return self._get_dominant_anions_of_df(self._obj)
+            return sr_dominant_anions
 
     def fillna_concentrations(self, how="phreeqc"):
         """

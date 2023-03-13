@@ -105,7 +105,8 @@ class SamplesFrame(object):
             if len(hgc_cols) > 0:
                 logging.info(f"Recognized HGC columns are: {','.join(hgc_cols)}")
 
-            if unused_columns := list(set(obj.columns) - set(hgc_cols)):
+            unused_columns = list(set(obj.columns) - set(hgc_cols))
+            if unused_columns:
                 logging.info(f'These columns of the dataframe are not used by HGC: {unused_columns}')
 
             logging.info(f"DataFrame contains {len(neg_conc_cols)} HGC-columns with negative concentrations")

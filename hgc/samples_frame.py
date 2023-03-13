@@ -547,7 +547,7 @@ class SamplesFrame(object):
         """  calculates the dominant cations of the SamplesFrame as used by the Stuyfzand water type classification (
         See: http://www.hydrology-amsterdam.nl/valorisation/HGCmanual_v2_1.pdf chapter 5 for the definitions.)
 
-        Parameters:
+        Parameters
         -----------
         inplace: bool, optional, default True
                 whether the dominant cations should be added to the `SamplesFrame` (inplace=True)
@@ -644,11 +644,12 @@ class SamplesFrame(object):
         """  calculates the dominant anion of each row in the SamplesFrame as used by the Stuyfzand water type classification (
         See: http://www.hydrology-amsterdam.nl/valorisation/HGCmanual_v2_1.pdf chapter 5 for the definitions.)
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         inplace: bool, optional, default True
-                whether the dominant anion should be added to the `SamplesFrame` (inplace=True)
-                as column `dominant_anion` or returned as a `pd.Series` (inplace=False).
+                whether the dominant anion should be added to the `pd.DataFrame`
+                as column `dominant_anion` (inplace=True) or returned as a
+                `pd.Series` (inplace=False).
 
         Returns
         -------
@@ -665,7 +666,7 @@ class SamplesFrame(object):
 
         # TODO: consider renaming doman to dom_an or dom_anion
         is_doman_cl = (cl_mmol > s_sum_anions/2)
-        sr_dominant_anions = pd.Series(index=self._obj.index)
+        sr_dominant_anions = pd.Series(index=self._obj.index, dtype='object')
         sr_dominant_anions[is_doman_cl] = "Cl"
 
         is_doman_hco3 = ~is_doman_cl & (hco3_mmol > s_sum_anions/2)
@@ -701,7 +702,7 @@ class SamplesFrame(object):
         Calculate the balance between anion and cations and add it as a percentage [%]
         to the column 'ion_balance' to the SamplesFrame
 
-        Parameters:
+        Parameters
         -----------
         inplace: bool, optional, default True
                 whether the ion balance should be added to the `SamplesFrame` (inplace=True)
@@ -1034,11 +1035,11 @@ class SamplesFrame(object):
                     whether the saturation index should be added to the `pd.DataFrame` (inplace=True)
                     as column `si_<mineral_name>` or returned as a `pd.Series` (inplace=False).
 
-        Returns
-        -------
-        pandas.Series or None
-            Returns None if `inplace=True` and `pd.Series` with the saturation index of the mineral for each row in `SamplesFrame`
-            if `inplace=False`.
+            Returns
+            -------
+            pandas.Series or None
+                Returns None if `inplace=True` and `pd.Series` with the saturation index of the mineral for each row in `SamplesFrame`
+                if `inplace=False`.
         """
         if not use_phreeqc:
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')
@@ -1087,11 +1088,11 @@ class SamplesFrame(object):
             **kwargs:
                      are passed to the method `get_phreeqpython_solutions`
 
-        Returns
-        -------
-        pandas.Series or None
-            Returns None if `inplace=True` and `pd.Series` with specific conductance for each row in `SamplesFrame`
-            if `inplace=False`.
+            Returns
+            -------
+            pandas.Series or None
+                Returns None if `inplace=True` and `pd.Series` with specific conductance for each row in `SamplesFrame`
+                if `inplace=False`.
         """
         if not use_phreeqc:
             raise NotImplementedError('use_phreeqc=False is not yet implemented.')

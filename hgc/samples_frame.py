@@ -836,11 +836,6 @@ class SamplesFrame(object):
         cols_req = ('ph', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Mn', 'NH4', 'Al', 'Ba', 'Co', 'Cu', 'Li', 'Ni', 'Pb', 'Sr', 'Zn')
         df_in = self._make_input_df(cols_req)
 
-        if 'Ca' == 0 and 'Mg' == 0:
-            abac = 2*'H_tot'
-        else:
-            abac = 0
-
         s_sum_cations = 10**-(df_in['ph']-3) + \
                     df_in['Na']/22.99 + \
                     df_in['K']/39.1 + \

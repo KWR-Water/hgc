@@ -845,7 +845,6 @@ class SamplesFrame(object):
                     df_in['Mn']/(54.938/2) + \
                     df_in['NH4']/18.04 + \
                     df_in['Al']/(26982/3) + \
-                    abac + \
                     df_in['Ba']/137327 + \
                     df_in['Co']/58933 + \
                     df_in['Cu']/(63546/2) + \

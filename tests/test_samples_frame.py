@@ -32,6 +32,12 @@ def fixture_test_bas_vdg():
     df.hgc.make_valid()
     return pd.DataFrame(df)
 
+@pytest.fixture(name='test_data_bas_vdg_consolidated')
+def fixture_test_bas_vdg_consolidated(test_data_bas_vdg):
+    df = test_data_bas_vdg.copy()
+    df.hgc.consolidate(use_ph='lab', use_ec='lab', use_temp=None, use_so4=None, use_o2=None)
+    return df
+
 def test_valid_samples_frame():
     df = pd.read_csv(test_directory / 'data' / 'dataset_basic.csv', skiprows=[1], parse_dates=['date'], dayfirst=True)
     assert df.hgc.is_valid == True
@@ -219,11 +225,43 @@ def test_get_sum_cations():
     sum_cations = df.hgc.get_sum_cations(inplace=False)
     assert np.round(sum_cations[0], 2)  == 0.66
 
-def test_get_ion_balance(test_data_bas_vdg):
-    expected_value = pytest.approx([99.54, 99.62, 97.77], abs=0.01)
-    assert test_data_bas_vdg.hgc.get_ion_balance(inplace=False).to_numpy() == expected_value
-    test_data_bas_vdg.hgc.get_ion_balance(inplace=True)
-    assert test_data_bas_vdg.ion_balance.to_numpy() == expected_value
+def test_get_sum_cations_no_cations():
+    df = pd.DataFrame(dict(Cl=[4, 4], Na=[0,1], ph=[10,10]))
+    df.hgc.make_valid()
+    sum_cations = df.hgc.get_sum_cations(inplace=False)
+    assert np.round(sum_cations[0], 2)  == 0.0
+    assert np.round(sum_cations[1], 2)  > 0
+
+def test_get_sum_anions_no_anions():
+    df = pd.DataFrame(dict(Cl=[0, 4], Na=[1,1], ph=[10,10]))
+    df.hgc.make_valid()
+    sum_anions = df.hgc.get_sum_anions(inplace=False)
+    assert np.round(sum_anions[0], 2)  == 0.0
+    assert np.round(sum_anions[1], 2)  > 0
+
+def test_get_sum_an_and_cations_no_ph_raises_error():
+    df = pd.DataFrame(dict(Cl=[0, 4], Na=[1,1]))
+    df.hgc.make_valid()
+    with pytest.raises(ValueError) as exc_info:
+        df.hgc.get_sum_anions(inplace=False)
+    assert 'missing column ph' in str(exc_info).lower()
+
+    with pytest.raises(ValueError) as exc_info:
+        df.hgc.get_sum_cations(inplace=False)
+    assert 'missing column ph' in str(exc_info).lower()
+
+def test_get_sum_cations_invalid_ph():
+    df = pd.DataFrame(dict(Cl=[4, 4], Na=[1,1], ph=[0, np.nan]))
+    df.hgc.make_valid()
+    with pytest.raises(ValueError) as exc_info:
+        df.hgc.get_sum_anions(inplace=False)
+    assert 'invalid value(s) in ph column' in str(exc_info).lower()
+
+def test_get_ion_balance(test_data_bas_vdg_consolidated):
+    expected_value = pytest.approx([-2.61, 2.82, 16.30], abs=0.01)
+    assert test_data_bas_vdg_consolidated.hgc.get_ion_balance(inplace=False).to_numpy() == expected_value
+    test_data_bas_vdg_consolidated.hgc.get_ion_balance(inplace=True)
+    assert test_data_bas_vdg_consolidated.ion_balance.to_numpy() == expected_value
 
 
 def test_get_stuyfzand_water_type():
@@ -263,14 +301,11 @@ def test_get_stuyfzand_water_type():
     df.hgc.get_stuyfzand_water_type()
     assert df.water_type[0] == 'g*NaNO3o'
 
-def test_get_stuyfzand_water_type_2(test_data_bas_vdg):
+def test_get_stuyfzand_water_type_2(test_data_bas_vdg_consolidated):
     """ test based on bas van de grift his test data """
     # abbrevation
-    df = test_data_bas_vdg
-    df.hgc.consolidate(use_ph='lab', use_ec='lab',
-                       use_temp=None, use_so4=None, use_o2=None)
+    df = test_data_bas_vdg_consolidated.copy()
     assert df.hgc.get_stuyfzand_water_type(inplace=False).to_list() == ['g1CaHCO3o', 'F*NaClo', 'B1NaCl']
-
 
     testdata = {
         'ph_lab': [7.5, 6.1, 7.6], 'ph_field': [4.4, 6.1, 7.7],
@@ -422,7 +457,7 @@ def test_add_temp_ph_later():
 
     with pytest.raises(ValueError) as exc_info:
         df.hgc.get_saturation_index('Calcite')
-    assert 'required column' in str(exc_info)
+    assert 'missing column ph' in str(exc_info).lower()
     df['ph']=7
     with pytest.raises(ValueError) as exc_info:
         df.hgc.get_saturation_index('Calcite')

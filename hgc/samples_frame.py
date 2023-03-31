@@ -15,6 +15,28 @@ from phreeqpython import PhreeqPython
 from hgc.constants import constants
 from hgc.constants.constants import mw
 
+def requires_ph(func):
+    """ Decorator function for methods in the SamplesFrame class that require a
+    column `ph` with valid values (non-zero and non-NaN). """
+    def wrapper(self, *args, **kwargs):
+        if 'ph' not in self._obj.columns:#self._obj.columns:
+            raise ValueError("Missing column ph. please use the consolidate method to use lab or field data on your dataframe or add a ph column manually with df['ph'] = some_ph")
+        self._obj['ph'] = self._obj['ph'].astype(float)
+        isna_index = self._obj.ph.isna()
+        iszero_index = self._obj.ph == 0
+        if (any(isna_index) or any(iszero_index)):
+            err_msg = "Invalid value(s) in ph column: "
+            if any(isna_index):
+                err_msg += f"NaN value(s) in row(s) {self._obj.index[isna_index].values}; "
+            else:
+                err_msg += f"no NaN; "
+
+            if any(iszero_index):
+                err_msg += f"Zero (0) value(s) in row(s) {self._obj.index[iszero_index].values}; "
+
+            raise ValueError(err_msg)
+        return func(self, *args, **kwargs)
+    return wrapper
 
 @pd.api.extensions.register_dataframe_accessor("hgc")
 class SamplesFrame(object):
@@ -118,7 +140,7 @@ class SamplesFrame(object):
                 logging.info(f"Columns with invalid strings are: {','.join(invalid_str_cols)}. Only '<' and '>' and numeric values are allowed.")
 
             if is_valid:
-                logging.info("DataFrame is valid")
+                logging.info("DataFrame is valid. But might still require consolidation of lab or field data (use df.hgc.consolidate) or replace NaN (use pandas fillna function)")
             else:
                 logging.info("DataFrame is not HGC valid. Use the 'make_valid' method to automatically resolve issues")
 
@@ -183,11 +205,11 @@ class SamplesFrame(object):
                 is_below_dl = self._obj[col].str.contains(pat=r'^[<]\s*\d').fillna(False)
                 is_above_dl = self._obj[col].str.contains(pat=r'^[>]\s*\d').fillna(False)
                 lower_detection_limit = self._obj.loc[is_below_dl, col].str.extract(r'(\d+)').astype(np.float64).values
-                upper_detection_limit = self._obj.loc[is_below_dl, col].str.extract(r'(\d+)').astype(np.float64).values
+                upper_detection_limit = self._obj.loc[is_above_dl, col].str.extract(r'(\d+)').astype(np.float64).values
 
                 if rule.lower() == 'half':
                     logging.info("Replace values below detection limit with (detection limit) / 2.")
-                    self._obj.loc[is_below_dl, col] = lower_detection_limit / 2
+                    self._obj.loc[is_below_dl, col] = lower_detection_limit / 2.
                     logging.info("Replace values above detection limit with 1.5 * (detection limit).")
                     self._obj.loc[is_above_dl, col] = 1.5 * upper_detection_limit
                 elif rule.lower() == 'on':
@@ -447,6 +469,7 @@ class SamplesFrame(object):
             return df_ratios
 
 
+    @requires_ph
     def get_stuyfzand_water_type(self, inplace=True):
         """
         Get Stuyfzand water type. This water type classification contains
@@ -544,6 +567,7 @@ class SamplesFrame(object):
         else:
             return df_out['swt']
 
+    @requires_ph
     def get_dominant_cations(self, inplace=True):
         """  calculates the dominant cations of the SamplesFrame as used by the Stuyfzand water type classification (
         See: http://www.hydrology-amsterdam.nl/valorisation/HGCmanual_v2_1.pdf chapter 5 for the definitions.)
@@ -749,6 +773,7 @@ class SamplesFrame(object):
         self._check_validity(verbose=True)
 
 
+    @requires_ph
     def get_sum_anions(self, inplace=True):
         """
         Calculate sum of anions according to the Stuyfzand method.
@@ -772,8 +797,6 @@ class SamplesFrame(object):
         df_in = self._make_input_df(cols_req)
         s_sum_anions = pd.Series(index=df_in.index,dtype='float64')
 
-        k_org = 10**(0.039*df_in['ph']**2 - 0.9*df_in['ph']-0.96) # HGC manual equation 3.5
-        a_org = k_org * df_in['doc'] / (100*k_org + (10**-df_in['ph'])/10) # HGC manual equation 3.4A
         sum_ions = (df_in['Cl']/35.453 + df_in['SO4']/48.03 +
                     df_in['alkalinity']/61.02 + df_in['NO3']/62. +
                     df_in['NO2']/46.0055 + df_in['F']/18.9984 +
@@ -781,6 +804,8 @@ class SamplesFrame(object):
                     (df_in['PO4']/94.971) / (1 + 10**(df_in['ph']-7.21))
                    )
 
+        k_org = 10**(0.039*df_in['ph']**2 - 0.9*df_in['ph']-0.96) # HGC manual equation 3.5
+        a_org = k_org * df_in['doc'] / (100*k_org + (10**-df_in['ph'])/10) # HGC manual equation 3.4A
         is_add_a_org = (a_org > df_in['alkalinity']/61.02)
 
         s_sum_anions.loc[is_add_a_org] = sum_ions + a_org
@@ -791,6 +816,7 @@ class SamplesFrame(object):
         else:
             return s_sum_anions
 
+    @requires_ph
     def get_sum_cations(self, inplace=True):
         """
         Calculate sum of cations according to the Stuyfzand method.
@@ -840,6 +866,7 @@ class SamplesFrame(object):
             return s_sum_cations
 
 
+    @requires_ph
     def select_phreeq_columns(self):
         """
         Returns the columns from the DataFrame that might be used
@@ -874,11 +901,7 @@ class SamplesFrame(object):
         nitrogen_cols = set(phreeq_columns).intersection({'NO2', 'NO3', 'N', 'N_tot_k'})
         phosphor_cols = set(phreeq_columns).intersection({'PO4', 'P', 'P_ortho', 'PO4_total'})
 
-        # check whether ph and temp are in the list
-        if 'ph' not in phreeq_columns:
-            raise ValueError('The required column ph is missing in the dataframe. ' +
-                             'Add a column ph manually or consolidate ph_lab or ph_field ' +
-                             'to ph by running the method DataFrame.hgc.consolidate().')
+        # check whether temp column exists
         if 'temp' not in phreeq_columns:
             raise ValueError('The required column temp is missing in the dataframe. ' +
                              'Add a column temp manually or consolidate temp_lab or temp_field ' +

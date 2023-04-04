@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Feb 21 11:38:03 2023
-
-@author: griftba
+   Test file that loads a big excel file and see if HGC's crashes or not
 """
 
 import pandas as pd
-import matplotlib.pyplot as plt
 from pathlib import Path
 import hgc
 from hgc.constants import constants

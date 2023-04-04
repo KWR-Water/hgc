@@ -7,8 +7,8 @@
 import hgc
 import pandas as pd
 from pathlib import Path
-%load_ext autoreload
-%autoreload 2
+# %load_ext autoreload
+# %autoreload 2
 
 try:
     test_directory = Path(__file__).parent

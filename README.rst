@@ -7,8 +7,6 @@ HGC
 .. image:: https://img.shields.io/codecov/c/gh/KWR-Water/hgc
                     :target: https://codecov.io/gh/KWR-Water/hgc 
 
-[![Python package](https://github.com/KWR-Water/hgc/actions/workflows/python-package.yml/badge.svg)](https://github.com/KWR-Water/hgc/actions/workflows/python-package.yml)
-
 HGC, or HydroGeoChemistry, is a python package for correction, validation and analysis of ground water quality samples. 
 See documentation_ for more information.
 

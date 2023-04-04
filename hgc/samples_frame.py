@@ -21,7 +21,7 @@ def requires_ph(func):
     def wrapper(self, *args, **kwargs):
         if 'ph' not in self._obj.columns:#self._obj.columns:
             raise ValueError("Missing column ph. please use the consolidate method to use lab or field data on your dataframe or add a ph column manually with df['ph'] = some_ph")
-        self._obj['ph'] = self._obj['ph'].astype(float)
+        self._obj.loc[:, 'ph'] = self._obj['ph'].astype(float)
         isna_index = self._obj.ph.isna()
         iszero_index = self._obj.ph == 0
         if (any(isna_index) or any(iszero_index)):

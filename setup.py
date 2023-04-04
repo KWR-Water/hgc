@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name='hgc',
-    version='0.3.0',
+    version='0.3.1',
     packages=find_packages(exclude=['tests*']),
     license='MIT',
     description='A python package for correction, validation and analysis of ground water quality samples',

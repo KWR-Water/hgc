@@ -989,6 +989,9 @@ class SamplesFrame(object):
                         phreeq_unit = ''
                         value = row[col]
 
+                # phreeqc cannot cope with μ, so replace with u
+                phreeq_unit = phreeq_unit.replace('μ', 'u')
+
                 if (value > 0) and (phreeq_name is not None):
                     # Phreeq_name is None indicates that the atom/ion/property
                     # is not a valid property for a phreeqc simulation and the key

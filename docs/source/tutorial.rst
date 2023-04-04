@@ -64,7 +64,8 @@ For your convenience, all units for all allowed (columns with) atoms, ions and p
 Since in this case our DataFrame contains negative concentrations, detection limits (rows with '<' or '>') and
 incorrect data types (e.g. string columns that are supposed to be numeric), HGC will initially report
 that the DataFrame is invalid. HGC can automatically solve inconsistencies with the 'make_valid' method.
-As a result, negative concentrations are replaced by 0:
+As a result, negative concentrations are replaced by 0; concentrations below detection limit are replaced
+by half the limit; concentrations above the upper detection limit are replaced by 1.5 times that limit.
 
 .. ipython:: python
 
@@ -228,7 +229,7 @@ we can calculate the saturation index of different minerals like Calcite:
     df['si_calcite'] # or df.si_calcite
 
 The mineral name will be added as a column named `si_<mineral_name>` where `<mineral_name>` is the name of the mineral
-as given to PHREEQC but all letters in lower case. The saturation index (SI) of a mineral can only be retrieved if they are defined in the phreeqc database
+as given to PHREEQC but all letters in *lower case* (and don't forget the underscore). The saturation index (SI) of a mineral can only be retrieved if they are defined in the phreeqc database
 used by phreeqpython. If the mineral is not defined, always an SI of -999 will be returned.
 
 This also works for the partial pressure of gasses (because in PhreeqC both minerals and gasses are defined as `PHASES`;

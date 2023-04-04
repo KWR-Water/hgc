@@ -2,8 +2,8 @@ HGC
 ====
 .. image:: https://readthedocs.org/projects/hgc/badge/?version=latest&style=flat
                     :target: https://hgc.readthedocs.io
-.. image:: https://img.shields.io/travis/KWR-Water/hgc
-                    :target: https://travis-ci.com/KWR-Water/hgc
+.. image:: https://github.com/KWR-Water/hgc/actions/workflows/python-package.yml/badge.svg
+                    :target: https://github.com/KWR-Water/hgc/actions
 .. image:: https://img.shields.io/codecov/c/gh/KWR-Water/hgc
                     :target: https://codecov.io/gh/KWR-Water/hgc 
 

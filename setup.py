@@ -22,7 +22,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Topic :: Scientific/Engineering :: Hydrology',
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     project_urls={
     'Source': 'https://github.com/KWR-Water/hgc',
     'Documentation': 'http://hgc.readthedocs.io/en/latest/',
@@ -35,7 +35,7 @@ setup(
         'cloudpickle==1.2.2',
         'xlrd>=1.0.0',
         'phreeqpython>=1.3.2',  # TODO: possibly this can be made an optional dependency but we need to figure out how to do this properly
-        'scipy', # TODO: temporarily require SciPy. This is actually a dep of phreeqpython, which however, doesn't correctly require it
+        'scipy', # TODO: temporarily require SciPy. This is actually a dep of phreeqpython, which however, doesn't correctly acquire it
         # 'fuzzywuzzy>=1.0',
 
         ],

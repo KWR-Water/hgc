@@ -66,3 +66,5 @@ def test_hupsel():
     df.hgc.get_saturation_index('Calcite',inplace=False)
     df.hgc.get_specific_conductance()
     df.hgc.get_phreeqpython_solutions()
+    df.pp_solutions.iloc[0]
+    df.to_excel(Path(__file__).parent / 'data' / 'test.xlsx')

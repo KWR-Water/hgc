@@ -21,6 +21,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Topic :: Scientific/Engineering :: Hydrology',
     ],
     python_requires='>=3.8',
@@ -28,7 +29,7 @@ setup(
     'Source': 'https://github.com/KWR-Water/hgc',
     'Documentation': 'http://hgc.readthedocs.io/en/latest/',
     'Tracker': 'https://github.com/KWR-Water/hgc/issues',
-    'Help': 'https://stackoverflow.com/questions/tagged/hgc'
+    'Help': 'https://github.com/KWR-Water/hgc/issues'
     },
     install_requires=[
         'pandas>=0.23',

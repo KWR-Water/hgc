@@ -1,6 +1,6 @@
 feature,name,example,unit,valence,molar_weight,phreeq_name,phreeq_concentration_as
 CH4,methane as mg CH4/L,read,mg/L,0,calculate,C(-4),as CH4
-H2S,sulfur as mg S/L,read,mg/L,0,calculate,S(-2)
+H2S,sulfur as mg S/L,read,mg/L,0,calculate,S(-2),as S
 S,total sulfur as mg H2S/L,read,mg/L,0,calculate,S(-2),as H2S
 CO2,carbon dioxide as mg CO2/L,read,mg/L,0,calculate,C(4),as CO2
 # HCO3 is referred to as alkalinity, CO3 is assumed to be zero

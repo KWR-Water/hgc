@@ -19,6 +19,13 @@ The DataFrame may contain concentrations of different chemical compounds, possib
 detection limit (denoted with a '<' or '>' prefix). There may also be errors in the data, such as
 negative concentrations or text placeholders.
 
+.. note::
+    Please refer to the excellent `WaDI package <https://wadi.readthedocs.io/en/latest/>`_
+    to get your excel or csv file
+    with measurements in a format
+    `that HGC understands <https://wadi.readthedocs.io/en/latest/user_guide/creating_hgc_dataframes.html>`_.
+    In this tutorial, we create our own `DataFrame` for clarity.
+
 .. ipython:: python
 
     testdata = {'alkalinity': [0.0], 'Al': [2600], 'Ba': [44.0],

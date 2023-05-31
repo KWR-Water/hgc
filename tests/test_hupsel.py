@@ -8,11 +8,6 @@ from pathlib import Path
 import hgc
 from hgc.constants import constants
 
-import os
-import sys
-# No need for this next line if WADI was properly installed using pip
-#sys.path.append('D:\\Users\\postvi\\Documents\\github\\wadi')
-#os.chdir('D:\\Users\\postvi\\Documents\\py\\test_wadi')
 def test_hupsel():
     """ A test of a whole lot of samples that have been analysed manually with
     PHREEQC. The outcomes are not compared to the expected values. It only checks
@@ -67,4 +62,11 @@ def test_hupsel():
     df.hgc.get_specific_conductance()
     df.hgc.get_phreeqpython_solutions()
     df.pp_solutions.iloc[0]
-    df.to_excel(Path(__file__).parent / 'data' / 'test.xlsx')
+    try:
+        df.to_excel(Path(__file__).parent / 'data' / 'test.xlsx')
+    except TypeError as e:
+        if 'can only concatenate' in e.args[0]:
+            # due to upstream syntax error in phreeqpython.
+            pass
+        else:
+            raise e

@@ -1,22 +1,13 @@
 
 
 from hgc.constants import read_write
-import pandas as pd
-from unittest import mock
-import cloudpickle as pickle
 import pytest
 import hgc
 
 
-def test_creating_constants_pickle():
-    ''' test the function that creates constants.py
-        with named tuple from csv files '''
-    read_write.csv_to_pickle()
-
-def test_load_pickle():
-    ''' test to load pickle when pickle is created '''
-    read_write.csv_to_pickle()
-    atoms, ions, properties = read_write.load_pickle_as_namedtuples()
+def test_csv_to_named_tuple():
+    """  test whether csv is read correctly """
+    atoms, ions, properties = read_write.convert_csv_to_tuples()
     assert atoms['H'].feature == 'H'
     assert atoms['H'].name == 'Hydrogen'
     assert atoms['H'].unit == 'mg/L'

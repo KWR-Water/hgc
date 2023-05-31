@@ -1,17 +1,12 @@
-''' Import csv files that contain information on the constants required by HGC.
-    This will be transformed to a
-    pickle file with the same information in a dict of named tuples '''
+""" Import csv files that contain information on the constants required by HGC.
+    """
 from collections import namedtuple
 from pathlib import Path
 
-import cloudpickle as pickle
 import pandas as pd
 from pyparsing import Group, OneOrMore, Optional, Word
 
-# TODO find prettier way to define the path containing the pickle
-#      while it is still found when building the docs
 PATH = Path(__file__).parent
-PICKLE_PATH_FILE = PATH / 'constants.pickle'
 
 def _formula_parser(formula, calculate_or_not, atoms):
     ''' parses the chemical formula and determine its mol weight. But only
@@ -114,28 +109,3 @@ def convert_csv_to_tuples():
     properties_dict = df_to_dict_of_tuples(properties, tuple_name='Properties')
 
     return atoms_dict, ions_dict, properties_dict
-
-def csv_to_pickle():
-    ''' create a pickle-file with the dictionary of namedtuples
-        for atoms, ions and properties as defined in the
-        csv files '''
-    atoms, ions, properties = convert_csv_to_tuples()
-    with open(PICKLE_PATH_FILE, 'wb') as file_out:
-        pickle.dump((atoms, ions, properties), file_out)
-
-def load_pickle_as_namedtuples():
-    ''' load the atoms, ions and properties dictionaries
-        with named tuples. The pickle is created with
-        csv_to_pickle.
-        '''
-    try:
-        with open(PICKLE_PATH_FILE, 'rb') as file_in:
-            atoms, ions, properties = pickle.load(file_in)
-    except FileNotFoundError:
-        try:
-            atoms, ions, properties = convert_csv_to_tuples()
-        except FileNotFoundError:
-            raise FileNotFoundError('Required CSV with constant definition cannot be found {}'.format(PICKLE_PATH_FILE))
-
-    return atoms, ions, properties
-

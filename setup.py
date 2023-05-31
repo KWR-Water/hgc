@@ -34,7 +34,6 @@ setup(
     install_requires=[
         'pandas>=0.23',
         'openpyxl>=3.0.0',
-        'cloudpickle==1.2.2',
         'xlrd>=1.0.0',
         'phreeqpython>=1.3.2',  # TODO: possibly this can be made an optional dependency but we need to figure out how to do this properly
         'scipy', # TODO: temporarily require SciPy. This is actually a dep of phreeqpython, which however, doesn't correctly acquire it

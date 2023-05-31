@@ -1,6 +1,6 @@
-from hgc.constants.read_write import load_pickle_as_namedtuples
+from hgc.constants.read_write import convert_csv_to_tuples
 
-atoms, ions, properties = load_pickle_as_namedtuples()
+atoms, ions, properties = convert_csv_to_tuples()
 
 def mw(formula):
     ''' convenience function to return the molar

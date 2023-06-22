@@ -6,7 +6,22 @@ def mw(formula):
     ''' convenience function to return the molar
         weight of a molecule with `formula` '''
     try:
-        return atoms[formula].mw
+        if formula == 'HCO3':
+            return atoms['H'].mw + atoms['C'].mw + 3*atoms['O'].mw
+        elif formula == 'CO3':
+            return atoms['C'].mw + 3*atoms['O'].mw
+        elif formula == 'SO4':
+            return atoms['S'].mw + 4*atoms['O'].mw
+        elif formula == 'SO3':
+            return atoms['S'].mw + 3*atoms['O'].mw
+        elif formula == 'NO3':
+            return atoms['N'].mw + 3*atoms['O'].mw
+        elif formula == 'NO2':
+            return atoms['N'].mw + 2*atoms['O'].mw
+        elif formula == 'PO4':
+            return atoms['P'].mw + 4*atoms['O'].mw
+        else:
+            return atoms[formula].mw
     except KeyError:
         raise KeyError(f'{formula} is not an element and thus not a valid key,'
                         + ' in the atoms tabel.'

@@ -64,6 +64,7 @@ class SamplesFrame(object):
 
 
     """
+    __SUM_ANIONS_COLUMN =  'sum_anions'
 
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
@@ -165,14 +166,15 @@ class SamplesFrame(object):
         is_valid = self._check_validity(verbose=False)
         return is_valid
 
-    def _make_input_df(self, cols_req):
+    def _make_input_df(self, cols_req, nan_allowed=True):
         """
         Make input DataFrame for calculations. This DataFrame contains columns for each required parameter,
         which is 0 in case the parameter is not present in original HGC frame. It also
-        replaces all NaN with 0.
+        replaces all NaN with 0 *if* NaN are allowed as indicated with the nan_allowed argument.
         """
         if not self.is_valid:
             raise ValueError("Method can only be used on validated HGC frames, use 'make_valid' to validate")
+
 
         df_in = pd.DataFrame(columns=cols_req)
         for col_req in cols_req:
@@ -180,7 +182,12 @@ class SamplesFrame(object):
                 df_in[col_req] = self._obj[col_req]
             else:
                 logging.info(f"Column {col_req} is not present in DataFrame, assuming concentration 0 for this compound for now.")
-        df_in = df_in.fillna(0.0)
+
+        isna_cols = df_in.columns[df_in.isna().any(axis=0)]
+        if (not isna_cols.empty) and (not nan_allowed):
+            raise ValueError(f"Column(s) {isna_cols.values} is missing or contain(s) NaN values. Add the column, or replace NaN-values with real numbers (using e.g. pandas fillna method) to be able to determine the BEX.")
+        else:
+            df_in = df_in.fillna(0.0)
 
         return df_in
 
@@ -360,7 +367,8 @@ class SamplesFrame(object):
             if `inplace=False`.
         """
         cols_req = ('Na', 'K', 'Mg', 'Cl')
-        df = self._make_input_df(cols_req)
+        df = self._make_input_df(cols_req, nan_allowed=False)
+
         df_out = pd.DataFrame()
 
         #TODO: calculate alphas on the fly from SMOW constants
@@ -387,10 +395,12 @@ class SamplesFrame(object):
             return df_out['bex']
 
 
+    @requires_ph
     def get_ratios(self, inplace=True):
         """
         Calculate common hydrochemical ratios, will ignore any ratios
         in case their constituents are not present in the `SamplesFrame`.
+        requires pH to determine the sum of anions
 
         Notes
         -----
@@ -400,17 +410,17 @@ class SamplesFrame(object):
 
         HGC will attempt to calculate the following ratios:
 
-         * Cl/Br
-         * Cl/Na
-         * Cl/Mg
-         * Ca/Sr
-         * Fe/Mn
-         * HCO3/Ca
-         * 2H/18O
+         * Cl/Br (molar ratio)
+         * Cl/Na (molar ratio)
+         * Cl/Mg (molar ratio)
+         * Ca/Sr (molar ratio)
+         * Fe/Mn (molar ratio)
+         * HCO3/Ca (molar ratio)
+         * 2H/18O (molar ratio)
          * SUVA: UVA254/DOC
-         * HCO3/Sum of anions
-         * HCO3/Sum of Ca and Mg
-         * MONC
+         * HCO3/Sum of anions (molar ratio)
+         * HCO3/Sum of Ca and Mg (molar ratio)
+         * MONC (Mean Oxidation Number of Carbon)
          * COD/DOC
 
         Parameters
@@ -433,31 +443,47 @@ class SamplesFrame(object):
         ratios = {
             'cl_to_br': ['Cl', 'Br'],
             'cl_to_na': ['Cl', 'Na'],
-            'ca_to_mg': ['Cl', 'Mg'],
+            'ca_to_mg': ['Ca', 'Mg'],
             'ca_to_sr': ['Ca', 'Sr'],
             'fe_to_mn': ['Fe', 'Mn'],
             'hco3_to_ca': ['alkalinity', 'Ca'],
             '2h_to_18o': ['2H', '18O'],
-            'suva': ['uva254', 'doc'],
-            'hco3_to_sum_anions': ['alkalinity', 'sum_anions'],
+            'suva': ['uva254', 'doc'], # TODO check if this and following lines is used
+            'hco3_to_sum_anions': ['alkalinity',self.__SUM_ANIONS_COLUMN],
             'hco3_to_ca_and_mg': ['alkalinity', 'Ca', 'Mg'],
             'monc': ['cod', 'Fe', 'NO2', 'doc'],
             'cod_to_doc': ['cod', 'Fe', 'NO2', 'doc']
         }
+        # add sum_anions column to the df
+        try:
+            # this is only necessary if the ratio to anions is required, but
+            # calculate it always to make the part below simpler
+            self._obj[self.__SUM_ANIONS_COLUMN]
+        except KeyError:
+            self.get_sum_anions(inplace=True)
+
+        if 'alkalinity' in self._obj.columns:
+            hco3 = self._obj['alkalinity'] / mw('HCO3')
 
         for ratio, constituents in ratios.items():
             has_cols = [const in self._obj.columns for const in constituents]
             if all(has_cols):
                 if ratio == 'hco3_to_sum_anions':
-                    df_ratios[ratio] = self._obj['alkalinity'] / self.get_sum_anions(inplace=False)
+                    df_ratios[ratio] = hco3  / self._obj[self.__SUM_ANIONS_COLUMN]
+                elif ratio == 'hco3_to_ca':
+                    df_ratios[ratio] = hco3 / (self._obj['Ca'] / mw('Ca'))
                 elif ratio == 'hco3_to_ca_and_mg':
-                    df_ratios[ratio] = self._obj['alkalinity'] / (self._obj['Ca'] + self._obj['Mg'])
+                    df_ratios[ratio] = hco3 / ((self._obj['Ca'] / mw('Ca')) + ( self._obj['Mg'] / mw('Mg') ))
                 elif ratio == 'monc':
                     df_ratios[ratio] = 4 - 1.5 * (self._obj['cod'] - 0.143 * self._obj['Fe'] - 0.348 * self._obj['NO2']) / (3.95 * self._obj['doc'])
                 elif ratio == 'cod_to_doc':
+                    # TODO: CHEKC BRACKETS, abstract COD_O out of equation
                     df_ratios[ratio] = ((0.2532 * self._obj['cod'] - 0.143 * self._obj['Fe'] - 0.348 * self._obj['NO2']) / 32) / (self._obj['doc'] / 12)
                 else:
-                    df_ratios[ratio] = self._obj[constituents[0]] / self._obj[constituents[1]]
+                    numerator = self._obj[constituents[0]] / mw(constituents[0])  # to mol
+                    denominator = self._obj[constituents[1]] / mw(constituents[1])  # to mol
+
+                    df_ratios[ratio] = numerator / denominator
             else:
                 missing_cols = [i for (i, v) in zip(constituents, has_cols) if not v]
                 logging.info(f"Cannot calculate ratio {ratio} since columns {','.join(missing_cols)} are not present.")
@@ -776,7 +802,8 @@ class SamplesFrame(object):
     @requires_ph
     def get_sum_anions(self, inplace=True):
         """
-        Calculate sum of anions according to the Stuyfzand method.
+        Calculate sum of anions in milli equivalents (meq) according to the Stuyfzand method; i.e.
+        correcting for the charge on the ions
 
         It is assumed that only |HCO3| contributes to
         the alkalinity.
@@ -797,22 +824,22 @@ class SamplesFrame(object):
         df_in = self._make_input_df(cols_req)
         s_sum_anions = pd.Series(index=df_in.index,dtype='float64')
 
-        sum_ions = (df_in['Cl']/35.453 + df_in['SO4']/48.03 +
-                    df_in['alkalinity']/61.02 + df_in['NO3']/62. +
-                    df_in['NO2']/46.0055 + df_in['F']/18.9984 +
-                    df_in['Br']/79904 +
-                    (df_in['PO4']/94.971) / (1 + 10**(df_in['ph']-7.21))
+        sum_ions = (df_in['Cl']/mw('Cl') + df_in['SO4']/(mw('SO4')/2) +
+                    df_in['alkalinity']/mw('HCO3') + df_in['NO3']/mw('NO3') +
+                    df_in['NO2']/mw('NO2') + df_in['F']/mw('F') +
+                    df_in['Br']/(mw('Br')*1000.) +
+                    (df_in['PO4']/mw('PO4')) / (1 + 10**(df_in['ph']-7.21)) # correcting for the charge *and* protonation of (H)PO3 with different pH
                    )
 
         k_org = 10**(0.039*df_in['ph']**2 - 0.9*df_in['ph']-0.96) # HGC manual equation 3.5
-        a_org = k_org * df_in['doc'] / (100*k_org + (10**-df_in['ph'])/10) # HGC manual equation 3.4A
+        a_org = k_org * df_in['doc'] / (100.*k_org + (10.**-df_in['ph'])/10.) # HGC manual equation 3.4A
         is_add_a_org = (a_org > df_in['alkalinity']/61.02)
 
         s_sum_anions.loc[is_add_a_org] = sum_ions + a_org
         s_sum_anions.loc[~is_add_a_org] = sum_ions
 
         if inplace:
-            self._obj['sum_anions'] = s_sum_anions
+            self._obj[self.__SUM_ANIONS_COLUMN] = s_sum_anions
         else:
             return s_sum_anions
 
